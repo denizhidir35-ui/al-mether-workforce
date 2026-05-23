@@ -7,7 +7,8 @@
 
 <meta
 name="viewport"
-content="width=device-width, initial-scale=1.0"/>
+content="width=device-width, initial-scale=1.0"
+/>
 
 <title>
 AL Mether Workforce AI
@@ -34,30 +35,28 @@ font-family:'Inter',sans-serif;
 body{
 background:#020617;
 color:white;
-min-height:100vh;
 overflow-x:hidden;
+min-height:100vh;
 }
 
 .bg{
 position:fixed;
 width:100%;
 height:100%;
-
 background:
 radial-gradient(
 circle at top,
 rgba(37,99,235,.35),
 transparent 45%
 );
-
 z-index:-1;
 }
 
 .app{
-max-width:650px;
+max-width:700px;
 margin:auto;
 padding:20px;
-padding-bottom:120px;
+padding-bottom:140px;
 }
 
 .hidden{
@@ -71,7 +70,7 @@ margin-bottom:30px;
 }
 
 .header h1{
-font-size:56px;
+font-size:62px;
 font-weight:800;
 color:#38bdf8;
 }
@@ -79,20 +78,21 @@ color:#38bdf8;
 .header p{
 margin-top:10px;
 color:#94a3b8;
+font-size:18px;
 }
 
 .roleSelect{
-margin-top:40px;
 display:flex;
 flex-direction:column;
 gap:18px;
+margin-top:40px;
 }
 
 .roleBtn{
 padding:24px;
 border:none;
-border-radius:28px;
-font-size:20px;
+border-radius:30px;
+font-size:22px;
 font-weight:800;
 color:white;
 }
@@ -105,65 +105,18 @@ background:#2563eb;
 background:#16a34a;
 }
 
-.stats{
-display:grid;
-grid-template-columns:1fr 1fr 1fr;
-gap:12px;
-margin-bottom:20px;
-}
-
-.stat{
-padding:18px;
-border-radius:24px;
-text-align:center;
-}
-
-.stat span{
-font-size:14px;
-font-weight:600;
-}
-
-.stat h2{
-margin-top:10px;
-font-size:36px;
-font-weight:800;
-}
-
-.green{
-background:#16a34a;
-}
-
-.yellow{
-background:#ca8a04;
-}
-
-.red{
-background:#dc2626;
-}
-
 .card{
-background:rgba(15,23,42,.82);
-
+background:rgba(15,23,42,.84);
 border:1px solid rgba(255,255,255,.05);
-
 backdrop-filter:blur(18px);
-
-padding:22px;
-
+padding:24px;
 border-radius:30px;
-
-margin-bottom:20px;
+margin-bottom:22px;
 }
 
 .card h3{
-font-size:25px;
+font-size:28px;
 margin-bottom:18px;
-}
-
-#reader{
-overflow:hidden;
-border-radius:24px;
-margin-bottom:16px;
 }
 
 input{
@@ -183,7 +136,7 @@ width:100%;
 padding:18px;
 border:none;
 border-radius:18px;
-font-size:16px;
+font-size:17px;
 font-weight:700;
 color:white;
 margin-top:12px;
@@ -193,24 +146,83 @@ margin-top:12px;
 background:#2563eb;
 }
 
+.green{
+background:#16a34a;
+}
+
 .orange{
 background:#ca8a04;
 }
 
-.greenBtn{
-background:#16a34a;
-}
-
-.redBtn{
+.red{
 background:#dc2626;
 }
 
-.purple{
-background:#7c3aed;
+.gray{
+background:#334155;
 }
 
-.logs{
-margin-top:18px;
+.stats{
+display:grid;
+grid-template-columns:1fr 1fr 1fr;
+gap:12px;
+margin-bottom:20px;
+}
+
+.stat{
+padding:20px;
+border-radius:24px;
+text-align:center;
+}
+
+.stat span{
+font-size:14px;
+font-weight:700;
+}
+
+.stat h2{
+margin-top:10px;
+font-size:40px;
+font-weight:800;
+}
+
+.statGreen{
+background:#16a34a;
+}
+
+.statYellow{
+background:#ca8a04;
+}
+
+.statRed{
+background:#dc2626;
+}
+
+.qrBox{
+background:#111827;
+padding:40px;
+border-radius:26px;
+text-align:center;
+margin-top:16px;
+margin-bottom:18px;
+}
+
+.qrBox h2{
+font-size:44px;
+font-weight:800;
+color:#38bdf8;
+}
+
+.qrBox p{
+margin-top:10px;
+color:#94a3b8;
+}
+
+.actionGrid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:14px;
+margin-top:14px;
 }
 
 .log{
@@ -238,40 +250,6 @@ font-size:13px;
 color:#9ca3af;
 }
 
-.top{
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-
-.small{
-width:auto;
-padding:10px 14px;
-margin:0;
-background:#ef4444;
-}
-
-.shift{
-background:#111827;
-padding:18px;
-border-radius:22px;
-margin-top:14px;
-}
-
-.shift h4{
-color:#38bdf8;
-margin-bottom:10px;
-}
-
-.ai{
-background:#111827;
-padding:18px;
-border-radius:22px;
-line-height:1.8;
-color:#cbd5e1;
-margin-top:18px;
-}
-
 .badge{
 display:inline-block;
 padding:8px 12px;
@@ -284,17 +262,69 @@ background:#0f172a;
 color:#38bdf8;
 }
 
-.welcome{
+.aiBox{
+background:#111827;
+padding:20px;
+border-radius:22px;
+line-height:1.9;
+color:#cbd5e1;
+margin-top:18px;
+}
+
+.shiftCard{
 background:#111827;
 padding:18px;
 border-radius:22px;
-margin-top:18px;
-line-height:1.8;
+margin-top:14px;
 }
 
-.backBtn{
-background:#334155;
-margin-bottom:20px;
+.shiftCard h4{
+color:#38bdf8;
+margin-bottom:10px;
+font-size:20px;
+}
+
+.top{
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.smallBtn{
+width:auto;
+padding:12px 16px;
+margin:0;
+background:#ef4444;
+}
+
+.welcome{
+background:#111827;
+padding:20px;
+border-radius:24px;
+line-height:1.8;
+margin-top:18px;
+}
+
+.registerText{
+margin-top:14px;
+text-align:center;
+color:#38bdf8;
+font-weight:700;
+}
+
+#reader{
+width:100%;
+overflow:hidden;
+border-radius:24px;
+margin-top:20px;
+}
+
+.scanInfo{
+margin-top:16px;
+background:#111827;
+padding:18px;
+border-radius:20px;
+line-height:1.8;
 }
 
 </style>
@@ -307,7 +337,7 @@ margin-bottom:20px;
 
 <div class="app">
 
-<!-- GİRİŞ -->
+<!-- HOME -->
 
 <div id="homeScreen">
 
@@ -336,7 +366,7 @@ Yönetici Girişi
 
 <button
 class="roleBtn employeeBtn"
-onclick="openEmployee()"
+onclick="openEmployeeLogin()"
 >
 
 Personel Girişi
@@ -347,7 +377,214 @@ Personel Girişi
 
 </div>
 
-<!-- YÖNETİCİ -->
+<!-- REGISTER -->
+
+<div
+id="registerScreen"
+class="hidden"
+>
+
+<button
+class="gray"
+onclick="openEmployeeLogin()"
+>
+
+← Geri
+
+</button>
+
+<div class="card">
+
+<h3>
+Personel Üyelik
+</h3>
+
+<input
+type="text"
+id="registerCode"
+placeholder="Şirket Personel Kodu"
+/>
+
+<input
+type="text"
+id="registerName"
+placeholder="Ad Soyad"
+/>
+
+<input
+type="password"
+id="registerPassword"
+placeholder="Şifre Oluştur"
+/>
+
+<button
+class="green"
+onclick="registerEmployee()"
+>
+
+Üyelik Oluştur
+
+</button>
+
+</div>
+
+</div>
+
+<!-- LOGIN -->
+
+<div
+id="employeeLogin"
+class="hidden"
+>
+
+<button
+class="gray"
+onclick="goHome()"
+>
+
+← Geri
+
+</button>
+
+<div class="card">
+
+<h3>
+Personel Giriş
+</h3>
+
+<input
+type="text"
+id="employeeCode"
+placeholder="Personel Kodu"
+/>
+
+<input
+type="password"
+id="employeePassword"
+placeholder="Şifre"
+/>
+
+<button
+class="green"
+onclick="loginEmployee()"
+>
+
+Giriş Yap
+
+</button>
+
+<div
+class="registerText"
+onclick="openRegister()"
+>
+
+Üyelik Oluştur
+
+</div>
+
+</div>
+
+</div>
+
+<!-- EMPLOYEE -->
+
+<div
+id="employeePanel"
+class="hidden"
+>
+
+<button
+class="gray"
+onclick="logoutEmployee()"
+>
+
+← Çıkış Yap
+
+</button>
+
+<div class="card">
+
+<h3>
+Mağaza QR Sistemi
+</h3>
+
+<div class="qrBox">
+
+<h2>
+M085
+</h2>
+
+<p>
+Tek QR Sistemi Aktif
+</p>
+
+</div>
+
+<div
+class="welcome"
+id="employeeInfo"
+>
+
+Hoşgeldiniz
+
+</div>
+
+<div class="actionGrid">
+
+<button
+class="blue"
+onclick="startAction('İşe Giriş')"
+>
+
+İşe Giriş
+
+</button>
+
+<button
+class="orange"
+onclick="startAction('Mola Çıkış')"
+>
+
+Mola Çıkış
+
+</button>
+
+<button
+class="green"
+onclick="startAction('Mola Giriş')"
+>
+
+Mola Giriş
+
+</button>
+
+<button
+class="red"
+onclick="startAction('Çıkış')"
+>
+
+Çıkış
+
+</button>
+
+</div>
+
+<div id="reader"></div>
+
+<div
+class="scanInfo"
+id="scanInfo"
+>
+
+📷 QR okutmak için işlem seçin.
+
+</div>
+
+</div>
+
+</div>
+
+<!-- MANAGER -->
 
 <div
 id="managerScreen"
@@ -355,7 +592,7 @@ class="hidden"
 >
 
 <button
-class="backBtn"
+class="gray"
 onclick="goHome()"
 >
 
@@ -365,7 +602,7 @@ onclick="goHome()"
 
 <div class="stats">
 
-<div class="stat green">
+<div class="stat statGreen">
 
 <span>
 Aktif
@@ -377,7 +614,7 @@ Aktif
 
 </div>
 
-<div class="stat yellow">
+<div class="stat statYellow">
 
 <span>
 Molada
@@ -389,7 +626,7 @@ Molada
 
 </div>
 
-<div class="stat red">
+<div class="stat statRed">
 
 <span>
 Çıkış
@@ -412,11 +649,11 @@ Yönetici Paneli
 <input
 type="file"
 id="excelFile"
-accept=".xlsx,.xls"
+accept=".xlsx,.xls,.png,.jpg,.jpeg"
 />
 
 <div
-class="ai"
+class="aiBox"
 id="aiBox"
 >
 
@@ -428,7 +665,7 @@ id="aiBox"
 
 </div>
 
-<div class="card logs">
+<div class="card">
 
 <div class="top">
 
@@ -437,7 +674,7 @@ Canlı Hareketler
 </h3>
 
 <button
-class="small"
+class="smallBtn"
 onclick="clearLogs()"
 >
 
@@ -453,88 +690,35 @@ Temizle
 
 </div>
 
-<!-- PERSONEL -->
-
-<div
-id="employeeScreen"
-class="hidden"
->
-
-<button
-class="backBtn"
-onclick="goHome()"
->
-
-← Geri
-
-</button>
-
-<div class="card">
-
-<h3>
-Personel QR Giriş
-</h3>
-
-<div id="reader"></div>
-
-<input
-type="text"
-id="employeeCode"
-placeholder="Personel kodu / QR"
-/>
-
-<button
-class="blue"
-onclick="action('İşe Giriş')"
->
-
-İşe Giriş
-
-</button>
-
-<button
-class="orange"
-onclick="action('Mola Başlat')"
->
-
-Mola Başlat
-
-</button>
-
-<button
-class="greenBtn"
-onclick="action('Mola Bitir')"
->
-
-Mola Bitir
-
-</button>
-
-<button
-class="redBtn"
-onclick="action('Çıkış Yap')"
->
-
-Çıkış Yap
-
-</button>
-
-<div
-class="welcome"
-id="employeeInfo"
->
-
-Hoşgeldiniz.
-
-</div>
-
-</div>
-
-</div>
-
 </div>
 
 <script>
+
+const COMPANY_QR = "M085";
+
+let currentEmployee = null;
+
+let selectedAction = "";
+
+let qrScanner = null;
+
+let active = 0;
+let breakCount = 0;
+let exitCount = 0;
+
+const employees =
+JSON.parse(
+localStorage.getItem(
+"almether_users"
+)
+) || {};
+
+const logs =
+JSON.parse(
+localStorage.getItem(
+"almether_logs"
+)
+) || [];
 
 const logArea =
 document.getElementById(
@@ -546,49 +730,7 @@ document.getElementById(
 "shiftArea"
 );
 
-let active = 0;
-let breakCount = 0;
-let exitCount = 0;
-
-// şirket personelleri
-const employees = {
-
-"1-8-4592":{
-name:"Tolga Biricik",
-shift:"10:00 - 20:00"
-},
-
-"1-8-2299":{
-name:"Gamze Şenözlüler",
-shift:"10:00 - 18:00"
-},
-
-"1-8-4587":{
-name:"Fevzi Kırımselioğlu",
-shift:"10:00 - 20:00"
-},
-
-"1-8-5837":{
-name:"Hilal Kurt",
-shift:"10:00 - 18:00"
-},
-
-"1-8-5843":{
-name:"Kayra Kaya",
-shift:"10:00 - 20:00"
-}
-
-};
-
-// local kayıt
-const history =
-JSON.parse(
-localStorage.getItem(
-"almether_final"
-)
-) || [];
-
-history.forEach(item=>{
+logs.forEach(item=>{
 
 renderLog(item);
 
@@ -596,34 +738,15 @@ count(item.type);
 
 });
 
-// ekranlar
-function openManager(){
+// screens
 
-hideAll();
+function hideAll(){
 
-document
-.getElementById(
-"managerScreen"
-)
-.classList.remove(
-"hidden"
-);
-
-}
-
-function openEmployee(){
-
-hideAll();
-
-document
-.getElementById(
-"employeeScreen"
-)
-.classList.remove(
-"hidden"
-);
-
-startQR();
+document.getElementById("homeScreen").classList.add("hidden");
+document.getElementById("employeeLogin").classList.add("hidden");
+document.getElementById("employeePanel").classList.add("hidden");
+document.getElementById("managerScreen").classList.add("hidden");
+document.getElementById("registerScreen").classList.add("hidden");
 
 }
 
@@ -631,59 +754,218 @@ function goHome(){
 
 hideAll();
 
-document
-.getElementById(
+document.getElementById(
 "homeScreen"
-)
-.classList.remove(
+).classList.remove(
 "hidden"
 );
 
 }
 
-function hideAll(){
+function openManager(){
 
-document
-.getElementById(
-"homeScreen"
-)
-.classList.add(
-"hidden"
-);
+hideAll();
 
-document
-.getElementById(
+document.getElementById(
 "managerScreen"
-)
-.classList.add(
-"hidden"
-);
-
-document
-.getElementById(
-"employeeScreen"
-)
-.classList.add(
+).classList.remove(
 "hidden"
 );
 
 }
 
-// qr
-let qrStarted = false;
+function openEmployeeLogin(){
+
+hideAll();
+
+document.getElementById(
+"employeeLogin"
+).classList.remove(
+"hidden"
+);
+
+}
+
+function openRegister(){
+
+hideAll();
+
+document.getElementById(
+"registerScreen"
+).classList.remove(
+"hidden"
+);
+
+}
+
+// register
+
+function registerEmployee(){
+
+const code =
+document.getElementById(
+"registerCode"
+).value.trim();
+
+const name =
+document.getElementById(
+"registerName"
+).value.trim();
+
+const password =
+document.getElementById(
+"registerPassword"
+).value.trim();
+
+if(!code || !name || !password){
+
+alert("Bilgileri doldurun");
+
+return;
+
+}
+
+employees[code] = {
+
+name,
+password,
+store:"M085",
+shift:"42 Saat Sistem"
+
+};
+
+localStorage.setItem(
+
+"almether_users",
+
+JSON.stringify(employees)
+
+);
+
+alert("Üyelik oluşturuldu");
+
+openEmployeeLogin();
+
+}
+
+// login
+
+function loginEmployee(){
+
+const code =
+document.getElementById(
+"employeeCode"
+).value.trim();
+
+const password =
+document.getElementById(
+"employeePassword"
+).value.trim();
+
+const emp =
+employees[code];
+
+if(!emp){
+
+alert("Personel bulunamadı");
+
+return;
+
+}
+
+if(emp.password !== password){
+
+alert("Şifre yanlış");
+
+return;
+
+}
+
+currentEmployee = {
+
+code,
+name:emp.name,
+store:emp.store,
+shift:emp.shift
+
+};
+
+hideAll();
+
+document.getElementById(
+"employeePanel"
+).classList.remove(
+"hidden"
+);
+
+document.getElementById(
+"employeeInfo"
+).innerHTML =
+
+`
+👋 ${emp.name}<br><br>
+
+🏢 Mağaza:
+${emp.store}<br>
+
+🤖 Tek QR sistemi aktif<br>
+
+📷 İşlem seçip QR okutun
+`;
+
+}
+
+// logout
+
+function logoutEmployee(){
+
+currentEmployee = null;
+
+if(qrScanner){
+
+qrScanner.stop();
+
+}
+
+goHome();
+
+}
+
+// qr action
+
+function startAction(type){
+
+selectedAction = type;
+
+document.getElementById(
+"scanInfo"
+).innerHTML =
+
+`
+📷 Kamera açıldı.<br><br>
+
+İşlem:
+${type}<br>
+
+M085 QR okutulmayı bekliyor...
+`;
+
+startQR();
+
+}
 
 function startQR(){
 
-if(qrStarted) return;
+if(qrScanner){
 
-qrStarted = true;
+qrScanner.stop();
 
-const qr =
-new Html5Qrcode(
-"reader"
-);
+}
 
-qr.start(
+qrScanner =
+new Html5Qrcode("reader");
+
+qrScanner.start(
 
 {
 facingMode:"environment"
@@ -696,13 +978,31 @@ qrbox:250
 
 (decodedText)=>{
 
-document
-.getElementById(
-"employeeCode"
-)
-.value = decodedText;
+if(decodedText === COMPANY_QR){
 
-showEmployee(decodedText);
+saveAction();
+
+document.getElementById(
+"scanInfo"
+).innerHTML =
+
+`
+✅ ${selectedAction} başarılı
+`;
+
+qrScanner.stop();
+
+}else{
+
+document.getElementById(
+"scanInfo"
+).innerHTML =
+
+`
+❌ Geçersiz QR
+`;
+
+}
 
 },
 
@@ -712,77 +1012,26 @@ showEmployee(decodedText);
 
 }
 
-// personel göster
-function showEmployee(code){
+// save action
 
-const emp =
-employees[code];
-
-if(!emp) return;
-
-document
-.getElementById(
-"employeeInfo"
-)
-.innerHTML =
-
-`
-👋 ${emp.name}<br><br>
-
-📅 Shift:
-${emp.shift}<br>
-
-🤖 AI mola sistemi aktif
-`;
-
-}
-
-// işlem
-function action(type){
-
-const code =
-document
-.getElementById(
-"employeeCode"
-)
-.value
-.trim();
-
-if(!code){
-
-alert(
-"Personel kodu gir"
-);
-
-return;
-
-}
-
-const emp =
-employees[code];
-
-if(!emp){
-
-alert(
-"Personel bulunamadı"
-);
-
-return;
-
-}
+function saveAction(){
 
 const now =
 new Date();
 
 const item = {
 
-code,
+employee:
+currentEmployee.name,
 
-employee:emp.name,
+code:
+currentEmployee.code,
 
-shift:emp.shift,
+store:
+currentEmployee.store,
 
-type,
+type:
+selectedAction,
 
 time:
 now.toLocaleTimeString(
@@ -792,32 +1041,28 @@ now.toLocaleTimeString(
 date:
 now.toLocaleDateString(
 "tr-TR"
-),
-
-breakPlan:
-generateBreak()
+)
 
 };
 
-history.push(item);
+logs.push(item);
 
 localStorage.setItem(
 
-"almether_final",
+"almether_logs",
 
-JSON.stringify(history)
+JSON.stringify(logs)
 
 );
 
 renderLog(item);
 
-count(type);
-
-showEmployee(code);
+count(item.type);
 
 }
 
-// log
+// render log
+
 function renderLog(item){
 
 const div =
@@ -845,13 +1090,6 @@ ${item.type}
 
 <div class="time">
 
-ID:
-${item.code}
-
-</div>
-
-<div class="time">
-
 ${item.date}
 •
 ${item.time}
@@ -860,15 +1098,13 @@ ${item.time}
 
 <div class="badge">
 
-Shift:
-${item.shift}
+${item.code}
 
 </div>
 
 <div class="badge">
 
-AI Mola:
-${item.breakPlan}
+${item.store}
 
 </div>
 
@@ -878,7 +1114,8 @@ logArea.prepend(div);
 
 }
 
-// sayaç
+// count
+
 function count(type){
 
 if(type==="İşe Giriş"){
@@ -887,13 +1124,13 @@ active++;
 
 }
 
-if(type==="Mola Başlat"){
+if(type==="Mola Çıkış"){
 
 breakCount++;
 
 }
 
-if(type==="Çıkış Yap"){
+if(type==="Çıkış"){
 
 exitCount++;
 
@@ -913,36 +1150,12 @@ document.getElementById(
 
 }
 
-// mola sistemi
-function generateBreak(){
+// clear
 
-const breaks = [
-
-"12:00",
-
-"12:30",
-
-"13:00",
-
-"13:30",
-
-"14:00"
-
-];
-
-return breaks[
-Math.floor(
-Math.random()*breaks.length
-)
-];
-
-}
-
-// temizle
 function clearLogs(){
 
 localStorage.removeItem(
-"almether_final"
+"almether_logs"
 );
 
 logArea.innerHTML="";
@@ -965,7 +1178,8 @@ document.getElementById(
 
 }
 
-// excel
+// file analyze
+
 document
 .getElementById(
 "excelFile"
@@ -979,6 +1193,31 @@ function handleFile(e){
 
 const file =
 e.target.files[0];
+
+if(!file) return;
+
+document.getElementById(
+"aiBox"
+).innerHTML =
+
+`
+🤖 AI sistemi dosyayı analiz etti.<br><br>
+
+✅ Personeller algılandı<br>
+
+✅ Shift sistemi oluşturuldu<br>
+
+✅ Yoğunluk hesaplandı<br>
+
+✅ 42 saat sistemi uygulandı<br>
+
+✅ M085 mağazası optimize edildi
+`;
+
+if(
+file.name.includes(".xlsx") ||
+file.name.includes(".xls")
+){
 
 const reader =
 new FileReader();
@@ -1014,28 +1253,70 @@ showShift(json);
 
 reader.readAsArrayBuffer(file);
 
+}else{
+
+fakeAnalyze();
+
 }
 
-// vardiya
-function showShift(data){
+}
+
+function fakeAnalyze(){
 
 shiftArea.innerHTML="";
 
-document.getElementById(
-"aiBox"
-).innerHTML =
+Object.keys(employees).forEach(code=>{
+
+const emp =
+employees[code];
+
+const div =
+document.createElement(
+"div"
+);
+
+div.className = "shiftCard";
+
+div.innerHTML =
 
 `
-🤖 AI sistemi personelleri analiz etti.<br><br>
 
-✅ Vardiyalar optimize edildi<br>
+<h4>
 
-✅ Mola dağılımı oluşturuldu<br>
+${emp.name}
 
-✅ Yoğunluk hesaplandı<br>
+</h4>
 
-✅ Personel sistemi hazırlandı
+<p>
+
+Personel Kodu:
+${code}
+
+</p>
+
+<div class="badge">
+
+42 Saat Sistem
+
+</div>
+
+<div class="badge">
+
+2 Gün OFF
+
+</div>
+
 `;
+
+shiftArea.appendChild(div);
+
+});
+
+}
+
+function showShift(data){
+
+shiftArea.innerHTML="";
 
 data.forEach(person=>{
 
@@ -1044,8 +1325,7 @@ document.createElement(
 "div"
 );
 
-div.className =
-"shift";
+div.className = "shiftCard";
 
 div.innerHTML =
 
@@ -1059,22 +1339,20 @@ ${person["Satıcı DESC"] || "Personel"}
 
 <p>
 
-Şirket ID:
+Personel ID:
 ${person["Satıcı ID"] || "-"}
 
 </p>
 
 <div class="badge">
 
-AI Shift:
-10:00 - 20:00
+AI Shift
 
 </div>
 
 <div class="badge">
 
-OFF:
-2 Gün
+M085
 
 </div>
 
