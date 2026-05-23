@@ -4,24 +4,14 @@
 <head>
 
 <meta charset="UTF-8"/>
-
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
-/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 <title>
 AL Mether Workforce AI
 </title>
 
-<link
-href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-rel="stylesheet"
-/>
-
 <script src="https://unpkg.com/html5-qrcode"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <style>
 
@@ -29,117 +19,93 @@ rel="stylesheet"
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:'Inter',sans-serif;
+font-family:-apple-system,BlinkMacSystemFont,sans-serif;
 }
 
 body{
-background:#020617;
-color:white;
-overflow-x:hidden;
-min-height:100vh;
-}
-
-.bg{
-position:fixed;
-width:100%;
-height:100%;
 background:
-radial-gradient(
-circle at top,
-rgba(37,99,235,.35),
-transparent 45%
+linear-gradient(
+135deg,
+#020617,
+#07132d
 );
-z-index:-1;
-}
 
-.app{
-max-width:700px;
-margin:auto;
-padding:20px;
-padding-bottom:140px;
+color:white;
+min-height:100vh;
+padding:14px;
+overflow-x:hidden;
 }
 
 .hidden{
 display:none;
 }
 
-.header{
+.logo{
 text-align:center;
-margin-top:40px;
-margin-bottom:30px;
+margin-top:18px;
 }
 
-.header h1{
-font-size:62px;
-font-weight:800;
+.logo h1{
+font-size:42px;
+font-weight:900;
 color:#38bdf8;
 }
 
-.header p{
-margin-top:10px;
-color:#94a3b8;
-font-size:18px;
-}
-
-.roleSelect{
-display:flex;
-flex-direction:column;
-gap:18px;
-margin-top:40px;
-}
-
-.roleBtn{
-padding:24px;
-border:none;
-border-radius:30px;
-font-size:22px;
-font-weight:800;
-color:white;
-}
-
-.managerBtn{
-background:#2563eb;
-}
-
-.employeeBtn{
-background:#16a34a;
+.logo p{
+margin-top:6px;
+font-size:15px;
+opacity:.7;
 }
 
 .card{
-background:rgba(15,23,42,.84);
-border:1px solid rgba(255,255,255,.05);
-backdrop-filter:blur(18px);
-padding:24px;
-border-radius:30px;
-margin-bottom:22px;
+background:
+rgba(255,255,255,.04);
+
+backdrop-filter:blur(10px);
+
+border:
+1px solid rgba(255,255,255,.05);
+
+border-radius:24px;
+
+padding:16px;
+margin-top:14px;
 }
 
-.card h3{
-font-size:28px;
-margin-bottom:18px;
-}
-
-input{
-width:100%;
-padding:18px;
-border:none;
-border-radius:18px;
-background:#111827;
-color:white;
-font-size:16px;
+.title{
+font-size:22px;
+font-weight:800;
 margin-bottom:14px;
+}
+
+input,
+select{
+
+width:100%;
+padding:16px;
+border:none;
 outline:none;
+
+border-radius:18px;
+
+background:
+rgba(255,255,255,.05);
+
+color:white;
+
+font-size:16px;
+margin-top:12px;
 }
 
 button{
-width:100%;
-padding:18px;
 border:none;
 border-radius:18px;
-font-size:17px;
-font-weight:700;
+padding:16px;
+font-size:16px;
+font-weight:800;
 color:white;
 margin-top:12px;
+width:100%;
 }
 
 .blue{
@@ -151,7 +117,7 @@ background:#16a34a;
 }
 
 .orange{
-background:#ca8a04;
+background:#d97706;
 }
 
 .red{
@@ -159,172 +125,125 @@ background:#dc2626;
 }
 
 .gray{
-background:#334155;
+background:#475569;
 }
 
 .stats{
 display:grid;
 grid-template-columns:1fr 1fr 1fr;
-gap:12px;
-margin-bottom:20px;
+gap:10px;
+margin-top:14px;
 }
 
 .stat{
-padding:20px;
-border-radius:24px;
+padding:14px;
+border-radius:18px;
 text-align:center;
-}
-
-.stat span{
-font-size:14px;
-font-weight:700;
 }
 
 .stat h2{
+font-size:28px;
+margin-top:6px;
+}
+
+.live-item{
+padding:12px;
+border-radius:16px;
 margin-top:10px;
-font-size:40px;
-font-weight:800;
-}
 
-.statGreen{
-background:#16a34a;
-}
+background:
+rgba(255,255,255,.05);
 
-.statYellow{
-background:#ca8a04;
-}
-
-.statRed{
-background:#dc2626;
-}
-
-.qrBox{
-background:#111827;
-padding:40px;
-border-radius:26px;
-text-align:center;
-margin-top:16px;
-margin-bottom:18px;
-}
-
-.qrBox h2{
-font-size:44px;
-font-weight:800;
-color:#38bdf8;
-}
-
-.qrBox p{
-margin-top:10px;
-color:#94a3b8;
-}
-
-.actionGrid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:14px;
-margin-top:14px;
-}
-
-.log{
-background:#111827;
-padding:18px;
-border-radius:22px;
-margin-top:14px;
-border-left:5px solid #38bdf8;
-}
-
-.name{
-font-size:18px;
-font-weight:700;
-color:#38bdf8;
-}
-
-.type{
-margin-top:8px;
-font-weight:600;
-}
-
-.time{
-margin-top:8px;
 font-size:13px;
-color:#9ca3af;
+line-height:1.5;
 }
 
-.badge{
-display:inline-block;
-padding:8px 12px;
-border-radius:14px;
-font-size:12px;
-font-weight:700;
+.ai-box{
+
+padding:16px;
+
+border-radius:20px;
+
+background:
+linear-gradient(
+135deg,
+#4c1d95,
+#1e1b4b
+);
+
+margin-top:14px;
+}
+
+.ai-text{
+font-size:14px;
+line-height:1.6;
 margin-top:10px;
-margin-right:8px;
-background:#0f172a;
-color:#38bdf8;
 }
 
-.aiBox{
-background:#111827;
-padding:20px;
-border-radius:22px;
-line-height:1.9;
-color:#cbd5e1;
-margin-top:18px;
-}
-
-.shiftCard{
-background:#111827;
-padding:18px;
-border-radius:22px;
+.break-grid{
+display:grid;
+grid-template-columns:1fr 1fr 1fr;
+gap:8px;
 margin-top:14px;
 }
 
-.shiftCard h4{
-color:#38bdf8;
-margin-bottom:10px;
-font-size:20px;
+.break-btn{
+padding:14px;
+font-size:14px;
+font-weight:800;
+border-radius:16px;
 }
 
-.top{
+.qr-box{
+height:120px;
+border-radius:20px;
+background:white;
 display:flex;
-justify-content:space-between;
 align-items:center;
-}
-
-.smallBtn{
-width:auto;
-padding:12px 16px;
-margin:0;
-background:#ef4444;
-}
-
-.welcome{
-background:#111827;
-padding:20px;
-border-radius:24px;
-line-height:1.8;
-margin-top:18px;
-}
-
-.registerText{
+justify-content:center;
+font-size:34px;
+font-weight:900;
+color:black;
 margin-top:14px;
-text-align:center;
-color:#38bdf8;
-font-weight:700;
 }
 
 #reader{
 width:100%;
 overflow:hidden;
-border-radius:24px;
-margin-top:20px;
+border-radius:20px;
+margin-top:14px;
 }
 
-.scanInfo{
-margin-top:16px;
-background:#111827;
-padding:18px;
-border-radius:20px;
-line-height:1.8;
+.person-card{
+padding:14px;
+border-radius:18px;
+margin-top:10px;
+
+background:
+rgba(255,255,255,.05);
+}
+
+.badge{
+display:inline-block;
+padding:6px 10px;
+border-radius:12px;
+margin-top:8px;
+font-size:12px;
+font-weight:800;
+}
+
+.full{
+background:#2563eb;
+}
+
+.part{
+background:#d97706;
+}
+
+.small{
+font-size:12px;
+opacity:.7;
+margin-top:8px;
 }
 
 </style>
@@ -333,15 +252,11 @@ line-height:1.8;
 
 <body>
 
-<div class="bg"></div>
-
-<div class="app">
-
 <!-- HOME -->
 
-<div id="homeScreen">
+<div id="home">
 
-<div class="header">
+<div class="logo">
 
 <h1>
 AL Mether
@@ -353,21 +268,17 @@ AI Workforce Management
 
 </div>
 
-<div class="roleSelect">
-
 <button
-class="roleBtn managerBtn"
-onclick="openManager()"
->
+class="blue"
+onclick="openManagerLogin()">
 
 Yönetici Girişi
 
 </button>
 
 <button
-class="roleBtn employeeBtn"
-onclick="openEmployeeLogin()"
->
+class="green"
+onclick="openPersonelLogin()">
 
 Personel Girişi
 
@@ -375,19 +286,16 @@ Personel Girişi
 
 </div>
 
-</div>
-
-<!-- REGISTER -->
+<!-- MANAGER LOGIN -->
 
 <div
-id="registerScreen"
+id="managerLogin"
 class="hidden"
 >
 
 <button
 class="gray"
-onclick="openEmployeeLogin()"
->
+onclick="goHome()">
 
 ← Geri
 
@@ -395,146 +303,163 @@ onclick="openEmployeeLogin()"
 
 <div class="card">
 
-<h3>
-Personel Üyelik
-</h3>
-
-<input
-type="text"
-id="registerCode"
-placeholder="Şirket Personel Kodu"
-/>
-
-<input
-type="text"
-id="registerName"
-placeholder="Ad Soyad"
-/>
-
-<input
-type="password"
-id="registerPassword"
-placeholder="Şifre Oluştur"
-/>
-
-<button
-class="green"
-onclick="registerEmployee()"
->
-
-Üyelik Oluştur
-
-</button>
-
+<div class="title">
+Yönetici Giriş
 </div>
 
-</div>
-
-<!-- LOGIN -->
-
-<div
-id="employeeLogin"
-class="hidden"
->
-
-<button
-class="gray"
-onclick="goHome()"
->
-
-← Geri
-
-</button>
-
-<div class="card">
-
-<h3>
-Personel Giriş
-</h3>
-
 <input
-type="text"
-id="employeeCode"
-placeholder="Personel Kodu"
+id="managerCode"
+placeholder="Yönetici Kodu"
 />
 
 <input
+id="managerPass"
 type="password"
-id="employeePassword"
 placeholder="Şifre"
 />
 
 <button
-class="green"
-onclick="loginEmployee()"
+class="blue"
+onclick="loginManager()">
+
+Panele Giriş
+
+</button>
+
+</div>
+
+</div>
+
+<!-- PERSONEL LOGIN -->
+
+<div
+id="personelLogin"
+class="hidden"
 >
+
+<button
+class="gray"
+onclick="goHome()">
+
+← Geri
+
+</button>
+
+<div class="card">
+
+<div class="title">
+Personel Giriş
+</div>
+
+<input
+id="personelCode"
+placeholder="Personel Kodu"
+/>
+
+<input
+id="personelPass"
+type="password"
+placeholder="Şifre"
+/>
+
+<select id="workType">
+
+<option>
+Tam Zamanlı
+</option>
+
+<option>
+Part Time
+</option>
+
+</select>
+
+<button
+class="green"
+onclick="loginPersonel()">
 
 Giriş Yap
 
 </button>
 
-<div
-class="registerText"
-onclick="openRegister()"
->
+<button
+class="blue"
+onclick="createPersonel()">
 
 Üyelik Oluştur
 
-</div>
+</button>
 
 </div>
 
 </div>
 
-<!-- EMPLOYEE -->
+<!-- PERSONEL PANEL -->
 
 <div
-id="employeePanel"
+id="personelPanel"
 class="hidden"
 >
 
 <button
 class="gray"
-onclick="logoutEmployee()"
->
+onclick="goHome()">
 
-← Çıkış Yap
+← Geri
 
 </button>
 
 <div class="card">
 
-<h3>
-Mağaza QR Sistemi
-</h3>
+<div class="title">
+QR Workforce
+</div>
 
-<div class="qrBox">
-
-<h2>
+<div class="qr-box">
 M085
-</h2>
-
-<p>
-Tek QR Sistemi Aktif
-</p>
-
 </div>
 
-<div
-class="welcome"
-id="employeeInfo"
->
-
-Hoşgeldiniz
-
-</div>
-
-<div class="actionGrid">
+<div id="reader"></div>
 
 <button
 class="blue"
-onclick="startAction('İşe Giriş')"
->
+onclick="startQR()">
+
+QR Kamera Aç
+
+</button>
+
+<div class="break-grid">
+
+<button
+class="break-btn blue"
+onclick="setBreak('15 DK')">
+
+15 DK
+
+</button>
+
+<button
+class="break-btn orange"
+onclick="setBreak('30 DK')">
+
+30 DK
+
+</button>
+
+<button
+class="break-btn red"
+onclick="setBreak('45 DK')">
+
+45 DK
+
+</button>
+
+</div>
+
+<button
+class="green"
+onclick="girisYap()">
 
 İşe Giriş
 
@@ -542,59 +467,57 @@ onclick="startAction('İşe Giriş')"
 
 <button
 class="orange"
-onclick="startAction('Mola Çıkış')"
->
+onclick="molaBaslat()">
 
-Mola Çıkış
+Mola Başlat
 
 </button>
 
 <button
-class="green"
-onclick="startAction('Mola Giriş')"
->
+class="blue"
+onclick="molaBitir()">
 
-Mola Giriş
+Mola Bitir
 
 </button>
 
 <button
 class="red"
-onclick="startAction('Çıkış')"
->
+onclick="cikisYap()">
 
-Çıkış
+Çıkış Yap
 
 </button>
 
-</div>
+<div class="ai-box">
 
-<div id="reader"></div>
+<div class="title">
+AI Takip
+</div>
 
 <div
-class="scanInfo"
-id="scanInfo"
->
+id="personelAI"
+class="ai-text">
 
-📷 QR okutmak için işlem seçin.
-
+Mola sistemi hazır.
 </div>
 
 </div>
 
 </div>
 
-<!-- MANAGER -->
+</div>
+
+<!-- MANAGER PANEL -->
 
 <div
-id="managerScreen"
+id="managerPanel"
 class="hidden"
 >
 
 <button
 class="gray"
-onclick="goHome()"
->
+onclick="goHome()">
 
 ← Geri
 
@@ -602,37 +525,37 @@ onclick="goHome()"
 
 <div class="stats">
 
-<div class="stat statGreen">
+<div class="stat green">
 
-<span>
+<div>
 Aktif
-</span>
+</div>
 
-<h2 id="activeCount">
+<h2 id="aktifCount">
 0
 </h2>
 
 </div>
 
-<div class="stat statYellow">
+<div class="stat orange">
 
-<span>
+<div>
 Molada
-</span>
+</div>
 
-<h2 id="breakCount">
+<h2 id="molaCount">
 0
 </h2>
 
 </div>
 
-<div class="stat statRed">
+<div class="stat red">
 
-<span>
+<div>
 Çıkış
-</span>
+</div>
 
-<h2 id="exitCount">
+<h2 id="cikisCount">
 0
 </h2>
 
@@ -642,49 +565,55 @@ Molada
 
 <div class="card">
 
-<h3>
+<div class="title">
 Yönetici Paneli
-</h3>
+</div>
 
 <input
 type="file"
-id="excelFile"
-accept=".xlsx,.xls,.png,.jpg,.jpeg"
+id="shiftFile"
 />
 
-<div
-class="aiBox"
-id="aiBox"
->
-
-🤖 AI sistemi hazır.
-
+<div class="small">
+Excel veya vardiya görseli yükleyin
 </div>
 
-<div id="shiftArea"></div>
+<div class="ai-box">
+
+<div class="title">
+🤖 AI Analiz
+</div>
+
+<div
+id="aiMessage"
+class="ai-text">
+
+AI sistemi aktif.
+</div>
+
+</div>
 
 </div>
 
 <div class="card">
 
-<div class="top">
-
-<h3>
+<div class="title">
 Canlı Hareketler
-</h3>
+</div>
 
-<button
-class="smallBtn"
-onclick="clearLogs()"
->
-
-Temizle
-
-</button>
+<div id="liveArea">
 
 </div>
 
-<div id="logArea"></div>
+</div>
+
+<div class="card">
+
+<div class="title">
+Personeller
+</div>
+
+<div id="personArea">
 
 </div>
 
@@ -694,59 +623,53 @@ Temizle
 
 <script>
 
-const COMPANY_QR = "M085";
+let aktif = 0;
+let mola = 0;
+let cikis = 0;
 
-let currentEmployee = null;
+let currentBreak = "15 DK";
 
-let selectedAction = "";
+let currentPerson = "";
 
-let qrScanner = null;
+let breakTimer = null;
 
-let active = 0;
-let breakCount = 0;
-let exitCount = 0;
-
-const employees =
+let persons =
 JSON.parse(
-localStorage.getItem(
-"almether_users"
-)
-) || {};
-
-const logs =
-JSON.parse(
-localStorage.getItem(
-"almether_logs"
-)
+localStorage.getItem("persons")
 ) || [];
 
-const logArea =
-document.getElementById(
-"logArea"
+renderPersons();
+
+function savePersons(){
+
+localStorage.setItem(
+"persons",
+JSON.stringify(persons)
 );
 
-const shiftArea =
-document.getElementById(
-"shiftArea"
-);
-
-logs.forEach(item=>{
-
-renderLog(item);
-
-count(item.type);
-
-});
-
-// screens
+}
 
 function hideAll(){
 
-document.getElementById("homeScreen").classList.add("hidden");
-document.getElementById("employeeLogin").classList.add("hidden");
-document.getElementById("employeePanel").classList.add("hidden");
-document.getElementById("managerScreen").classList.add("hidden");
-document.getElementById("registerScreen").classList.add("hidden");
+document
+.getElementById("home")
+.classList.add("hidden");
+
+document
+.getElementById("managerLogin")
+.classList.add("hidden");
+
+document
+.getElementById("personelLogin")
+.classList.add("hidden");
+
+document
+.getElementById("personelPanel")
+.classList.add("hidden");
+
+document
+.getElementById("managerPanel")
+.classList.add("hidden");
 
 }
 
@@ -754,615 +677,440 @@ function goHome(){
 
 hideAll();
 
-document.getElementById(
-"homeScreen"
-).classList.remove(
-"hidden"
-);
+document
+.getElementById("home")
+.classList.remove("hidden");
 
 }
 
-function openManager(){
+function openManagerLogin(){
 
 hideAll();
 
-document.getElementById(
-"managerScreen"
-).classList.remove(
-"hidden"
-);
+document
+.getElementById("managerLogin")
+.classList.remove("hidden");
 
 }
 
-function openEmployeeLogin(){
+function openPersonelLogin(){
 
 hideAll();
 
-document.getElementById(
-"employeeLogin"
-).classList.remove(
-"hidden"
-);
+document
+.getElementById("personelLogin")
+.classList.remove("hidden");
 
 }
 
-function openRegister(){
-
-hideAll();
-
-document.getElementById(
-"registerScreen"
-).classList.remove(
-"hidden"
-);
-
-}
-
-// register
-
-function registerEmployee(){
+function loginManager(){
 
 const code =
-document.getElementById(
-"registerCode"
-).value.trim();
+document
+.getElementById("managerCode")
+.value;
 
-const name =
-document.getElementById(
-"registerName"
-).value.trim();
+const pass =
+document
+.getElementById("managerPass")
+.value;
 
-const password =
-document.getElementById(
-"registerPassword"
-).value.trim();
+if(!code || !pass){
 
-if(!code || !name || !password){
-
-alert("Bilgileri doldurun");
+alert("Bilgileri doldur.");
 
 return;
 
 }
 
-employees[code] = {
+hideAll();
 
-name,
-password,
-store:"M085",
-shift:"42 Saat Sistem"
+document
+.getElementById("managerPanel")
+.classList.remove("hidden");
 
-};
-
-localStorage.setItem(
-
-"almether_users",
-
-JSON.stringify(employees)
-
+addLive(
+"👔 Yönetici giriş yaptı"
 );
 
-alert("Üyelik oluşturuldu");
-
-openEmployeeLogin();
-
 }
 
-// login
-
-function loginEmployee(){
+function createPersonel(){
 
 const code =
-document.getElementById(
-"employeeCode"
-).value.trim();
+document
+.getElementById("personelCode")
+.value;
 
-const password =
-document.getElementById(
-"employeePassword"
-).value.trim();
+const type =
+document
+.getElementById("workType")
+.value;
 
-const emp =
-employees[code];
+if(!code){
 
-if(!emp){
-
-alert("Personel bulunamadı");
+alert("Personel kodu gerekli.");
 
 return;
 
 }
 
-if(emp.password !== password){
-
-alert("Şifre yanlış");
-
-return;
-
-}
-
-currentEmployee = {
-
+persons.push({
 code,
-name:emp.name,
-store:emp.store,
-shift:emp.shift
+type
+});
 
-};
+savePersons();
+
+renderPersons();
+
+alert("Personel oluşturuldu.");
+
+}
+
+function renderPersons(){
+
+const area =
+document
+.getElementById("personArea");
+
+if(!area) return;
+
+area.innerHTML = "";
+
+persons.forEach(p=>{
+
+area.innerHTML += `
+
+<div class="person-card">
+
+<div>
+${p.code}
+</div>
+
+<div class="badge
+${p.type === 'Tam Zamanlı'
+? 'full'
+: 'part'}">
+
+${p.type}
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+
+function loginPersonel(){
+
+const code =
+document
+.getElementById("personelCode")
+.value;
+
+if(!code){
+
+alert("Personel kodu gerekli.");
+
+return;
+
+}
+
+currentPerson = code;
 
 hideAll();
 
-document.getElementById(
-"employeePanel"
-).classList.remove(
-"hidden"
+document
+.getElementById("personelPanel")
+.classList.remove("hidden");
+
+addLive(
+"🟢 " + code +
+" giriş yaptı"
 );
 
-document.getElementById(
-"employeeInfo"
-).innerHTML =
+}
 
-`
-👋 ${emp.name}<br><br>
+function setBreak(type){
 
-🏢 Mağaza:
-${emp.store}<br>
+currentBreak = type;
 
-🤖 Tek QR sistemi aktif<br>
+document
+.getElementById("personelAI")
+.innerText =
 
-📷 İşlem seçip QR okutun
-`;
+"Seçilen mola: " + type;
 
 }
 
-// logout
+function girisYap(){
 
-function logoutEmployee(){
+aktif++;
 
-currentEmployee = null;
+updateStats();
 
-if(qrScanner){
-
-qrScanner.stop();
-
-}
-
-goHome();
+addLive(
+"🟢 " + currentPerson +
+" işe giriş yaptı"
+);
 
 }
 
-// qr action
+function molaBaslat(){
 
-function startAction(type){
+if(aktif > 0){
 
-selectedAction = type;
+aktif--;
+mola++;
 
-document.getElementById(
-"scanInfo"
-).innerHTML =
+}
 
-`
-📷 Kamera açıldı.<br><br>
+updateStats();
 
-İşlem:
-${type}<br>
+addLive(
+"☕ " + currentPerson +
+" molaya çıktı → "
++ currentBreak
+);
 
-M085 QR okutulmayı bekliyor...
-`;
+startBreakAI();
 
-startQR();
+}
+
+function molaBitir(){
+
+if(mola > 0){
+
+mola--;
+aktif++;
+
+}
+
+clearTimeout(breakTimer);
+
+updateStats();
+
+addLive(
+"✅ " + currentPerson +
+" moladan döndü"
+);
+
+}
+
+function cikisYap(){
+
+if(aktif > 0){
+
+aktif--;
+cikis++;
+
+}
+
+updateStats();
+
+addLive(
+"🔴 " + currentPerson +
+" çıkış yaptı"
+);
+
+}
+
+function startBreakAI(){
+
+let minute = 15;
+
+if(currentBreak === "30 DK"){
+
+minute = 30;
+
+}
+
+if(currentBreak === "45 DK"){
+
+minute = 45;
+
+}
+
+breakTimer =
+setTimeout(()=>{
+
+document
+.getElementById("aiMessage")
+.innerText =
+
+"⚠️ "
++ currentPerson +
+" mola süresini geçti!";
+
+addLive(
+"⚠️ AI → "
++ currentPerson +
+" mola süresi aşıldı"
+);
+
+},minute * 60000);
+
+}
+
+function updateStats(){
+
+document
+.getElementById("aktifCount")
+.innerText = aktif;
+
+document
+.getElementById("molaCount")
+.innerText = mola;
+
+document
+.getElementById("cikisCount")
+.innerText = cikis;
+
+runAI();
+
+}
+
+function addLive(text){
+
+const div =
+document.createElement("div");
+
+div.className = "live-item";
+
+div.innerText =
+new Date().toLocaleTimeString()
++ " - " + text;
+
+document
+.getElementById("liveArea")
+.prepend(div);
+
+}
+
+function runAI(){
+
+let mesaj = "";
+
+if(aktif < 2){
+
+mesaj =
+"⚠️ Personel eksik görünüyor.";
+
+}
+
+else if(mola > 3){
+
+mesaj =
+"⚠️ Aynı anda fazla mola var.";
+
+}
+
+else{
+
+mesaj =
+"✅ Operasyon dengeli çalışıyor.";
+
+}
+
+document
+.getElementById("aiMessage")
+.innerText = mesaj;
 
 }
 
 function startQR(){
 
-if(qrScanner){
-
-qrScanner.stop();
-
-}
-
-qrScanner =
+const html5QrCode =
 new Html5Qrcode("reader");
 
-qrScanner.start(
+Html5Qrcode
+.getCameras()
+.then(devices=>{
 
-{
-facingMode:"environment"
-},
+if(devices && devices.length){
+
+const backCamera =
+devices[devices.length - 1].id;
+
+html5QrCode.start(
+
+backCamera,
 
 {
 fps:10,
-qrbox:250
+qrbox:220
 },
 
 (decodedText)=>{
 
-if(decodedText === COMPANY_QR){
+if(decodedText === "M085"){
 
-saveAction();
+addLive(
+"📷 QR doğrulandı"
+);
 
-document.getElementById(
-"scanInfo"
-).innerHTML =
-
-`
-✅ ${selectedAction} başarılı
-`;
-
-qrScanner.stop();
-
-}else{
-
-document.getElementById(
-"scanInfo"
-).innerHTML =
-
-`
-❌ Geçersiz QR
-`;
+alert("QR doğrulandı");
 
 }
 
-},
+else{
 
-(error)=>{}
+alert("Geçersiz QR");
+
+}
+
+}
 
 );
 
 }
 
-// save action
-
-function saveAction(){
-
-const now =
-new Date();
-
-const item = {
-
-employee:
-currentEmployee.name,
-
-code:
-currentEmployee.code,
-
-store:
-currentEmployee.store,
-
-type:
-selectedAction,
-
-time:
-now.toLocaleTimeString(
-"tr-TR"
-),
-
-date:
-now.toLocaleDateString(
-"tr-TR"
-)
-
-};
-
-logs.push(item);
-
-localStorage.setItem(
-
-"almether_logs",
-
-JSON.stringify(logs)
-
-);
-
-renderLog(item);
-
-count(item.type);
+});
 
 }
-
-// render log
-
-function renderLog(item){
-
-const div =
-document.createElement(
-"div"
-);
-
-div.className = "log";
-
-div.innerHTML =
-
-`
-
-<div class="name">
-
-${item.employee}
-
-</div>
-
-<div class="type">
-
-${item.type}
-
-</div>
-
-<div class="time">
-
-${item.date}
-•
-${item.time}
-
-</div>
-
-<div class="badge">
-
-${item.code}
-
-</div>
-
-<div class="badge">
-
-${item.store}
-
-</div>
-
-`;
-
-logArea.prepend(div);
-
-}
-
-// count
-
-function count(type){
-
-if(type==="İşe Giriş"){
-
-active++;
-
-}
-
-if(type==="Mola Çıkış"){
-
-breakCount++;
-
-}
-
-if(type==="Çıkış"){
-
-exitCount++;
-
-}
-
-document.getElementById(
-"activeCount"
-).innerText = active;
-
-document.getElementById(
-"breakCount"
-).innerText = breakCount;
-
-document.getElementById(
-"exitCount"
-).innerText = exitCount;
-
-}
-
-// clear
-
-function clearLogs(){
-
-localStorage.removeItem(
-"almether_logs"
-);
-
-logArea.innerHTML="";
-
-active=0;
-breakCount=0;
-exitCount=0;
-
-document.getElementById(
-"activeCount"
-).innerText=0;
-
-document.getElementById(
-"breakCount"
-).innerText=0;
-
-document.getElementById(
-"exitCount"
-).innerText=0;
-
-}
-
-// file analyze
 
 document
-.getElementById(
-"excelFile"
-)
+.getElementById("shiftFile")
 .addEventListener(
 "change",
-handleFile
-);
-
-function handleFile(e){
+async(e)=>{
 
 const file =
 e.target.files[0];
 
 if(!file) return;
 
-document.getElementById(
-"aiBox"
-).innerHTML =
+document
+.getElementById("aiMessage")
+.innerText =
 
-`
-🤖 AI sistemi dosyayı analiz etti.<br><br>
+"🤖 AI vardiya analizi başlatıldı...";
 
-✅ Personeller algılandı<br>
-
-✅ Shift sistemi oluşturuldu<br>
-
-✅ Yoğunluk hesaplandı<br>
-
-✅ 42 saat sistemi uygulandı<br>
-
-✅ M085 mağazası optimize edildi
-`;
-
-if(
-file.name.includes(".xlsx") ||
-file.name.includes(".xls")
-){
-
-const reader =
-new FileReader();
-
-reader.onload = function(evt){
-
-const data =
-new Uint8Array(
-evt.target.result
+const result =
+await Tesseract.recognize(
+file,
+"eng"
 );
 
-const workbook =
-XLSX.read(
-data,
-{
-type:'array'
-}
+const text =
+result.data.text;
+
+document
+.getElementById("aiMessage")
+.innerText =
+
+"🤖 OCR tamamlandı:\n\n" +
+text.substring(0,300);
+
+addLive(
+"🤖 AI vardiya analizi tamamlandı"
 );
-
-const sheet =
-workbook.Sheets[
-workbook.SheetNames[0]
-];
-
-const json =
-XLSX.utils.sheet_to_json(
-sheet
-);
-
-showShift(json);
-
-};
-
-reader.readAsArrayBuffer(file);
-
-}else{
-
-fakeAnalyze();
-
-}
-
-}
-
-function fakeAnalyze(){
-
-shiftArea.innerHTML="";
-
-Object.keys(employees).forEach(code=>{
-
-const emp =
-employees[code];
-
-const div =
-document.createElement(
-"div"
-);
-
-div.className = "shiftCard";
-
-div.innerHTML =
-
-`
-
-<h4>
-
-${emp.name}
-
-</h4>
-
-<p>
-
-Personel Kodu:
-${code}
-
-</p>
-
-<div class="badge">
-
-42 Saat Sistem
-
-</div>
-
-<div class="badge">
-
-2 Gün OFF
-
-</div>
-
-`;
-
-shiftArea.appendChild(div);
 
 });
-
-}
-
-function showShift(data){
-
-shiftArea.innerHTML="";
-
-data.forEach(person=>{
-
-const div =
-document.createElement(
-"div"
-);
-
-div.className = "shiftCard";
-
-div.innerHTML =
-
-`
-
-<h4>
-
-${person["Satıcı DESC"] || "Personel"}
-
-</h4>
-
-<p>
-
-Personel ID:
-${person["Satıcı ID"] || "-"}
-
-</p>
-
-<div class="badge">
-
-AI Shift
-
-</div>
-
-<div class="badge">
-
-M085
-
-</div>
-
-`;
-
-shiftArea.appendChild(div);
-
-});
-
-}
 
 </script>
 
