@@ -1,441 +1,561 @@
-<!-- AL METHER PILOT SECURITY CORE -->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>AL Mether Workforce</title>
+
+<style>
+
+body{
+margin:0;
+padding:0;
+font-family:Arial;
+background:#020b2d;
+color:white;
+}
+
+.container{
+padding:15px;
+max-width:500px;
+margin:auto;
+}
+
+.logo{
+text-align:center;
+margin-top:20px;
+}
+
+.logo h1{
+font-size:52px;
+margin:0;
+color:#39b5ff;
+}
+
+.logo p{
+color:#aaa;
+margin-top:5px;
+}
+
+.btn{
+width:100%;
+padding:18px;
+border:none;
+border-radius:20px;
+font-size:24px;
+font-weight:bold;
+margin-top:15px;
+color:white;
+}
+
+.managerBtn{
+background:#2f65ff;
+}
+
+.personBtn{
+background:#16c34a;
+}
+
+.card{
+background:#07143d;
+padding:15px;
+border-radius:20px;
+margin-top:20px;
+}
+
+input{
+width:100%;
+padding:18px;
+border:none;
+border-radius:15px;
+background:#091738;
+color:white;
+font-size:20px;
+margin-top:10px;
+box-sizing:border-box;
+}
+
+.breakButtons{
+display:flex;
+gap:10px;
+margin-top:15px;
+}
+
+.breakButtons button{
+flex:1;
+padding:14px;
+border:none;
+border-radius:15px;
+font-size:18px;
+font-weight:bold;
+color:white;
+}
+
+.b15{
+background:#e0a000;
+}
+
+.b30{
+background:#ff8800;
+}
+
+.b45{
+background:#ff4d4d;
+}
+
+.exitBtn{
+background:#ff2b4d;
+margin-top:15px;
+}
+
+.counterArea{
+display:flex;
+gap:10px;
+margin-top:20px;
+}
+
+.counter{
+flex:1;
+padding:20px;
+border-radius:20px;
+text-align:center;
+font-size:20px;
+font-weight:bold;
+}
+
+.green{
+background:#16c34a;
+}
+
+.orange{
+background:#d99900;
+}
+
+.red{
+background:#ff2b4d;
+}
+
+.logs{
+margin-top:20px;
+}
+
+.logItem{
+background:#091738;
+padding:10px;
+border-radius:15px;
+margin-top:10px;
+font-size:14px;
+}
+
+.hidden{
+display:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="logo">
+<h1>AL Mether</h1>
+<p>AI Workforce Management</p>
+</div>
+
+<button class="btn managerBtn"
+onclick="showManager()">
+Yönetici Girişi
+</button>
+
+<button class="btn personBtn"
+onclick="showPerson()">
+Personel Girişi
+</button>
+
+<div id="personPanel"
+class="card hidden">
+
+<h2>Personel Paneli</h2>
+
+<input
+id="personCode"
+placeholder="Personel Kodu"
+/>
+
+<button
+class="btn personBtn"
+onclick="loginPerson()">
+Giriş Yap
+</button>
+
+<div class="breakButtons">
+
+<button
+class="b15"
+onclick="startBreak(15)">
+15 DK
+</button>
+
+<button
+class="b30"
+onclick="startBreak(30)">
+30 DK
+</button>
+
+<button
+class="b45"
+onclick="startBreak(45)">
+45 DK
+</button>
+
+</div>
+
+<button
+class="btn managerBtn"
+onclick="finishBreak()">
+Molayı Bitir
+</button>
+
+<button
+class="btn exitBtn"
+onclick="exitShift()">
+Çıkış Yap
+</button>
+
+</div>
+
+<div id="managerPanel"
+class="card hidden">
+
+<h2>Yönetici Paneli</h2>
+
+<div class="counterArea">
+
+<div class="counter green">
+<div id="activeCount">0</div>
+<div>Aktif</div>
+</div>
+
+<div class="counter orange">
+<div id="breakCount">0</div>
+<div>Molada</div>
+</div>
+
+<div class="counter red">
+<div id="exitCount">0</div>
+<div>Çıkış</div>
+</div>
+
+</div>
+
+<div class="logs"
+id="logs"></div>
+
+</div>
+
+</div>
 
 <script>
 
-/* =========================
-   AL METHER CORE ENGINE
-========================= */
-
-const STORE_CONFIG = {
-  brand: "SKX",
-  storeCode: "M085",
-  storeName: "Skechers M085",
-  lat: 38.4237,
-  lng: 27.1428,
-  allowedRadius: 120
+const STORE = {
+lat:38.4237,
+lng:27.1428,
+radius:120
 };
 
-let activeUsers = JSON.parse(localStorage.getItem("activeUsers")) || [];
-let logs = JSON.parse(localStorage.getItem("logs")) || [];
-let suspiciousLogs = JSON.parse(localStorage.getItem("suspiciousLogs")) || [];
+let users =
+JSON.parse(localStorage.getItem("users")) || [];
 
-/* =========================
-   DEVICE ENGINE
-========================= */
+let logs =
+JSON.parse(localStorage.getItem("logs")) || [];
 
-function getDeviceId() {
+function showPerson(){
 
-  let deviceId = localStorage.getItem("deviceId");
+document
+.getElementById("personPanel")
+.classList.remove("hidden");
 
-  if (!deviceId) {
-
-    deviceId =
-      "DEV-" +
-      Math.random().toString(36).substring(2, 10);
-
-    localStorage.setItem("deviceId", deviceId);
-  }
-
-  return deviceId;
 }
 
-/* =========================
-   GPS ENGINE
-========================= */
+function showManager(){
 
-function calculateDistance(lat1, lon1, lat2, lon2) {
+document
+.getElementById("managerPanel")
+.classList.remove("hidden");
 
-  const R = 6371e3;
+renderLogs();
+updateCounters();
 
-  const f1 = lat1 * Math.PI / 180;
-  const f2 = lat2 * Math.PI / 180;
-
-  const df = (lat2-lat1) * Math.PI / 180;
-  const dl = (lon2-lon1) * Math.PI / 180;
-
-  const a =
-    Math.sin(df/2) * Math.sin(df/2) +
-    Math.cos(f1) *
-    Math.cos(f2) *
-    Math.sin(dl/2) *
-    Math.sin(dl/2);
-
-  const c =
-    2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-  return R * c;
 }
 
-function checkStoreLocation(userLat, userLng) {
+function createLog(text){
 
-  const distance = calculateDistance(
-    userLat,
-    userLng,
-    STORE_CONFIG.lat,
-    STORE_CONFIG.lng
-  );
+logs.unshift({
+text,
+time:new Date().toLocaleString()
+});
 
-  return distance <= STORE_CONFIG.allowedRadius;
+localStorage.setItem(
+"logs",
+JSON.stringify(logs)
+);
+
+renderLogs();
+
 }
 
-/* =========================
-   AI EVENT ENGINE
-========================= */
+function renderLogs(){
 
-function createEvent(type, personCode, details) {
+const area =
+document.getElementById("logs");
 
-  const event = {
-    type,
-    personCode,
-    details,
-    store: STORE_CONFIG.storeCode,
-    brand: STORE_CONFIG.brand,
-    time: new Date().toLocaleString(),
-  };
+area.innerHTML="";
 
-  logs.unshift(event);
+logs.slice(0,20).forEach(log=>{
 
-  localStorage.setItem(
-    "logs",
-    JSON.stringify(logs)
-  );
+area.innerHTML += `
+<div class="logItem">
+${log.text}<br>
+<small>${log.time}</small>
+</div>
+`;
 
-  renderLogs();
+});
+
 }
 
-/* =========================
-   SECURITY ENGINE
-========================= */
+function updateCounters(){
 
-function suspiciousLogin(personCode, reason) {
+const active =
+users.filter(
+u=>u.status==="ACTIVE"
+).length;
 
-  const event = {
-    type: "SUSPICIOUS_LOGIN",
-    personCode,
-    reason,
-    store: STORE_CONFIG.storeCode,
-    time: new Date().toLocaleString()
-  };
+const breaks =
+users.filter(
+u=>u.status==="BREAK"
+).length;
 
-  suspiciousLogs.unshift(event);
+const exits =
+logs.filter(
+l=>l.text.includes("Çıkış")
+).length;
 
-  localStorage.setItem(
-    "suspiciousLogs",
-    JSON.stringify(suspiciousLogs)
-  );
+document
+.getElementById("activeCount")
+.innerText=active;
 
-  createEvent(
-    "SUSPICIOUS_LOGIN",
-    personCode,
-    reason
-  );
+document
+.getElementById("breakCount")
+.innerText=breaks;
 
-  alert(
-    "⚠️ Şüpheli giriş tespit edildi!\n\n" +
-    reason
-  );
+document
+.getElementById("exitCount")
+.innerText=exits;
+
 }
 
-/* =========================
-   PERSON LOGIN
-========================= */
+function loginPerson(){
 
-function personLogin() {
+const code =
+document
+.getElementById("personCode")
+.value;
 
-  const code =
-    document.getElementById("personCode").value;
+if(!code){
 
-  if (!code) {
+alert("Personel kodu gir");
+return;
 
-    alert("Personel kodu gir");
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-
-    (position) => {
-
-      const userLat = position.coords.latitude;
-      const userLng = position.coords.longitude;
-
-      const insideStore =
-        checkStoreLocation(userLat, userLng);
-
-      const deviceId = getDeviceId();
-
-      if (!insideStore) {
-
-        suspiciousLogin(
-          code,
-          "Mağaza dışında giriş denemesi"
-        );
-
-        return;
-      }
-
-      const already =
-        activeUsers.find(
-          u => u.code === code
-        );
-
-      if (already) {
-
-        suspiciousLogin(
-          code,
-          "Aynı kullanıcı tekrar giriş yaptı"
-        );
-
-        return;
-      }
-
-      activeUsers.push({
-        code,
-        deviceId,
-        loginTime: new Date().toLocaleString(),
-        status: "ACTIVE",
-        breakMinutes: 0
-      });
-
-      localStorage.setItem(
-        "activeUsers",
-        JSON.stringify(activeUsers)
-      );
-
-      createEvent(
-        "SHIFT_START",
-        code,
-        "Personel giriş yaptı"
-      );
-
-      renderUsers();
-      updateCounters();
-
-      alert("✅ Giriş başarılı");
-
-    },
-
-    () => {
-
-      alert(
-        "❌ Konum izni gerekli"
-      );
-    }
-
-  );
 }
 
-/* =========================
-   BREAK ENGINE
-========================= */
+navigator.geolocation
+.getCurrentPosition(
 
-function startBreak(minutes) {
+(pos)=>{
 
-  const code =
-    document.getElementById("personCode").value;
+const userLat =
+pos.coords.latitude;
 
-  const user =
-    activeUsers.find(
-      u => u.code === code
-    );
+const userLng =
+pos.coords.longitude;
 
-  if (!user) {
+const inside =
+checkDistance(
+userLat,
+userLng
+);
 
-    alert("Aktif personel yok");
-    return;
-  }
+if(!inside){
 
-  user.status = "BREAK";
-  user.breakMinutes = minutes;
+createLog(
+"⚠️ Şüpheli giriş: " + code
+);
 
-  localStorage.setItem(
-    "activeUsers",
-    JSON.stringify(activeUsers)
-  );
+alert(
+"Mağaza dışında giriş reddedildi"
+);
 
-  createEvent(
-    "BREAK_START",
-    code,
-    minutes + " dk mola başladı"
-  );
+return;
 
-  renderUsers();
-  updateCounters();
-
-  alert(
-    "☕ " + minutes +
-    " dk mola başladı"
-  );
 }
 
-function endBreak() {
+users.push({
 
-  const code =
-    document.getElementById("personCode").value;
+code,
+status:"ACTIVE",
+login:new Date()
+.toLocaleString()
 
-  const user =
-    activeUsers.find(
-      u => u.code === code
-    );
+});
 
-  if (!user) {
+localStorage.setItem(
+"users",
+JSON.stringify(users)
+);
 
-    alert("Personel bulunamadı");
-    return;
-  }
+createLog(
+"✅ " + code +
+" giriş yaptı"
+);
 
-  user.status = "ACTIVE";
+updateCounters();
 
-  createEvent(
-    "BREAK_END",
-    code,
-    "Mola bitti"
-  );
+alert("Giriş başarılı");
 
-  localStorage.setItem(
-    "activeUsers",
-    JSON.stringify(activeUsers)
-  );
+},
 
-  renderUsers();
-  updateCounters();
+()=>{
 
-  alert("✅ Mola bitti");
+alert(
+"Konum izni gerekli"
+);
+
 }
 
-/* =========================
-   EXIT ENGINE
-========================= */
+);
 
-function exitShift() {
-
-  const code =
-    document.getElementById("personCode").value;
-
-  activeUsers =
-    activeUsers.filter(
-      u => u.code !== code
-    );
-
-  localStorage.setItem(
-    "activeUsers",
-    JSON.stringify(activeUsers)
-  );
-
-  createEvent(
-    "SHIFT_END",
-    code,
-    "Çıkış yaptı"
-  );
-
-  renderUsers();
-  updateCounters();
-
-  alert("👋 Çıkış yapıldı");
 }
 
-/* =========================
-   COUNTERS
-========================= */
+function checkDistance(
+lat,
+lng
+){
 
-function updateCounters() {
+const distance =
+Math.sqrt(
+Math.pow(lat-STORE.lat,2)+
+Math.pow(lng-STORE.lng,2)
+);
 
-  const active =
-    activeUsers.filter(
-      u => u.status === "ACTIVE"
-    ).length;
+return distance < 0.01;
 
-  const breaks =
-    activeUsers.filter(
-      u => u.status === "BREAK"
-    ).length;
-
-  document.getElementById(
-    "activeCount"
-  ).innerText = active;
-
-  document.getElementById(
-    "breakCount"
-  ).innerText = breaks;
-
-  document.getElementById(
-    "exitCount"
-  ).innerText = logs.filter(
-    l => l.type === "SHIFT_END"
-  ).length;
 }
 
-/* =========================
-   LIVE LOGS
-========================= */
+function startBreak(min){
 
-function renderLogs() {
+const code =
+document
+.getElementById("personCode")
+.value;
 
-  const area =
-    document.getElementById("liveLogs");
+const user =
+users.find(
+u=>u.code===code
+);
 
-  if (!area) return;
+if(!user){
 
-  area.innerHTML = "";
+alert("Personel yok");
+return;
 
-  logs.slice(0, 20).forEach(log => {
-
-    const div =
-      document.createElement("div");
-
-    div.className = "logItem";
-
-    div.innerHTML = `
-      <b>${log.type}</b><br>
-      ${log.personCode}<br>
-      ${log.details}<br>
-      <small>${log.time}</small>
-    `;
-
-    area.appendChild(div);
-
-  });
 }
 
-/* =========================
-   ACTIVE USERS
-========================= */
+user.status="BREAK";
 
-function renderUsers() {
+localStorage.setItem(
+"users",
+JSON.stringify(users)
+);
 
-  const area =
-    document.getElementById("activeArea");
+createLog(
+"☕ " + code +
+" " + min +
+" dk molaya çıktı"
+);
 
-  if (!area) return;
+updateCounters();
 
-  area.innerHTML = "";
-
-  activeUsers.forEach(user => {
-
-    const div =
-      document.createElement("div");
-
-    div.className = "userCard";
-
-    div.innerHTML = `
-      <h3>${user.code}</h3>
-      <p>${user.status}</p>
-      <small>${user.loginTime}</small>
-    `;
-
-    area.appendChild(div);
-
-  });
 }
 
-/* =========================
-   INIT
-========================= */
+function finishBreak(){
 
-window.onload = () => {
+const code =
+document
+.getElementById("personCode")
+.value;
 
-  renderUsers();
-  renderLogs();
-  updateCounters();
-};
+const user =
+users.find(
+u=>u.code===code
+);
+
+if(!user){
+
+alert("Personel yok");
+return;
+
+}
+
+user.status="ACTIVE";
+
+localStorage.setItem(
+"users",
+JSON.stringify(users)
+);
+
+createLog(
+"✅ " + code +
+" moladan döndü"
+);
+
+updateCounters();
+
+}
+
+function exitShift(){
+
+const code =
+document
+.getElementById("personCode")
+.value;
+
+users =
+users.filter(
+u=>u.code!==code
+);
+
+localStorage.setItem(
+"users",
+JSON.stringify(users)
+);
+
+createLog(
+"👋 " + code +
+" çıkış yaptı"
+);
+
+updateCounters();
+
+alert("Çıkış yapıldı");
+
+}
+
+updateCounters();
 
 </script>
+
+</body>
+</html>
