@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>AL Mether Workforce</title>
 
@@ -16,7 +16,7 @@ font-family:Arial,sans-serif;
 }
 
 body{
-background:#010b2c;
+background:#020b2d;
 color:white;
 padding:15px;
 }
@@ -33,14 +33,14 @@ margin-bottom:25px;
 }
 
 .logo h1{
-font-size:54px;
+font-size:52px;
 color:#36b8ff;
 }
 
 .logo p{
-color:#9ea7c2;
+color:#9ca6c0;
 margin-top:5px;
-font-size:20px;
+font-size:18px;
 }
 
 .mainBtn{
@@ -48,7 +48,7 @@ width:100%;
 padding:18px;
 border:none;
 border-radius:20px;
-font-size:26px;
+font-size:24px;
 font-weight:bold;
 color:white;
 margin-top:15px;
@@ -59,23 +59,27 @@ background:#3567ff;
 }
 
 .personBtn{
-background:#16c84b;
+background:#17c84b;
+}
+
+.regionBtn{
+background:#7a39ff;
 }
 
 .backBtn{
-background:#4c556f;
+background:#4f5974;
 }
 
 .panel{
+display:none;
 background:#07153e;
 padding:20px;
 border-radius:25px;
 margin-top:20px;
-display:none;
 }
 
 .panel h2{
-font-size:34px;
+font-size:30px;
 margin-bottom:20px;
 }
 
@@ -86,7 +90,7 @@ border:none;
 border-radius:18px;
 background:#08163a;
 color:white;
-font-size:22px;
+font-size:20px;
 margin-top:15px;
 }
 
@@ -95,14 +99,14 @@ width:100%;
 padding:18px;
 border:none;
 border-radius:18px;
-font-size:24px;
+font-size:22px;
 font-weight:bold;
 color:white;
 margin-top:18px;
 }
 
 .greenBtn{
-background:#16c84b;
+background:#17c84b;
 }
 
 .blueBtn{
@@ -110,7 +114,7 @@ background:#3567ff;
 }
 
 .redBtn{
-background:#ff2b55;
+background:#ff2d55;
 }
 
 .breakArea{
@@ -121,20 +125,20 @@ margin-top:18px;
 
 .breakArea button{
 flex:1;
-padding:15px;
+padding:14px;
 border:none;
 border-radius:16px;
-font-size:20px;
+font-size:18px;
 font-weight:bold;
 color:white;
 }
 
 .break15{
-background:#d39a00;
+background:#d29a00;
 }
 
 .break30{
-background:#ff8c00;
+background:#ff8b00;
 }
 
 .break45{
@@ -149,10 +153,10 @@ margin-top:20px;
 
 .counter{
 flex:1;
-padding:20px;
-border-radius:20px;
+padding:18px;
+border-radius:18px;
 text-align:center;
-font-size:22px;
+font-size:20px;
 font-weight:bold;
 }
 
@@ -161,11 +165,11 @@ background:#18bf4b;
 }
 
 .breakBox{
-background:#d79a00;
+background:#d89b00;
 }
 
 .exitBox{
-background:#ff2b55;
+background:#ff2d55;
 }
 
 .logs{
@@ -177,9 +181,9 @@ overflow:auto;
 .log{
 background:#09183f;
 padding:12px;
-border-radius:16px;
+border-radius:15px;
 margin-top:10px;
-font-size:15px;
+font-size:14px;
 line-height:1.5;
 }
 
@@ -187,10 +191,10 @@ line-height:1.5;
 margin-top:15px;
 padding:12px;
 border-radius:16px;
-background:#0c1c49;
-font-size:16px;
+background:#0c1d4a;
+font-size:15px;
 text-align:center;
-color:#9ec5ff;
+color:#9dc3ff;
 }
 
 </style>
@@ -204,6 +208,8 @@ color:#9ec5ff;
 <h1>AL Mether</h1>
 <p>AI Workforce Management</p>
 </div>
+
+<!-- HOME -->
 
 <div id="homePage">
 
@@ -219,6 +225,12 @@ onclick="openPersonPanel()">
 Personel Girişi
 </button>
 
+<button
+class="mainBtn regionBtn"
+onclick="openRegionPanel()">
+Bölge Müdürü
+</button>
+
 </div>
 
 <!-- MANAGER LOGIN -->
@@ -231,14 +243,12 @@ class="panel">
 
 <input
 id="managerCode"
-placeholder="Yönetici Kodu"
-/>
+placeholder="Yönetici Kodu">
 
 <input
 id="managerPassword"
 type="password"
-placeholder="Şifre"
-/>
+placeholder="Şifre">
 
 <button
 class="loginBtn blueBtn"
@@ -264,8 +274,13 @@ class="panel">
 
 <input
 id="personCode"
-placeholder="Personel Kodu"
-/>
+placeholder="Personel Kodu">
+
+<button
+class="loginBtn greenBtn"
+onclick="fakeQRScan()">
+QR OKUT
+</button>
 
 <button
 class="loginBtn greenBtn"
@@ -314,7 +329,7 @@ Geri
 </button>
 
 <div class="statusBar">
-GPS + Güvenlik Sistemi Aktif
+GPS + Device Security Aktif
 </div>
 
 </div>
@@ -358,12 +373,46 @@ Ana Sayfa
 
 </div>
 
+<!-- REGION PANEL -->
+
+<div
+id="regionPanel"
+class="panel">
+
+<h2>Bölge Müdürü</h2>
+
+<div class="counterArea">
+
+<div class="counter activeBox">
+<div id="regionActive">0</div>
+<div>Aktif</div>
+</div>
+
+<div class="counter breakBox">
+<div id="regionBreak">0</div>
+<div>Molada</div>
+</div>
+
+</div>
+
+<div
+class="logs"
+id="regionLogs"></div>
+
+<button
+class="loginBtn backBtn"
+onclick="goHome()">
+Ana Sayfa
+</button>
+
+</div>
+
 </div>
 
 <script>
 
 /* =========================
-   CONFIG
+CONFIG
 ========================= */
 
 const STORE = {
@@ -392,50 +441,26 @@ localStorage.getItem("logs")
 ) || [];
 
 /* =========================
-   UI ENGINE
+UI ENGINE
 ========================= */
 
 function hideAll(){
 
-document
-.getElementById("managerLoginPanel")
-.style.display="none";
+document.getElementById(
+"managerLoginPanel"
+).style.display="none";
 
-document
-.getElementById("personPanel")
-.style.display="none";
+document.getElementById(
+"personPanel"
+).style.display="none";
 
-document
-.getElementById("managerPanel")
-.style.display="none";
+document.getElementById(
+"managerPanel"
+).style.display="none";
 
-}
-
-function openManagerLogin(){
-
-hideAll();
-
-document
-.getElementById("homePage")
-.style.display="none";
-
-document
-.getElementById("managerLoginPanel")
-.style.display="block";
-
-}
-
-function openPersonPanel(){
-
-hideAll();
-
-document
-.getElementById("homePage")
-.style.display="none";
-
-document
-.getElementById("personPanel")
-.style.display="block";
+document.getElementById(
+"regionPanel"
+).style.display="none";
 
 }
 
@@ -443,27 +468,71 @@ function goHome(){
 
 hideAll();
 
-document
-.getElementById("homePage")
-.style.display="block";
+document.getElementById(
+"homePage"
+).style.display="block";
+
+}
+
+function openManagerLogin(){
+
+hideAll();
+
+document.getElementById(
+"homePage"
+).style.display="none";
+
+document.getElementById(
+"managerLoginPanel"
+).style.display="block";
+
+}
+
+function openPersonPanel(){
+
+hideAll();
+
+document.getElementById(
+"homePage"
+).style.display="none";
+
+document.getElementById(
+"personPanel"
+).style.display="block";
+
+}
+
+function openRegionPanel(){
+
+hideAll();
+
+document.getElementById(
+"homePage"
+).style.display="none";
+
+document.getElementById(
+"regionPanel"
+).style.display="block";
+
+updateRegionPanel();
 
 }
 
 /* =========================
-   MANAGER AUTH
+MANAGER LOGIN
 ========================= */
 
 function managerLogin(){
 
 const code =
-document
-.getElementById("managerCode")
-.value;
+document.getElementById(
+"managerCode"
+).value;
 
 const password =
-document
-.getElementById("managerPassword")
-.value;
+document.getElementById(
+"managerPassword"
+).value;
 
 const found =
 managers.find(
@@ -479,13 +548,14 @@ alert(
 );
 
 return;
+
 }
 
 hideAll();
 
-document
-.getElementById("managerPanel")
-.style.display="block";
+document.getElementById(
+"managerPanel"
+).style.display="block";
 
 updateCounters();
 renderLogs();
@@ -493,14 +563,74 @@ renderLogs();
 }
 
 /* =========================
-   LOG SYSTEM
+DEVICE ENGINE
+========================= */
+
+function getDeviceId(){
+
+let id =
+localStorage.getItem(
+"deviceId"
+);
+
+if(!id){
+
+id =
+"DEV-" +
+Math.random()
+.toString(36)
+.substring(2,10);
+
+localStorage.setItem(
+"deviceId",
+id
+);
+
+}
+
+return id;
+
+}
+
+/* =========================
+QR ENGINE
+========================= */
+
+function fakeQRScan(){
+
+const qr =
+prompt(
+"QR PERSONEL KODU"
+);
+
+if(!qr) return;
+
+document.getElementById(
+"personCode"
+).value = qr;
+
+createLog(
+"🔳 QR okutuldu: " +
+qr
+);
+
+}
+
+/* =========================
+LOG ENGINE
 ========================= */
 
 function createLog(text){
 
 logs.unshift({
 
+store:
+STORE.brand +
+"-" +
+STORE.store,
+
 text,
+
 time:new Date()
 .toLocaleString()
 
@@ -515,21 +645,27 @@ renderLogs();
 
 }
 
+/* =========================
+RENDER LOGS
+========================= */
+
 function renderLogs(){
 
 const area =
-document
-.getElementById("logsArea");
+document.getElementById(
+"logsArea"
+);
 
 if(!area) return;
 
-area.innerHTML="";
+area.innerHTML = "";
 
 logs.slice(0,30)
 .forEach(log=>{
 
 area.innerHTML += `
 <div class="log">
+🏪 ${log.store}<br>
 ${log.text}<br>
 <small>${log.time}</small>
 </div>
@@ -540,7 +676,7 @@ ${log.text}<br>
 }
 
 /* =========================
-   COUNTERS
+COUNTERS
 ========================= */
 
 function updateCounters(){
@@ -560,22 +696,64 @@ logs.filter(
 l=>l.text.includes("çıkış")
 ).length;
 
-document
-.getElementById("activeCount")
-.innerText=active;
+document.getElementById(
+"activeCount"
+).innerText = active;
 
-document
-.getElementById("breakCount")
-.innerText=breaks;
+document.getElementById(
+"breakCount"
+).innerText = breaks;
 
-document
-.getElementById("exitCount")
-.innerText=exits;
+document.getElementById(
+"exitCount"
+).innerText = exits;
 
 }
 
 /* =========================
-   GPS CONTROL
+REGION PANEL
+========================= */
+
+function updateRegionPanel(){
+
+document.getElementById(
+"regionActive"
+).innerText =
+users.filter(
+u=>u.status==="ACTIVE"
+).length;
+
+document.getElementById(
+"regionBreak"
+).innerText =
+users.filter(
+u=>u.status==="BREAK"
+).length;
+
+const area =
+document.getElementById(
+"regionLogs"
+);
+
+area.innerHTML = "";
+
+logs.slice(0,25)
+.forEach(log=>{
+
+area.innerHTML += `
+<div class="log">
+🏪 ${log.store}<br>
+${log.text}<br>
+<small>${log.time}</small>
+</div>
+`;
+
+});
+
+}
+
+/* =========================
+GPS CONTROL
 ========================= */
 
 function checkLocation(lat,lng){
@@ -591,15 +769,36 @@ return distance < STORE.radius;
 }
 
 /* =========================
-   PERSON LOGIN
+AI ALERT ENGINE
+========================= */
+
+function checkAlerts(){
+
+const breaks =
+users.filter(
+u=>u.status==="BREAK"
+).length;
+
+if(breaks >= 3){
+
+createLog(
+"⚠️ AI UYARISI: Aynı anda 3 personel molada"
+);
+
+}
+
+}
+
+/* =========================
+PERSON LOGIN
 ========================= */
 
 function personLogin(){
 
 const code =
-document
-.getElementById("personCode")
-.value;
+document.getElementById(
+"personCode"
+).value;
 
 if(!code){
 
@@ -608,10 +807,33 @@ alert(
 );
 
 return;
+
 }
 
-navigator
-.geolocation
+const exists =
+users.find(
+u=>u.code===code
+);
+
+if(exists){
+
+createLog(
+"⚠️ Çoklu giriş denemesi: " +
+code
+);
+
+alert(
+"Bu personel zaten aktif"
+);
+
+return;
+
+}
+
+const deviceId =
+getDeviceId();
+
+navigator.geolocation
 .getCurrentPosition(
 
 (pos)=>{
@@ -637,25 +859,13 @@ alert(
 );
 
 return;
-}
 
-const exists =
-users.find(
-u=>u.code===code
-);
-
-if(exists){
-
-alert(
-"Bu personel zaten aktif"
-);
-
-return;
 }
 
 users.push({
 
 code,
+deviceId,
 status:"ACTIVE",
 login:new Date()
 .toLocaleString()
@@ -694,15 +904,15 @@ alert(
 }
 
 /* =========================
-   BREAK SYSTEM
+BREAK ENGINE
 ========================= */
 
 function startBreak(min){
 
 const code =
-document
-.getElementById("personCode")
-.value;
+document.getElementById(
+"personCode"
+).value;
 
 const user =
 users.find(
@@ -716,6 +926,7 @@ alert(
 );
 
 return;
+
 }
 
 user.status="BREAK";
@@ -733,6 +944,8 @@ min +
 " dk molaya çıktı"
 );
 
+checkAlerts();
+
 updateCounters();
 
 alert(
@@ -742,12 +955,16 @@ min +
 
 }
 
+/* =========================
+FINISH BREAK
+========================= */
+
 function finishBreak(){
 
 const code =
-document
-.getElementById("personCode")
-.value;
+document.getElementById(
+"personCode"
+).value;
 
 const user =
 users.find(
@@ -761,6 +978,7 @@ alert(
 );
 
 return;
+
 }
 
 user.status="ACTIVE";
@@ -785,15 +1003,15 @@ alert(
 }
 
 /* =========================
-   EXIT
+EXIT
 ========================= */
 
 function exitShift(){
 
 const code =
-document
-.getElementById("personCode")
-.value;
+document.getElementById(
+"personCode"
+).value;
 
 users =
 users.filter(
@@ -820,7 +1038,7 @@ alert(
 }
 
 /* =========================
-   INIT
+INIT
 ========================= */
 
 updateCounters();
