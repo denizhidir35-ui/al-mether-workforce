@@ -1,1119 +1,441 @@
-<!DOCTYPE html>
-<html lang="tr">
-
-<head>
-
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-<title>
-AL Mether Workforce AI
-</title>
-
-<script src="https://unpkg.com/html5-qrcode"></script>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-
-<style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:-apple-system,BlinkMacSystemFont,sans-serif;
-}
-
-body{
-background:
-linear-gradient(
-135deg,
-#020617,
-#07132d
-);
-
-color:white;
-min-height:100vh;
-padding:14px;
-overflow-x:hidden;
-}
-
-.hidden{
-display:none;
-}
-
-.logo{
-text-align:center;
-margin-top:18px;
-}
-
-.logo h1{
-font-size:42px;
-font-weight:900;
-color:#38bdf8;
-}
-
-.logo p{
-margin-top:6px;
-font-size:15px;
-opacity:.7;
-}
-
-.card{
-background:
-rgba(255,255,255,.04);
-
-backdrop-filter:blur(10px);
-
-border:
-1px solid rgba(255,255,255,.05);
-
-border-radius:24px;
-
-padding:16px;
-margin-top:14px;
-}
-
-.title{
-font-size:22px;
-font-weight:800;
-margin-bottom:14px;
-}
-
-input,
-select{
-
-width:100%;
-padding:16px;
-border:none;
-outline:none;
-
-border-radius:18px;
-
-background:
-rgba(255,255,255,.05);
-
-color:white;
-
-font-size:16px;
-margin-top:12px;
-}
-
-button{
-border:none;
-border-radius:18px;
-padding:16px;
-font-size:16px;
-font-weight:800;
-color:white;
-margin-top:12px;
-width:100%;
-}
-
-.blue{
-background:#2563eb;
-}
-
-.green{
-background:#16a34a;
-}
-
-.orange{
-background:#d97706;
-}
-
-.red{
-background:#dc2626;
-}
-
-.gray{
-background:#475569;
-}
-
-.stats{
-display:grid;
-grid-template-columns:1fr 1fr 1fr;
-gap:10px;
-margin-top:14px;
-}
-
-.stat{
-padding:14px;
-border-radius:18px;
-text-align:center;
-}
-
-.stat h2{
-font-size:28px;
-margin-top:6px;
-}
-
-.live-item{
-padding:12px;
-border-radius:16px;
-margin-top:10px;
-
-background:
-rgba(255,255,255,.05);
-
-font-size:13px;
-line-height:1.5;
-}
-
-.ai-box{
-
-padding:16px;
-
-border-radius:20px;
-
-background:
-linear-gradient(
-135deg,
-#4c1d95,
-#1e1b4b
-);
-
-margin-top:14px;
-}
-
-.ai-text{
-font-size:14px;
-line-height:1.6;
-margin-top:10px;
-}
-
-.break-grid{
-display:grid;
-grid-template-columns:1fr 1fr 1fr;
-gap:8px;
-margin-top:14px;
-}
-
-.break-btn{
-padding:14px;
-font-size:14px;
-font-weight:800;
-border-radius:16px;
-}
-
-.qr-box{
-height:120px;
-border-radius:20px;
-background:white;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:34px;
-font-weight:900;
-color:black;
-margin-top:14px;
-}
-
-#reader{
-width:100%;
-overflow:hidden;
-border-radius:20px;
-margin-top:14px;
-}
-
-.person-card{
-padding:14px;
-border-radius:18px;
-margin-top:10px;
-
-background:
-rgba(255,255,255,.05);
-}
-
-.badge{
-display:inline-block;
-padding:6px 10px;
-border-radius:12px;
-margin-top:8px;
-font-size:12px;
-font-weight:800;
-}
-
-.full{
-background:#2563eb;
-}
-
-.part{
-background:#d97706;
-}
-
-.small{
-font-size:12px;
-opacity:.7;
-margin-top:8px;
-}
-
-</style>
-
-</head>
-
-<body>
-
-<!-- HOME -->
-
-<div id="home">
-
-<div class="logo">
-
-<h1>
-AL Mether
-</h1>
-
-<p>
-AI Workforce Management
-</p>
-
-</div>
-
-<button
-class="blue"
-onclick="openManagerLogin()">
-
-Yönetici Girişi
-
-</button>
-
-<button
-class="green"
-onclick="openPersonelLogin()">
-
-Personel Girişi
-
-</button>
-
-</div>
-
-<!-- MANAGER LOGIN -->
-
-<div
-id="managerLogin"
-class="hidden"
->
-
-<button
-class="gray"
-onclick="goHome()">
-
-← Geri
-
-</button>
-
-<div class="card">
-
-<div class="title">
-Yönetici Giriş
-</div>
-
-<input
-id="managerCode"
-placeholder="Yönetici Kodu"
-/>
-
-<input
-id="managerPass"
-type="password"
-placeholder="Şifre"
-/>
-
-<button
-class="blue"
-onclick="loginManager()">
-
-Panele Giriş
-
-</button>
-
-</div>
-
-</div>
-
-<!-- PERSONEL LOGIN -->
-
-<div
-id="personelLogin"
-class="hidden"
->
-
-<button
-class="gray"
-onclick="goHome()">
-
-← Geri
-
-</button>
-
-<div class="card">
-
-<div class="title">
-Personel Giriş
-</div>
-
-<input
-id="personelCode"
-placeholder="Personel Kodu"
-/>
-
-<input
-id="personelPass"
-type="password"
-placeholder="Şifre"
-/>
-
-<select id="workType">
-
-<option>
-Tam Zamanlı
-</option>
-
-<option>
-Part Time
-</option>
-
-</select>
-
-<button
-class="green"
-onclick="loginPersonel()">
-
-Giriş Yap
-
-</button>
-
-<button
-class="blue"
-onclick="createPersonel()">
-
-Üyelik Oluştur
-
-</button>
-
-</div>
-
-</div>
-
-<!-- PERSONEL PANEL -->
-
-<div
-id="personelPanel"
-class="hidden"
->
-
-<button
-class="gray"
-onclick="goHome()">
-
-← Geri
-
-</button>
-
-<div class="card">
-
-<div class="title">
-QR Workforce
-</div>
-
-<div class="qr-box">
-M085
-</div>
-
-<div id="reader"></div>
-
-<button
-class="blue"
-onclick="startQR()">
-
-QR Kamera Aç
-
-</button>
-
-<div class="break-grid">
-
-<button
-class="break-btn blue"
-onclick="setBreak('15 DK')">
-
-15 DK
-
-</button>
-
-<button
-class="break-btn orange"
-onclick="setBreak('30 DK')">
-
-30 DK
-
-</button>
-
-<button
-class="break-btn red"
-onclick="setBreak('45 DK')">
-
-45 DK
-
-</button>
-
-</div>
-
-<button
-class="green"
-onclick="girisYap()">
-
-İşe Giriş
-
-</button>
-
-<button
-class="orange"
-onclick="molaBaslat()">
-
-Mola Başlat
-
-</button>
-
-<button
-class="blue"
-onclick="molaBitir()">
-
-Mola Bitir
-
-</button>
-
-<button
-class="red"
-onclick="cikisYap()">
-
-Çıkış Yap
-
-</button>
-
-<div class="ai-box">
-
-<div class="title">
-AI Takip
-</div>
-
-<div
-id="personelAI"
-class="ai-text">
-
-Mola sistemi hazır.
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- MANAGER PANEL -->
-
-<div
-id="managerPanel"
-class="hidden"
->
-
-<button
-class="gray"
-onclick="goHome()">
-
-← Geri
-
-</button>
-
-<div class="stats">
-
-<div class="stat green">
-
-<div>
-Aktif
-</div>
-
-<h2 id="aktifCount">
-0
-</h2>
-
-</div>
-
-<div class="stat orange">
-
-<div>
-Molada
-</div>
-
-<h2 id="molaCount">
-0
-</h2>
-
-</div>
-
-<div class="stat red">
-
-<div>
-Çıkış
-</div>
-
-<h2 id="cikisCount">
-0
-</h2>
-
-</div>
-
-</div>
-
-<div class="card">
-
-<div class="title">
-Yönetici Paneli
-</div>
-
-<input
-type="file"
-id="shiftFile"
-/>
-
-<div class="small">
-Excel veya vardiya görseli yükleyin
-</div>
-
-<div class="ai-box">
-
-<div class="title">
-🤖 AI Analiz
-</div>
-
-<div
-id="aiMessage"
-class="ai-text">
-
-AI sistemi aktif.
-</div>
-
-</div>
-
-</div>
-
-<div class="card">
-
-<div class="title">
-Canlı Hareketler
-</div>
-
-<div id="liveArea">
-
-</div>
-
-</div>
-
-<div class="card">
-
-<div class="title">
-Personeller
-</div>
-
-<div id="personArea">
-
-</div>
-
-</div>
-
-</div>
+<!-- AL METHER PILOT SECURITY CORE -->
 
 <script>
 
-let aktif = 0;
-let mola = 0;
-let cikis = 0;
+/* =========================
+   AL METHER CORE ENGINE
+========================= */
 
-let currentBreak = "15 DK";
+const STORE_CONFIG = {
+  brand: "SKX",
+  storeCode: "M085",
+  storeName: "Skechers M085",
+  lat: 38.4237,
+  lng: 27.1428,
+  allowedRadius: 120
+};
 
-let currentPerson = "";
+let activeUsers = JSON.parse(localStorage.getItem("activeUsers")) || [];
+let logs = JSON.parse(localStorage.getItem("logs")) || [];
+let suspiciousLogs = JSON.parse(localStorage.getItem("suspiciousLogs")) || [];
 
-let breakTimer = null;
+/* =========================
+   DEVICE ENGINE
+========================= */
 
-let persons =
-JSON.parse(
-localStorage.getItem("persons")
-) || [];
+function getDeviceId() {
 
-renderPersons();
+  let deviceId = localStorage.getItem("deviceId");
 
-function savePersons(){
+  if (!deviceId) {
 
-localStorage.setItem(
-"persons",
-JSON.stringify(persons)
-);
+    deviceId =
+      "DEV-" +
+      Math.random().toString(36).substring(2, 10);
 
+    localStorage.setItem("deviceId", deviceId);
+  }
+
+  return deviceId;
 }
 
-function hideAll(){
+/* =========================
+   GPS ENGINE
+========================= */
 
-document
-.getElementById("home")
-.classList.add("hidden");
+function calculateDistance(lat1, lon1, lat2, lon2) {
 
-document
-.getElementById("managerLogin")
-.classList.add("hidden");
+  const R = 6371e3;
 
-document
-.getElementById("personelLogin")
-.classList.add("hidden");
+  const f1 = lat1 * Math.PI / 180;
+  const f2 = lat2 * Math.PI / 180;
 
-document
-.getElementById("personelPanel")
-.classList.add("hidden");
+  const df = (lat2-lat1) * Math.PI / 180;
+  const dl = (lon2-lon1) * Math.PI / 180;
 
-document
-.getElementById("managerPanel")
-.classList.add("hidden");
+  const a =
+    Math.sin(df/2) * Math.sin(df/2) +
+    Math.cos(f1) *
+    Math.cos(f2) *
+    Math.sin(dl/2) *
+    Math.sin(dl/2);
 
+  const c =
+    2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+  return R * c;
 }
 
-function goHome(){
+function checkStoreLocation(userLat, userLng) {
 
-hideAll();
+  const distance = calculateDistance(
+    userLat,
+    userLng,
+    STORE_CONFIG.lat,
+    STORE_CONFIG.lng
+  );
 
-document
-.getElementById("home")
-.classList.remove("hidden");
-
+  return distance <= STORE_CONFIG.allowedRadius;
 }
 
-function openManagerLogin(){
+/* =========================
+   AI EVENT ENGINE
+========================= */
 
-hideAll();
+function createEvent(type, personCode, details) {
 
-document
-.getElementById("managerLogin")
-.classList.remove("hidden");
+  const event = {
+    type,
+    personCode,
+    details,
+    store: STORE_CONFIG.storeCode,
+    brand: STORE_CONFIG.brand,
+    time: new Date().toLocaleString(),
+  };
 
+  logs.unshift(event);
+
+  localStorage.setItem(
+    "logs",
+    JSON.stringify(logs)
+  );
+
+  renderLogs();
 }
 
-function openPersonelLogin(){
+/* =========================
+   SECURITY ENGINE
+========================= */
 
-hideAll();
+function suspiciousLogin(personCode, reason) {
 
-document
-.getElementById("personelLogin")
-.classList.remove("hidden");
+  const event = {
+    type: "SUSPICIOUS_LOGIN",
+    personCode,
+    reason,
+    store: STORE_CONFIG.storeCode,
+    time: new Date().toLocaleString()
+  };
 
+  suspiciousLogs.unshift(event);
+
+  localStorage.setItem(
+    "suspiciousLogs",
+    JSON.stringify(suspiciousLogs)
+  );
+
+  createEvent(
+    "SUSPICIOUS_LOGIN",
+    personCode,
+    reason
+  );
+
+  alert(
+    "⚠️ Şüpheli giriş tespit edildi!\n\n" +
+    reason
+  );
 }
 
-function loginManager(){
+/* =========================
+   PERSON LOGIN
+========================= */
 
-const code =
-document
-.getElementById("managerCode")
-.value;
+function personLogin() {
 
-const pass =
-document
-.getElementById("managerPass")
-.value;
+  const code =
+    document.getElementById("personCode").value;
 
-if(!code || !pass){
+  if (!code) {
 
-alert("Bilgileri doldur.");
+    alert("Personel kodu gir");
+    return;
+  }
 
-return;
+  navigator.geolocation.getCurrentPosition(
 
+    (position) => {
+
+      const userLat = position.coords.latitude;
+      const userLng = position.coords.longitude;
+
+      const insideStore =
+        checkStoreLocation(userLat, userLng);
+
+      const deviceId = getDeviceId();
+
+      if (!insideStore) {
+
+        suspiciousLogin(
+          code,
+          "Mağaza dışında giriş denemesi"
+        );
+
+        return;
+      }
+
+      const already =
+        activeUsers.find(
+          u => u.code === code
+        );
+
+      if (already) {
+
+        suspiciousLogin(
+          code,
+          "Aynı kullanıcı tekrar giriş yaptı"
+        );
+
+        return;
+      }
+
+      activeUsers.push({
+        code,
+        deviceId,
+        loginTime: new Date().toLocaleString(),
+        status: "ACTIVE",
+        breakMinutes: 0
+      });
+
+      localStorage.setItem(
+        "activeUsers",
+        JSON.stringify(activeUsers)
+      );
+
+      createEvent(
+        "SHIFT_START",
+        code,
+        "Personel giriş yaptı"
+      );
+
+      renderUsers();
+      updateCounters();
+
+      alert("✅ Giriş başarılı");
+
+    },
+
+    () => {
+
+      alert(
+        "❌ Konum izni gerekli"
+      );
+    }
+
+  );
 }
 
-hideAll();
+/* =========================
+   BREAK ENGINE
+========================= */
 
-document
-.getElementById("managerPanel")
-.classList.remove("hidden");
+function startBreak(minutes) {
 
-addLive(
-"👔 Yönetici giriş yaptı"
-);
+  const code =
+    document.getElementById("personCode").value;
 
+  const user =
+    activeUsers.find(
+      u => u.code === code
+    );
+
+  if (!user) {
+
+    alert("Aktif personel yok");
+    return;
+  }
+
+  user.status = "BREAK";
+  user.breakMinutes = minutes;
+
+  localStorage.setItem(
+    "activeUsers",
+    JSON.stringify(activeUsers)
+  );
+
+  createEvent(
+    "BREAK_START",
+    code,
+    minutes + " dk mola başladı"
+  );
+
+  renderUsers();
+  updateCounters();
+
+  alert(
+    "☕ " + minutes +
+    " dk mola başladı"
+  );
 }
 
-function createPersonel(){
+function endBreak() {
 
-const code =
-document
-.getElementById("personelCode")
-.value;
+  const code =
+    document.getElementById("personCode").value;
 
-const type =
-document
-.getElementById("workType")
-.value;
+  const user =
+    activeUsers.find(
+      u => u.code === code
+    );
 
-if(!code){
+  if (!user) {
 
-alert("Personel kodu gerekli.");
+    alert("Personel bulunamadı");
+    return;
+  }
 
-return;
+  user.status = "ACTIVE";
 
+  createEvent(
+    "BREAK_END",
+    code,
+    "Mola bitti"
+  );
+
+  localStorage.setItem(
+    "activeUsers",
+    JSON.stringify(activeUsers)
+  );
+
+  renderUsers();
+  updateCounters();
+
+  alert("✅ Mola bitti");
 }
 
-persons.push({
-code,
-type
-});
+/* =========================
+   EXIT ENGINE
+========================= */
 
-savePersons();
+function exitShift() {
 
-renderPersons();
+  const code =
+    document.getElementById("personCode").value;
 
-alert("Personel oluşturuldu.");
+  activeUsers =
+    activeUsers.filter(
+      u => u.code !== code
+    );
 
+  localStorage.setItem(
+    "activeUsers",
+    JSON.stringify(activeUsers)
+  );
+
+  createEvent(
+    "SHIFT_END",
+    code,
+    "Çıkış yaptı"
+  );
+
+  renderUsers();
+  updateCounters();
+
+  alert("👋 Çıkış yapıldı");
 }
 
-function renderPersons(){
+/* =========================
+   COUNTERS
+========================= */
 
-const area =
-document
-.getElementById("personArea");
+function updateCounters() {
 
-if(!area) return;
+  const active =
+    activeUsers.filter(
+      u => u.status === "ACTIVE"
+    ).length;
 
-area.innerHTML = "";
+  const breaks =
+    activeUsers.filter(
+      u => u.status === "BREAK"
+    ).length;
 
-persons.forEach(p=>{
+  document.getElementById(
+    "activeCount"
+  ).innerText = active;
 
-area.innerHTML += `
+  document.getElementById(
+    "breakCount"
+  ).innerText = breaks;
 
-<div class="person-card">
-
-<div>
-${p.code}
-</div>
-
-<div class="badge
-${p.type === 'Tam Zamanlı'
-? 'full'
-: 'part'}">
-
-${p.type}
-
-</div>
-
-</div>
-
-`;
-
-});
-
+  document.getElementById(
+    "exitCount"
+  ).innerText = logs.filter(
+    l => l.type === "SHIFT_END"
+  ).length;
 }
 
-function loginPersonel(){
+/* =========================
+   LIVE LOGS
+========================= */
 
-const code =
-document
-.getElementById("personelCode")
-.value;
+function renderLogs() {
 
-if(!code){
+  const area =
+    document.getElementById("liveLogs");
 
-alert("Personel kodu gerekli.");
+  if (!area) return;
 
-return;
+  area.innerHTML = "";
 
+  logs.slice(0, 20).forEach(log => {
+
+    const div =
+      document.createElement("div");
+
+    div.className = "logItem";
+
+    div.innerHTML = `
+      <b>${log.type}</b><br>
+      ${log.personCode}<br>
+      ${log.details}<br>
+      <small>${log.time}</small>
+    `;
+
+    area.appendChild(div);
+
+  });
 }
 
-currentPerson = code;
+/* =========================
+   ACTIVE USERS
+========================= */
 
-hideAll();
+function renderUsers() {
 
-document
-.getElementById("personelPanel")
-.classList.remove("hidden");
+  const area =
+    document.getElementById("activeArea");
 
-addLive(
-"🟢 " + code +
-" giriş yaptı"
-);
+  if (!area) return;
 
+  area.innerHTML = "";
+
+  activeUsers.forEach(user => {
+
+    const div =
+      document.createElement("div");
+
+    div.className = "userCard";
+
+    div.innerHTML = `
+      <h3>${user.code}</h3>
+      <p>${user.status}</p>
+      <small>${user.loginTime}</small>
+    `;
+
+    area.appendChild(div);
+
+  });
 }
 
-function setBreak(type){
-
-currentBreak = type;
-
-document
-.getElementById("personelAI")
-.innerText =
-
-"Seçilen mola: " + type;
-
-}
-
-function girisYap(){
-
-aktif++;
-
-updateStats();
-
-addLive(
-"🟢 " + currentPerson +
-" işe giriş yaptı"
-);
-
-}
-
-function molaBaslat(){
-
-if(aktif > 0){
-
-aktif--;
-mola++;
-
-}
-
-updateStats();
-
-addLive(
-"☕ " + currentPerson +
-" molaya çıktı → "
-+ currentBreak
-);
-
-startBreakAI();
-
-}
-
-function molaBitir(){
-
-if(mola > 0){
-
-mola--;
-aktif++;
-
-}
-
-clearTimeout(breakTimer);
-
-updateStats();
-
-addLive(
-"✅ " + currentPerson +
-" moladan döndü"
-);
-
-}
-
-function cikisYap(){
-
-if(aktif > 0){
-
-aktif--;
-cikis++;
-
-}
-
-updateStats();
-
-addLive(
-"🔴 " + currentPerson +
-" çıkış yaptı"
-);
-
-}
-
-function startBreakAI(){
-
-let minute = 15;
-
-if(currentBreak === "30 DK"){
-
-minute = 30;
-
-}
-
-if(currentBreak === "45 DK"){
-
-minute = 45;
-
-}
-
-breakTimer =
-setTimeout(()=>{
-
-document
-.getElementById("aiMessage")
-.innerText =
-
-"⚠️ "
-+ currentPerson +
-" mola süresini geçti!";
-
-addLive(
-"⚠️ AI → "
-+ currentPerson +
-" mola süresi aşıldı"
-);
-
-},minute * 60000);
-
-}
-
-function updateStats(){
-
-document
-.getElementById("aktifCount")
-.innerText = aktif;
-
-document
-.getElementById("molaCount")
-.innerText = mola;
-
-document
-.getElementById("cikisCount")
-.innerText = cikis;
-
-runAI();
-
-}
-
-function addLive(text){
-
-const div =
-document.createElement("div");
-
-div.className = "live-item";
-
-div.innerText =
-new Date().toLocaleTimeString()
-+ " - " + text;
-
-document
-.getElementById("liveArea")
-.prepend(div);
-
-}
-
-function runAI(){
-
-let mesaj = "";
-
-if(aktif < 2){
-
-mesaj =
-"⚠️ Personel eksik görünüyor.";
-
-}
-
-else if(mola > 3){
-
-mesaj =
-"⚠️ Aynı anda fazla mola var.";
-
-}
-
-else{
-
-mesaj =
-"✅ Operasyon dengeli çalışıyor.";
-
-}
-
-document
-.getElementById("aiMessage")
-.innerText = mesaj;
-
-}
-
-function startQR(){
-
-const html5QrCode =
-new Html5Qrcode("reader");
-
-Html5Qrcode
-.getCameras()
-.then(devices=>{
-
-if(devices && devices.length){
-
-const backCamera =
-devices[devices.length - 1].id;
-
-html5QrCode.start(
-
-backCamera,
-
-{
-fps:10,
-qrbox:220
-},
-
-(decodedText)=>{
-
-if(decodedText === "M085"){
-
-addLive(
-"📷 QR doğrulandı"
-);
-
-alert("QR doğrulandı");
-
-}
-
-else{
-
-alert("Geçersiz QR");
-
-}
-
-}
-
-);
-
-}
-
-});
-
-}
-
-document
-.getElementById("shiftFile")
-.addEventListener(
-"change",
-async(e)=>{
-
-const file =
-e.target.files[0];
-
-if(!file) return;
-
-document
-.getElementById("aiMessage")
-.innerText =
-
-"🤖 AI vardiya analizi başlatıldı...";
-
-const result =
-await Tesseract.recognize(
-file,
-"eng"
-);
-
-const text =
-result.data.text;
-
-document
-.getElementById("aiMessage")
-.innerText =
-
-"🤖 OCR tamamlandı:\n\n" +
-text.substring(0,300);
-
-addLive(
-"🤖 AI vardiya analizi tamamlandı"
-);
-
-});
+/* =========================
+   INIT
+========================= */
+
+window.onload = () => {
+
+  renderUsers();
+  renderLogs();
+  updateCounters();
+};
 
 </script>
-
-</body>
-
-</html>
