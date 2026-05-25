@@ -1,115 +1,600 @@
-<!-- =========================
-GERÇEK QR ENGINE
-ANA MİMARİYİ BOZMADAN
-EKLENECEK KOD
-========================= -->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- HEAD İÇİNE EKLE -->
+<title>AL Mether Workforce</title>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 
-<!-- =========================
-PERSON PANEL İÇİNDE
-QR OKUT BUTONUNUN ALTINA EKLE
-========================= -->
+<style>
 
-<div
-id="reader"
-style="
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#020b2d;
+color:white;
+padding:15px;
+}
+
+.container{
+max-width:500px;
+margin:auto;
+}
+
+.logo{
+text-align:center;
+margin-top:20px;
+margin-bottom:25px;
+}
+
+.logo h1{
+font-size:52px;
+color:#36b8ff;
+}
+
+.logo p{
+color:#98a5c3;
+margin-top:5px;
+font-size:18px;
+}
+
+.mainBtn{
+width:100%;
+padding:18px;
+border:none;
+border-radius:20px;
+font-size:24px;
+font-weight:bold;
+color:white;
+margin-top:15px;
+}
+
+.managerBtn{
+background:#3567ff;
+}
+
+.personBtn{
+background:#18c84b;
+}
+
+.regionBtn{
+background:#7b3cff;
+}
+
+.backBtn{
+background:#4e5a74;
+}
+
+.panel{
+display:none;
+background:#07143d;
+padding:20px;
+border-radius:25px;
+margin-top:20px;
+}
+
+.panel h2{
+font-size:32px;
+margin-bottom:20px;
+}
+
+input{
+width:100%;
+padding:18px;
+border:none;
+border-radius:18px;
+background:#08163a;
+color:white;
+font-size:20px;
+margin-top:15px;
+}
+
+.loginBtn{
+width:100%;
+padding:18px;
+border:none;
+border-radius:18px;
+font-size:22px;
+font-weight:bold;
+color:white;
+margin-top:15px;
+}
+
+.greenBtn{
+background:#18c84b;
+}
+
+.blueBtn{
+background:#3567ff;
+}
+
+.redBtn{
+background:#ff2d55;
+}
+
+.breakArea{
+display:flex;
+gap:10px;
+margin-top:18px;
+}
+
+.breakArea button{
+flex:1;
+padding:14px;
+border:none;
+border-radius:16px;
+font-size:18px;
+font-weight:bold;
+color:white;
+}
+
+.break15{
+background:#d29a00;
+}
+
+.break30{
+background:#ff8c00;
+}
+
+.break45{
+background:#ff4d4d;
+}
+
+.counterArea{
+display:flex;
+gap:10px;
+margin-top:20px;
+}
+
+.counter{
+flex:1;
+padding:18px;
+border-radius:18px;
+text-align:center;
+font-size:20px;
+font-weight:bold;
+}
+
+.activeBox{
+background:#18c84b;
+}
+
+.breakBox{
+background:#d29a00;
+}
+
+.exitBox{
+background:#ff2d55;
+}
+
+.logs{
+margin-top:20px;
+max-height:350px;
+overflow:auto;
+}
+
+.log{
+background:#09183f;
+padding:12px;
+border-radius:15px;
+margin-top:10px;
+font-size:14px;
+line-height:1.5;
+}
+
+.statusBar{
+margin-top:20px;
+padding:14px;
+border-radius:16px;
+background:#0b1c49;
+text-align:center;
+color:#9cc2ff;
+font-size:14px;
+}
+
+#reader{
 width:100%;
 margin-top:15px;
 border-radius:20px;
 overflow:hidden;
 display:none;
-"></div>
+background:black;
+}
 
-<!-- =========================
-SCRIPT ALTINA EKLE
-========================= -->
+</style>
+</head>
 
-let qrScanner = null;
+<body>
+
+<div class="container">
+
+<div class="logo">
+<h1>AL Mether</h1>
+<p>AI Workforce Management</p>
+</div>
+
+<!-- HOME -->
+
+<div id="homePage">
+
+<button
+class="mainBtn managerBtn"
+onclick="openManagerLogin()">
+Yönetici Girişi
+</button>
+
+<button
+class="mainBtn personBtn"
+onclick="openPersonPanel()">
+Personel Girişi
+</button>
+
+<button
+class="mainBtn regionBtn"
+onclick="openRegionPanel()">
+Bölge Müdürü
+</button>
+
+</div>
+
+<!-- MANAGER LOGIN -->
+
+<div
+id="managerLoginPanel"
+class="panel">
+
+<h2>Yönetici Girişi</h2>
+
+<input
+id="managerCode"
+placeholder="Yönetici Kodu">
+
+<input
+id="managerPassword"
+type="password"
+placeholder="Şifre">
+
+<button
+class="loginBtn blueBtn"
+onclick="managerLogin()">
+Giriş Yap
+</button>
+
+<button
+class="loginBtn backBtn"
+onclick="goHome()">
+Geri
+</button>
+
+</div>
+
+<!-- PERSON PANEL -->
+
+<div
+id="personPanel"
+class="panel">
+
+<h2>Personel Paneli</h2>
+
+<input
+id="personCode"
+placeholder="Personel Kodu">
+
+<button
+class="loginBtn greenBtn"
+onclick="startQRScanner()">
+QR OKUT
+</button>
+
+<div id="reader"></div>
+
+<button
+class="loginBtn greenBtn"
+onclick="personLogin()">
+Giriş Yap
+</button>
+
+<div class="breakArea">
+
+<button
+class="break15"
+onclick="startBreak(15)">
+15 DK
+</button>
+
+<button
+class="break30"
+onclick="startBreak(30)">
+30 DK
+</button>
+
+<button
+class="break45"
+onclick="startBreak(45)">
+45 DK
+</button>
+
+</div>
+
+<button
+class="loginBtn blueBtn"
+onclick="finishBreak()">
+Molayı Bitir
+</button>
+
+<button
+class="loginBtn redBtn"
+onclick="exitShift()">
+Çıkış Yap
+</button>
+
+<button
+class="loginBtn backBtn"
+onclick="goHome()">
+Geri
+</button>
+
+<div class="statusBar">
+GPS + QR + Device Security Aktif
+</div>
+
+</div>
+
+<!-- MANAGER PANEL -->
+
+<div
+id="managerPanel"
+class="panel">
+
+<h2>Yönetici Paneli</h2>
+
+<div class="counterArea">
+
+<div class="counter activeBox">
+<div id="activeCount">0</div>
+<div>Aktif</div>
+</div>
+
+<div class="counter breakBox">
+<div id="breakCount">0</div>
+<div>Molada</div>
+</div>
+
+<div class="counter exitBox">
+<div id="exitCount">0</div>
+<div>Çıkış</div>
+</div>
+
+</div>
+
+<div
+class="logs"
+id="logsArea"></div>
+
+<button
+class="loginBtn backBtn"
+onclick="goHome()">
+Ana Sayfa
+</button>
+
+</div>
+
+<!-- REGION PANEL -->
+
+<div
+id="regionPanel"
+class="panel">
+
+<h2>Bölge Müdürü</h2>
+
+<div class="counterArea">
+
+<div class="counter activeBox">
+<div id="regionActive">0</div>
+<div>Aktif</div>
+</div>
+
+<div class="counter breakBox">
+<div id="regionBreak">0</div>
+<div>Molada</div>
+</div>
+
+</div>
+
+<div
+class="logs"
+id="regionLogs"></div>
+
+<button
+class="loginBtn backBtn"
+onclick="goHome()">
+Ana Sayfa
+</button>
+
+</div>
+
+</div>
+
+<script>
 
 /* =========================
-REAL QR ENGINE
+STORE CONFIG
 ========================= */
 
-function startQRScanner(){
+const STORE = {
+brand:"SKX",
+store:"M085",
+lat:38.4237,
+lng:27.1428,
+radius:0.015
+};
 
-const reader =
-document.getElementById(
-"reader"
-);
-
-reader.style.display = "block";
-
-if(qrScanner){
-
-qrScanner.clear();
-
-}
-
-qrScanner =
-new Html5Qrcode("reader");
-
-qrScanner.start(
-
-{
-facingMode:"environment"
-},
-
-{
-fps:10,
-qrbox:250
-},
-
-(qrCodeMessage)=>{
-
-document.getElementById(
-"personCode"
-).value = qrCodeMessage;
-
-createLog(
-"🔳 QR okutuldu: " +
-qrCodeMessage
-);
-
-qrScanner.stop();
-
-reader.style.display =
-"none";
-
-alert(
-"QR başarıyla okutuldu"
-);
-
-},
-
-(errorMessage)=>{
-
-}
-
-).catch(err=>{
-
-alert(
-"Kamera açılamadı"
-);
-
-});
-
-}
+const STORE_CODE =
+STORE.brand + "-" + STORE.store;
 
 /* =========================
-QR BUTTON UPDATE
+MANAGERS
 ========================= */
 
-function fakeQRScan(){
+const managers = [
 
-startQRScanner();
+{
+code:"admin",
+password:"1234"
+},
+
+{
+code:"skxmanager",
+password:"1234"
+}
+
+];
+
+/* =========================
+DATABASE
+========================= */
+
+let users =
+JSON.parse(
+localStorage.getItem("users")
+) || [];
+
+let logs =
+JSON.parse(
+localStorage.getItem("logs")
+) || [];
+
+/* =========================
+UI
+========================= */
+
+function hideAll(){
+
+document.getElementById(
+"managerLoginPanel"
+).style.display="none";
+
+document.getElementById(
+"personPanel"
+).style.display="none";
+
+document.getElementById(
+"managerPanel"
+).style.display="none";
+
+document.getElementById(
+"regionPanel"
+).style.display="none";
+
+}
+
+function goHome(){
+
+hideAll();
+
+document.getElementById(
+"homePage"
+).style.display="block";
+
+}
+
+function openManagerLogin(){
+
+hideAll();
+
+document.getElementById(
+"homePage"
+).style.display="none";
+
+document.getElementById(
+"managerLoginPanel"
+).style.display="block";
+
+}
+
+function openPersonPanel(){
+
+hideAll();
+
+document.getElementById(
+"homePage"
+).style.display="none";
+
+document.getElementById(
+"personPanel"
+).style.display="block";
+
+}
+
+function openRegionPanel(){
+
+hideAll();
+
+document.getElementById(
+"homePage"
+).style.display="none";
+
+document.getElementById(
+"regionPanel"
+).style.display="block";
+
+updateRegionPanel();
 
 }
 
 /* =========================
-DEVICE SECURITY UPDATE
+MANAGER LOGIN
+========================= */
+
+function managerLogin(){
+
+const code =
+document.getElementById(
+"managerCode"
+).value;
+
+const password =
+document.getElementById(
+"managerPassword"
+).value;
+
+const found =
+managers.find(
+m =>
+m.code===code &&
+m.password===password
+);
+
+if(!found){
+
+alert(
+"Yönetici bilgileri yanlış"
+);
+
+return;
+
+}
+
+hideAll();
+
+document.getElementById(
+"managerPanel"
+).style.display="block";
+
+updateCounters();
+renderLogs();
+
+}
+
+/* =========================
+DEVICE ID
 ========================= */
 
 function getDeviceId(){
@@ -139,46 +624,24 @@ return id;
 }
 
 /* =========================
-MULTI LOGIN CHECK
+GPS CHECK
 ========================= */
 
-function checkMultipleLogin(code){
+function checkLocation(lat,lng){
 
-const existing =
-users.find(
-u=>u.code===code
+const distance =
+Math.sqrt(
+Math.pow(lat-STORE.lat,2)+
+Math.pow(lng-STORE.lng,2)
 );
 
-if(existing){
-
-createLog(
-"⚠️ Çoklu giriş denemesi: " +
-code
-);
-
-alert(
-"Bu personel zaten aktif"
-);
-
-return true;
-
-}
-
-return false;
+return distance <
+STORE.radius;
 
 }
 
 /* =========================
-STORE ISOLATION
-========================= */
-
-const STORE_CODE =
-STORE.brand +
-"-" +
-STORE.store;
-
-/* =========================
-LOG ENGINE UPDATE
+LOG ENGINE
 ========================= */
 
 function createLog(text){
@@ -186,9 +649,7 @@ function createLog(text){
 logs.unshift({
 
 store:STORE_CODE,
-
 text,
-
 time:new Date()
 .toLocaleString()
 
@@ -200,13 +661,121 @@ JSON.stringify(logs)
 );
 
 renderLogs();
-
 updateRegionPanel();
 
 }
 
 /* =========================
-AI ALERT SYSTEM
+COUNTERS
+========================= */
+
+function updateCounters(){
+
+const active =
+users.filter(
+u=>u.status==="ACTIVE"
+).length;
+
+const breaks =
+users.filter(
+u=>u.status==="BREAK"
+).length;
+
+const exits =
+logs.filter(
+l=>l.text.includes("çıkış")
+).length;
+
+document.getElementById(
+"activeCount"
+).innerText = active;
+
+document.getElementById(
+"breakCount"
+).innerText = breaks;
+
+document.getElementById(
+"exitCount"
+).innerText = exits;
+
+}
+
+/* =========================
+RENDER LOGS
+========================= */
+
+function renderLogs(){
+
+const area =
+document.getElementById(
+"logsArea"
+);
+
+if(!area) return;
+
+area.innerHTML = "";
+
+logs.slice(0,30)
+.forEach(log=>{
+
+area.innerHTML += `
+<div class="log">
+🏪 ${log.store}<br>
+${log.text}<br>
+<small>${log.time}</small>
+</div>
+`;
+
+});
+
+}
+
+/* =========================
+REGION PANEL
+========================= */
+
+function updateRegionPanel(){
+
+document.getElementById(
+"regionActive"
+).innerText =
+users.filter(
+u=>u.status==="ACTIVE"
+).length;
+
+document.getElementById(
+"regionBreak"
+).innerText =
+users.filter(
+u=>u.status==="BREAK"
+).length;
+
+const area =
+document.getElementById(
+"regionLogs"
+);
+
+if(!area) return;
+
+area.innerHTML = "";
+
+logs.slice(0,30)
+.forEach(log=>{
+
+area.innerHTML += `
+<div class="log">
+🏪 ${log.store}<br>
+${log.text}<br>
+<small>${log.time}</small>
+</div>
+`;
+
+});
+
+}
+
+/* =========================
+AI ALERTS
 ========================= */
 
 function checkAlerts(){
@@ -224,23 +793,94 @@ createLog(
 
 }
 
-const active =
-users.filter(
-u=>u.status==="ACTIVE"
-).length;
+}
 
-if(active <= 1){
+/* =========================
+QR ENGINE
+========================= */
 
-createLog(
-"⚠️ AI UYARISI: Personel sayısı kritik seviyede"
+let qrScanner = null;
+
+function startQRScanner(){
+
+const reader =
+document.getElementById(
+"reader"
 );
 
+reader.style.display =
+"block";
+
+if(qrScanner){
+
+qrScanner.stop()
+.then(()=>{
+
+qrScanner.clear();
+
+});
+
 }
+
+qrScanner =
+new Html5Qrcode("reader");
+
+qrScanner.start(
+
+{
+facingMode:"environment"
+},
+
+{
+fps:10,
+qrbox:220
+},
+
+(qrCodeMessage)=>{
+
+document.getElementById(
+"personCode"
+).value =
+qrCodeMessage;
+
+createLog(
+"🔳 QR okutuldu: " +
+qrCodeMessage
+);
+
+qrScanner.stop()
+.then(()=>{
+
+reader.style.display =
+"none";
+
+});
+
+alert(
+"QR başarıyla okutuldu"
+);
+
+},
+
+(errorMessage)=>{
+
+}
+
+).catch(err=>{
+
+reader.style.display =
+"none";
+
+alert(
+"Kamera açılamadı"
+);
+
+});
 
 }
 
 /* =========================
-PERSON LOGIN UPDATE
+PERSON LOGIN
 ========================= */
 
 function personLogin(){
@@ -260,7 +900,21 @@ return;
 
 }
 
-if(checkMultipleLogin(code)){
+const exists =
+users.find(
+u=>u.code===code
+);
+
+if(exists){
+
+createLog(
+"⚠️ Çoklu giriş denemesi: " +
+code
+);
+
+alert(
+"Bu personel zaten aktif"
+);
 
 return;
 
@@ -343,7 +997,7 @@ alert(
 }
 
 /* =========================
-BREAK UPDATE
+BREAK START
 ========================= */
 
 function startBreak(min){
@@ -395,49 +1049,95 @@ min +
 }
 
 /* =========================
-REGION PANEL UPDATE
+BREAK FINISH
 ========================= */
 
-function updateRegionPanel(){
+function finishBreak(){
 
-const active =
-users.filter(
-u=>u.status==="ACTIVE"
-).length;
-
-const breaks =
-users.filter(
-u=>u.status==="BREAK"
-).length;
-
+const code =
 document.getElementById(
-"regionActive"
-).innerText = active;
+"personCode"
+).value;
 
-document.getElementById(
-"regionBreak"
-).innerText = breaks;
-
-const area =
-document.getElementById(
-"regionLogs"
+const user =
+users.find(
+u=>u.code===code
 );
 
-if(!area) return;
+if(!user){
 
-area.innerHTML = "";
+alert(
+"Personel bulunamadı"
+);
 
-logs.slice(0,30)
-.forEach(log=>{
-
-area.innerHTML += `
-<div class="log">
-🏪 ${log.store}<br>
-${log.text}<br>
-<small>${log.time}</small>
-</div>
-`;
-
-});
+return;
 
 }
+
+user.status="ACTIVE";
+
+localStorage.setItem(
+"users",
+JSON.stringify(users)
+);
+
+createLog(
+"✅ " +
+code +
+" moladan döndü"
+);
+
+updateCounters();
+
+alert(
+"Mola bitti"
+);
+
+}
+
+/* =========================
+EXIT SHIFT
+========================= */
+
+function exitShift(){
+
+const code =
+document.getElementById(
+"personCode"
+).value;
+
+users =
+users.filter(
+u=>u.code!==code
+);
+
+localStorage.setItem(
+"users",
+JSON.stringify(users)
+);
+
+createLog(
+"👋 " +
+code +
+" çıkış yaptı"
+);
+
+updateCounters();
+
+alert(
+"Çıkış yapıldı"
+);
+
+}
+
+/* =========================
+INIT
+========================= */
+
+updateCounters();
+renderLogs();
+
+</script>
+
+</body>
+</html>
