@@ -401,7 +401,7 @@ Geri
 
 <div class="status">
 
-Stable Workforce Core Aktif
+Stable Workforce Core V5
 
 </div>
 
@@ -1188,16 +1188,18 @@ alert(
 
 function processAction(code){
 
-const user =
+/* LOGIN */
+
+if(currentAction==="LOGIN"){
+
+const exists =
 users.find(
 u =>
 u.code===code &&
 u.store===selectedStore
 );
 
-if(currentAction==="LOGIN"){
-
-if(user){
+if(exists){
 
 createPending(
 "Çoklu giriş: " +
@@ -1239,9 +1241,18 @@ alert(
 
 }
 
+/* BREAK */
+
 if(currentAction==="BREAK"){
 
-if(!user){
+const userIndex =
+users.findIndex(
+u =>
+u.code===code &&
+u.store===selectedStore
+);
+
+if(userIndex === -1){
 
 createPending(
 "Girişsiz mola: " +
@@ -1256,7 +1267,8 @@ return;
 
 }
 
-user.status = "BREAK";
+users[userIndex].status =
+"BREAK";
 
 localStorage.setItem(
 "users",
@@ -1277,9 +1289,18 @@ alert(
 
 }
 
+/* EXIT */
+
 if(currentAction==="EXIT"){
 
-if(!user){
+const exists =
+users.find(
+u =>
+u.code===code &&
+u.store===selectedStore
+);
+
+if(!exists){
 
 createPending(
 "Geçersiz çıkış: " +
@@ -1441,4 +1462,4 @@ renderLogs();
 
 </body>
 
-</html> 
+</html>
