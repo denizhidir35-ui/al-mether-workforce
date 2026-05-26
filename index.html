@@ -1,753 +1,16 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>AL Mether Workforce</title>
-
-<script src="https://unpkg.com/html5-qrcode"></script>
-
-<style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
-body{
-background:#020b2d;
-color:white;
-padding:15px;
-}
-
-.container{
-max-width:520px;
-margin:auto;
-}
-
-.logo{
-text-align:center;
-margin-top:20px;
-margin-bottom:25px;
-}
-
-.logo h1{
-font-size:50px;
-color:#36b8ff;
-}
-
-.logo p{
-font-size:18px;
-color:#9ca8c7;
-margin-top:5px;
-}
-
-.card{
-background:#07153d;
-padding:20px;
-border-radius:24px;
-margin-top:20px;
-}
-
-.mainBtn,
-.loginBtn{
-width:100%;
-padding:18px;
-border:none;
-border-radius:18px;
-font-size:20px;
-font-weight:bold;
-color:white;
-margin-top:15px;
-}
-
-.blue{
-background:#3567ff;
-}
-
-.green{
-background:#18c84b;
-}
-
-.red{
-background:#ff2d55;
-}
-
-.orange{
-background:#ff9800;
-}
-
-.purple{
-background:#7a3dff;
-}
-
-.gray{
-background:#4f5974;
-}
-
-input,
-select{
-width:100%;
-padding:16px;
-border:none;
-border-radius:16px;
-background:#08163a;
-color:white;
-font-size:18px;
-margin-top:15px;
-}
-
-.panel{
-display:none;
-}
-
-.breakArea{
-display:flex;
-gap:10px;
-margin-top:15px;
-}
-
-.breakArea button{
-flex:1;
-padding:14px;
-border:none;
-border-radius:14px;
-font-weight:bold;
-font-size:16px;
-color:white;
-}
-
-.counterArea{
-display:flex;
-gap:10px;
-margin-top:20px;
-}
-
-.counter{
-flex:1;
-padding:16px;
-border-radius:18px;
-text-align:center;
-font-weight:bold;
-}
-
-.activeBox{
-background:#18c84b;
-}
-
-.breakBox{
-background:#ff9800;
-}
-
-.exitBox{
-background:#ff2d55;
-}
-
-.logs{
-margin-top:20px;
-max-height:320px;
-overflow:auto;
-}
-
-.log{
-background:#09183f;
-padding:12px;
-border-radius:14px;
-margin-top:10px;
-font-size:14px;
-line-height:1.5;
-}
-
-.status{
-margin-top:15px;
-padding:14px;
-border-radius:16px;
-background:#0b1d4a;
-font-size:14px;
-text-align:center;
-color:#9cc2ff;
-}
-
-#reader{
-width:100%;
-margin-top:15px;
-overflow:hidden;
-border-radius:20px;
-display:none;
-background:black;
-}
-
-.actionBox{
-display:flex;
-gap:10px;
-margin-top:15px;
-}
-
-.actionBtn{
-flex:1;
-padding:14px;
-border:none;
-border-radius:14px;
-font-weight:bold;
-font-size:16px;
-color:white;
-}
-
-.selectedAction{
-outline:3px solid white;
-}
-
-.pendingBox{
-background:#381919;
-padding:14px;
-border-radius:16px;
-margin-top:15px;
-}
-
-</style>
-</head>
-
-<body>
-
-<div class="container">
-
-<div class="logo">
-<h1>AL Mether</h1>
-<p>Workforce Platform</p>
-</div>
-
-<!-- STORE -->
-
-<div id="storePage" class="card">
-
-<h2>Mağaza Seç</h2>
-
-<select id="storeSelect">
-
-<option value="SKX-M085">SKX - M085</option>
-<option value="SKX-M086">SKX - M086</option>
-<option value="LTB-M201">LTB - M201</option>
-<option value="X-M001">X STORE - M001</option>
-
-</select>
-
-<button
-class="mainBtn blue"
-onclick="saveStore()">
-Devam Et
-</button>
-
-</div>
-
-<!-- HOME -->
-
-<div id="homePage" class="panel">
-
-<div class="card">
-
-<button
-class="mainBtn green"
-onclick="openPersonPanel()">
-Personel Terminali
-</button>
-
-<button
-class="mainBtn blue"
-onclick="openManagerPanel()">
-Yönetici Paneli
-</button>
-
-<button
-class="mainBtn purple"
-onclick="openRegionPanel()">
-Bölge Müdürü
-</button>
-
-</div>
-
-</div>
-
-<!-- PERSON PANEL -->
-
-<div id="personPanel" class="panel">
-
-<div class="card">
-
-<h2>Personel Terminali</h2>
-
-<input
-id="personCode"
-placeholder="Personel Kodu">
-
-<select id="personRole">
-
-<option value="SD">SD</option>
-<option value="PARTTIME">Part Time</option>
-<option value="MANAGER">Yönetici</option>
-
-</select>
-
-<div class="actionBox">
-
-<button
-id="loginAction"
-class="actionBtn green selectedAction"
-onclick="setAction('LOGIN')">
-Giriş
-</button>
-
-<button
-id="breakAction"
-class="actionBtn orange"
-onclick="setAction('BREAK')">
-Mola
-</button>
-
-<button
-id="exitAction"
-class="actionBtn red"
-onclick="setAction('EXIT')">
-Çıkış
-</button>
-
-</div>
-
-<div class="breakArea">
-
-<button
-class="orange"
-onclick="setBreakTime(15)">
-15 DK
-</button>
-
-<button
-class="orange"
-onclick="setBreakTime(30)">
-30 DK
-</button>
-
-<button
-class="red"
-onclick="setBreakTime(45)">
-45 DK
-</button>
-
-</div>
-
-<button
-class="loginBtn blue"
-onclick="startQRScanner()">
-MAĞAZA QR OKUT
-</button>
-
-<div id="reader"></div>
-
-<button
-class="loginBtn gray"
-onclick="goHome()">
-Geri
-</button>
-
-<div class="status">
-Store QR + GPS + Approval Engine Aktif
-</div>
-
-</div>
-
-</div>
-
-<!-- MANAGER PANEL -->
-
-<div id="managerPanel" class="panel">
-
-<div class="card">
-
-<h2>Yönetici Paneli</h2>
-
-<div class="counterArea">
-
-<div class="counter activeBox">
-<div id="activeCount">0</div>
-<div>Aktif</div>
-</div>
-
-<div class="counter breakBox">
-<div id="breakCount">0</div>
-<div>Molada</div>
-</div>
-
-<div class="counter exitBox">
-<div id="exitCount">0</div>
-<div>Çıkış</div>
-</div>
-
-</div>
-
-<div id="pendingArea"></div>
-
-<div
-class="logs"
-id="logsArea"></div>
-
-<button
-class="loginBtn gray"
-onclick="goHome()">
-Ana Sayfa
-</button>
-
-</div>
-
-</div>
-
-<!-- REGION -->
-
-<div id="regionPanel" class="panel">
-
-<div class="card">
-
-<h2>Bölge Müdürü</h2>
-
-<div
-class="logs"
-id="regionLogs"></div>
-
-<button
-class="loginBtn gray"
-onclick="goHome()">
-Ana Sayfa
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-<script>
-
 /* =========================
-DATABASE
+ULTRA STABLE QR ENGINE
+SAFARI + CHROME FIX
+ESKİ QR ENGINE'İ TAMAMEN SİL
+BUNU KOY
 ========================= */
-
-let users =
-JSON.parse(
-localStorage.getItem("users")
-) || [];
-
-let logs =
-JSON.parse(
-localStorage.getItem("logs")
-) || [];
-
-let pendingApprovals =
-JSON.parse(
-localStorage.getItem("pendingApprovals")
-) || [];
-
-let selectedStore =
-localStorage.getItem("selectedStore");
-
-let currentAction = "LOGIN";
-
-let selectedBreak = 15;
 
 let qrScanner = null;
 
-/* =========================
-INIT
-========================= */
-
-if(selectedStore){
-
-document.getElementById(
-"storePage"
-).style.display = "none";
-
-document.getElementById(
-"homePage"
-).style.display = "block";
-
-}
+let qrLocked = false;
 
 /* =========================
-STORE
-========================= */
-
-function saveStore(){
-
-selectedStore =
-document.getElementById(
-"storeSelect"
-).value;
-
-localStorage.setItem(
-"selectedStore",
-selectedStore
-);
-
-document.getElementById(
-"storePage"
-).style.display = "none";
-
-document.getElementById(
-"homePage"
-).style.display = "block";
-
-}
-
-/* =========================
-UI
-========================= */
-
-function hideAll(){
-
-document.getElementById(
-"homePage"
-).style.display = "none";
-
-document.getElementById(
-"personPanel"
-).style.display = "none";
-
-document.getElementById(
-"managerPanel"
-).style.display = "none";
-
-document.getElementById(
-"regionPanel"
-).style.display = "none";
-
-}
-
-function goHome(){
-
-hideAll();
-
-document.getElementById(
-"homePage"
-).style.display = "block";
-
-stopScanner();
-
-}
-
-function openPersonPanel(){
-
-hideAll();
-
-document.getElementById(
-"personPanel"
-).style.display = "block";
-
-}
-
-function openManagerPanel(){
-
-hideAll();
-
-document.getElementById(
-"managerPanel"
-).style.display = "block";
-
-updateCounters();
-renderLogs();
-renderPending();
-
-}
-
-function openRegionPanel(){
-
-hideAll();
-
-document.getElementById(
-"regionPanel"
-).style.display = "block";
-
-renderRegionLogs();
-
-}
-
-/* =========================
-ACTION ENGINE
-========================= */
-
-function setAction(action){
-
-currentAction = action;
-
-document.getElementById(
-"loginAction"
-).classList.remove("selectedAction");
-
-document.getElementById(
-"breakAction"
-).classList.remove("selectedAction");
-
-document.getElementById(
-"exitAction"
-).classList.remove("selectedAction");
-
-if(action === "LOGIN"){
-
-document.getElementById(
-"loginAction"
-).classList.add("selectedAction");
-
-}
-
-if(action === "BREAK"){
-
-document.getElementById(
-"breakAction"
-).classList.add("selectedAction");
-
-}
-
-if(action === "EXIT"){
-
-document.getElementById(
-"exitAction"
-).classList.add("selectedAction");
-
-}
-
-}
-
-function setBreakTime(min){
-
-selectedBreak = min;
-
-}
-
-/* =========================
-LOG ENGINE
-========================= */
-
-function createLog(text){
-
-logs.unshift({
-
-store:selectedStore,
-text,
-time:new Date()
-.toLocaleString()
-
-});
-
-localStorage.setItem(
-"logs",
-JSON.stringify(logs)
-);
-
-renderLogs();
-renderRegionLogs();
-
-}
-
-/* =========================
-PENDING
-========================= */
-
-function createPending(text){
-
-pendingApprovals.unshift({
-
-store:selectedStore,
-text,
-time:new Date()
-.toLocaleString()
-
-});
-
-localStorage.setItem(
-"pendingApprovals",
-JSON.stringify(pendingApprovals)
-);
-
-renderPending();
-
-}
-
-function renderPending(){
-
-const area =
-document.getElementById(
-"pendingArea"
-);
-
-area.innerHTML = "";
-
-pendingApprovals
-.filter(
-p => p.store === selectedStore
-)
-.slice(0,10)
-.forEach((item,index)=>{
-
-area.innerHTML += `
-<div class="pendingBox">
-
-⚠️ ${item.text}<br>
-<small>${item.time}</small>
-
-<button
-class="loginBtn green"
-onclick="approvePending(${index})">
-Onayla
-</button>
-
-<button
-class="loginBtn red"
-onclick="rejectPending(${index})">
-Reddet
-</button>
-
-</div>
-`;
-
-});
-
-}
-
-function approvePending(index){
-
-pendingApprovals.splice(index,1);
-
-localStorage.setItem(
-"pendingApprovals",
-JSON.stringify(pendingApprovals)
-);
-
-renderPending();
-
-createLog(
-"✅ Yönetici işlem onayladı"
-);
-
-}
-
-function rejectPending(index){
-
-pendingApprovals.splice(index,1);
-
-localStorage.setItem(
-"pendingApprovals",
-JSON.stringify(pendingApprovals)
-);
-
-renderPending();
-
-createLog(
-"❌ Yönetici işlem reddetti"
-);
-
-}
-
-/* =========================
-QR ENGINE
+STOP CAMERA
 ========================= */
 
 async function stopScanner(){
@@ -757,6 +20,7 @@ try{
 if(qrScanner){
 
 await qrScanner.stop();
+
 await qrScanner.clear();
 
 qrScanner = null;
@@ -765,13 +29,36 @@ qrScanner = null;
 
 }catch(e){}
 
+const reader =
 document.getElementById(
 "reader"
-).style.display = "none";
+);
+
+if(reader){
+
+reader.innerHTML = "";
+
+reader.style.display = "none";
 
 }
 
+}
+
+/* =========================
+START QR
+========================= */
+
 async function startQRScanner(){
+
+/* LOCK */
+
+if(qrLocked){
+
+return;
+
+}
+
+/* PERSON CODE */
 
 const code =
 document.getElementById(
@@ -788,19 +75,33 @@ return;
 
 }
 
+/* READER */
+
 const reader =
 document.getElementById(
 "reader"
 );
 
+reader.innerHTML = "";
+
 reader.style.display = "block";
+
+/* FULL RESET */
 
 await stopScanner();
 
 reader.style.display = "block";
 
+/* NEW SCANNER */
+
 qrScanner =
 new Html5Qrcode("reader");
+
+/* LOOP PROTECTION */
+
+let scanCompleted = false;
+
+/* START */
 
 qrScanner.start(
 
@@ -810,303 +111,83 @@ facingMode:"environment"
 
 {
 fps:10,
-qrbox:220
+qrbox:220,
+aspectRatio:1
 },
 
 async(qrMessage)=>{
 
-if(qrMessage !==
-"STORE:" + selectedStore){
+/* CALLBACK LOCK */
+
+if(scanCompleted){
+
+return;
+
+}
+
+scanCompleted = true;
+
+qrLocked = true;
+
+/* VALIDATION */
+
+if(
+qrMessage !==
+"STORE:" + selectedStore
+){
+
+await stopScanner();
 
 createPending(
 "Yanlış mağaza QR okutuldu"
 );
 
 alert(
-"Yanlış mağaza QR"
+"Geçersiz QR"
 );
 
-await stopScanner();
+/* UNLOCK */
+
+setTimeout(()=>{
+
+qrLocked = false;
+
+},2000);
 
 return;
 
 }
 
+/* STOP CAMERA */
+
 await stopScanner();
+
+/* PROCESS */
 
 processAction(code);
 
+/* SAFE UNLOCK */
+
+setTimeout(()=>{
+
+qrLocked = false;
+
+},2000);
+
 },
 
-()=>{}
+(errorMessage)=>{
 
-).catch(()=>{
+}
+
+).catch(async(err)=>{
+
+await stopScanner();
 
 alert(
 "Kamera açılamadı"
 );
 
-stopScanner();
-
 });
 
 }
-
-/* =========================
-ACTION PROCESS
-========================= */
-
-function processAction(code){
-
-const role =
-document.getElementById(
-"personRole"
-).value;
-
-const user =
-users.find(
-u =>
-u.code === code &&
-u.store === selectedStore
-);
-
-if(currentAction === "LOGIN"){
-
-if(user){
-
-createPending(
-"Çoklu giriş denemesi: " +
-code
-);
-
-alert(
-"Yönetici onayı gerekiyor"
-);
-
-return;
-
-}
-
-users.push({
-
-code,
-role,
-store:selectedStore,
-status:"ACTIVE"
-
-});
-
-localStorage.setItem(
-"users",
-JSON.stringify(users)
-);
-
-createLog(
-"✅ " +
-code +
-" giriş yaptı (" +
-role +
-")"
-);
-
-updateCounters();
-
-alert(
-"Giriş başarılı"
-);
-
-}
-
-/* BREAK */
-
-if(currentAction === "BREAK"){
-
-if(!user){
-
-createPending(
-"Girişsiz mola denemesi: " +
-code
-);
-
-alert(
-"Yönetici onayı gerekiyor"
-);
-
-return;
-
-}
-
-user.status = "BREAK";
-
-localStorage.setItem(
-"users",
-JSON.stringify(users)
-);
-
-createLog(
-"☕ " +
-code +
-" " +
-selectedBreak +
-" dk molaya çıktı"
-);
-
-updateCounters();
-
-alert(
-"Mola başlatıldı"
-);
-
-}
-
-/* EXIT */
-
-if(currentAction === "EXIT"){
-
-if(!user){
-
-createPending(
-"Geçersiz çıkış denemesi: " +
-code
-);
-
-alert(
-"Yönetici onayı gerekiyor"
-);
-
-return;
-
-}
-
-users =
-users.filter(
-u =>
-!(
-u.code === code &&
-u.store === selectedStore
-)
-);
-
-localStorage.setItem(
-"users",
-JSON.stringify(users)
-);
-
-createLog(
-"👋 " +
-code +
-" çıkış yaptı"
-);
-
-updateCounters();
-
-alert(
-"Çıkış başarılı"
-);
-
-}
-
-}
-
-/* =========================
-COUNTERS
-========================= */
-
-function updateCounters(){
-
-document.getElementById(
-"activeCount"
-).innerText =
-users.filter(
-u =>
-u.store === selectedStore &&
-u.status === "ACTIVE"
-).length;
-
-document.getElementById(
-"breakCount"
-).innerText =
-users.filter(
-u =>
-u.store === selectedStore &&
-u.status === "BREAK"
-).length;
-
-document.getElementById(
-"exitCount"
-).innerText =
-logs.filter(
-l =>
-l.store === selectedStore &&
-l.text.includes("çıkış")
-).length;
-
-}
-
-/* =========================
-LOGS
-========================= */
-
-function renderLogs(){
-
-const area =
-document.getElementById(
-"logsArea"
-);
-
-area.innerHTML = "";
-
-logs
-.filter(
-l => l.store === selectedStore
-)
-.slice(0,30)
-.forEach(log=>{
-
-area.innerHTML += `
-<div class="log">
-🏪 ${log.store}<br>
-${log.text}<br>
-<small>${log.time}</small>
-</div>
-`;
-
-});
-
-}
-
-function renderRegionLogs(){
-
-const area =
-document.getElementById(
-"regionLogs"
-);
-
-area.innerHTML = "";
-
-logs.slice(0,40)
-.forEach(log=>{
-
-area.innerHTML += `
-<div class="log">
-🏪 ${log.store}<br>
-${log.text}<br>
-<small>${log.time}</small>
-</div>
-`;
-
-});
-
-}
-
-/* =========================
-INIT
-========================= */
-
-updateCounters();
-renderLogs();
-
-</script>
-
-</body>
-</html>
