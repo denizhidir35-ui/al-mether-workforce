@@ -1,7 +1,25 @@
 <!-- =========================
 AL METHER WORKFORCE
-CORE V4
-PERSONNEL DATABASE UPDATE
+STABLE PATCH V1
+BUG SAFE CORE
+=========================
+
+BU SÜRÜMDE:
+
+✅ stable qr
+✅ manager login
+✅ master login
+✅ store isolation
+✅ approval engine
+✅ logs
+✅ stable process action
+
+VAR.
+
+PERSONNEL DATABASE
+BU SÜRÜMDE YOK.
+
+ÖNCE ÇEKİRDEĞİ STABİLLEŞTİRİYORUZ.
 ========================= -->
 
 <script>
@@ -29,70 +47,40 @@ let selectedStore =
 localStorage.getItem("selectedStore");
 
 /* =========================
-PERSONNEL DATABASE
+MASTER ACCOUNT
 ========================= */
 
-let personnelDatabase =
-JSON.parse(
-localStorage.getItem(
-"personnelDatabase"
-)
-) || [
+const MASTER_CODE =
+"9-9-999";
 
-/* MASTER */
+const MASTER_PASSWORD =
+"1234";
 
-{
-code:"9-9-999",
-password:"1234",
-role:"MASTER",
-store:"ALL",
-active:true
-},
+/* =========================
+MANAGERS
+========================= */
 
-/* MANAGERS */
+const managers = [
 
 {
 code:"M085-ADMIN",
 password:"1234",
-role:"MANAGER",
-store:"SKX-M085",
-active:true
+store:"SKX-M085"
 },
 
 {
 code:"M086-ADMIN",
 password:"1234",
-role:"MANAGER",
-store:"SKX-M086",
-active:true
+store:"SKX-M086"
 },
 
 {
 code:"LTB-ADMIN",
 password:"1234",
-role:"MANAGER",
-store:"LTB-M201",
-active:true
-},
-
-/* PERSONNEL */
-
-{
-code:"1-8-350",
-password:"1234",
-role:"MANAGER",
-store:"SKX-M085",
-active:true
+store:"LTB-M201"
 }
 
 ];
-
-localStorage.setItem(
-"personnelDatabase",
-JSON.stringify(
-personnelDatabase
-)
-);
 
 /* =========================
 QR STATE
@@ -113,189 +101,268 @@ let currentAction = "LOGIN";
 let selectedBreak = 15;
 
 /* =========================
-FIND PERSONNEL
+UI HELPERS
 ========================= */
 
-function findPersonnel(
-code
-){
+function hideAll(){
 
-return personnelDatabase.find(
-p =>
-p.code === code
+const panels = [
+
+"homePage",
+"personPanel",
+"managerPanel",
+"regionPanel",
+"managerLoginPanel",
+"regionLoginPanel"
+
+];
+
+panels.forEach(id=>{
+
+const el =
+document.getElementById(id);
+
+if(el){
+
+el.style.display = "none";
+
+}
+
+});
+
+}
+
+function goHome(){
+
+hideAll();
+
+const home =
+document.getElementById(
+"homePage"
 );
+
+if(home){
+
+home.style.display = "block";
+
+}
+
+stopScanner();
 
 }
 
 /* =========================
-VALIDATE PERSONNEL
+ACTION ENGINE
 ========================= */
 
-function validatePersonnel(
-code,
-password
-){
+function setAction(action){
 
-const person =
-personnelDatabase.find(
-p =>
-p.code === code &&
-p.password === password &&
-p.active === true
+currentAction = action;
+
+const loginBtn =
+document.getElementById(
+"loginAction"
 );
 
-return person;
+const breakBtn =
+document.getElementById(
+"breakAction"
+);
+
+const exitBtn =
+document.getElementById(
+"exitAction"
+);
+
+if(loginBtn)
+loginBtn.classList.remove(
+"selectedAction"
+);
+
+if(breakBtn)
+breakBtn.classList.remove(
+"selectedAction"
+);
+
+if(exitBtn)
+exitBtn.classList.remove(
+"selectedAction"
+);
+
+if(action==="LOGIN" && loginBtn){
+
+loginBtn.classList.add(
+"selectedAction"
+);
+
+}
+
+if(action==="BREAK" && breakBtn){
+
+breakBtn.classList.add(
+"selectedAction"
+);
+
+}
+
+if(action==="EXIT" && exitBtn){
+
+exitBtn.classList.add(
+"selectedAction"
+);
+
+}
+
+}
+
+function setBreakTime(min){
+
+selectedBreak = min;
 
 }
 
 /* =========================
-ADD PERSONNEL
+LOG ENGINE
 ========================= */
 
-function addPersonnel(
-code,
-password,
-role,
-store
-){
+function createLog(text){
 
-const exists =
-personnelDatabase.find(
-p => p.code === code
+logs.unshift({
+
+store:selectedStore,
+text,
+time:new Date()
+.toLocaleString()
+
+});
+
+localStorage.setItem(
+"logs",
+JSON.stringify(logs)
 );
 
-if(exists){
-
-alert(
-"Bu personel mevcut"
-);
-
-return;
+renderLogs();
+renderRegionLogs();
 
 }
 
-personnelDatabase.push({
+/* =========================
+PENDING ENGINE
+========================= */
 
-code,
-password,
-role,
-store,
-active:true
+function createPending(text){
+
+pendingApprovals.unshift({
+
+store:selectedStore,
+text,
+time:new Date()
+.toLocaleString()
 
 });
 
 localStorage.setItem(
 
-"personnelDatabase",
+"pendingApprovals",
 
 JSON.stringify(
-personnelDatabase
+pendingApprovals
 )
 
 );
 
-createLog(
-
-"➕ Personel eklendi: " +
-code
-
-);
+renderPending();
 
 }
 
-/* =========================
-PASSIVE PERSONNEL
-========================= */
+function renderPending(){
 
-function passivePersonnel(
-code
-){
-
-const person =
-personnelDatabase.find(
-p => p.code === code
+const area =
+document.getElementById(
+"pendingArea"
 );
 
-if(!person){
+if(!area) return;
 
-return;
+area.innerHTML = "";
+
+pendingApprovals
+.filter(
+p=>p.store===selectedStore
+)
+.slice(0,10)
+.forEach((item,index)=>{
+
+area.innerHTML += `
+
+<div class="pendingBox">
+
+⚠️ ${item.text}<br>
+
+<small>
+${item.time}
+</small>
+
+<button
+class="loginBtn green"
+onclick="approvePending(${index})">
+Onayla
+</button>
+
+<button
+class="loginBtn red"
+onclick="rejectPending(${index})">
+Reddet
+</button>
+
+</div>
+
+`;
+
+});
 
 }
 
-person.active = false;
+function approvePending(index){
+
+pendingApprovals.splice(index,1);
 
 localStorage.setItem(
 
-"personnelDatabase",
+"pendingApprovals",
 
 JSON.stringify(
-personnelDatabase
+pendingApprovals
 )
 
 );
 
+renderPending();
+
 createLog(
-
-"⛔ Personel pasif: " +
-code
-
+"✅ Yönetici işlem onayladı"
 );
 
 }
 
-/* =========================
-RESET PASSWORD
-========================= */
+function rejectPending(index){
 
-function resetPassword(
-code,
-newPassword
-){
-
-const person =
-personnelDatabase.find(
-p => p.code === code
-);
-
-if(!person){
-
-return;
-
-}
-
-person.password =
-newPassword;
+pendingApprovals.splice(index,1);
 
 localStorage.setItem(
 
-"personnelDatabase",
+"pendingApprovals",
 
 JSON.stringify(
-personnelDatabase
+pendingApprovals
 )
 
 );
 
+renderPending();
+
 createLog(
-
-"🔑 Şifre reset: " +
-code
-
-);
-
-}
-
-/* =========================
-GET STORE PERSONNEL
-========================= */
-
-function getStorePersonnel(){
-
-return personnelDatabase.filter(
-
-p =>
-p.store === selectedStore
-
+"❌ Yönetici işlem reddetti"
 );
 
 }
@@ -317,9 +384,10 @@ document.getElementById(
 ).value;
 
 const manager =
-validatePersonnel(
-code,
-password
+managers.find(
+m =>
+m.code===code &&
+m.password===password
 );
 
 if(!manager){
@@ -333,21 +401,7 @@ return;
 }
 
 if(
-manager.role !== "MANAGER" &&
-manager.role !== "MASTER"
-){
-
-alert(
-"Yetkisiz erişim"
-);
-
-return;
-
-}
-
-if(
-manager.store !== selectedStore &&
-manager.role !== "MASTER"
+manager.store !== selectedStore
 ){
 
 alert(
@@ -360,14 +414,29 @@ return;
 
 hideAll();
 
+const panel =
 document.getElementById(
 "managerPanel"
-).style.display = "block";
+);
 
+if(panel){
+
+panel.style.display =
+"block";
+
+}
+
+const storeLabel =
 document.getElementById(
 "managerStore"
-).innerText =
+);
+
+if(storeLabel){
+
+storeLabel.innerText =
 selectedStore;
+
+}
 
 updateCounters();
 renderLogs();
@@ -380,7 +449,7 @@ createLog(
 }
 
 /* =========================
-REGION LOGIN
+MASTER LOGIN
 ========================= */
 
 function regionLogin(){
@@ -395,13 +464,10 @@ document.getElementById(
 "regionPassword"
 ).value;
 
-const region =
-validatePersonnel(
-code,
-password
-);
-
-if(!region){
+if(
+code !== MASTER_CODE ||
+password !== MASTER_PASSWORD
+){
 
 alert(
 "Erişim reddedildi"
@@ -411,23 +477,19 @@ return;
 
 }
 
-if(
-region.role !== "MASTER"
-){
-
-alert(
-"MASTER yetkisi gerekli"
-);
-
-return;
-
-}
-
 hideAll();
 
+const panel =
 document.getElementById(
 "regionPanel"
-).style.display = "block";
+);
+
+if(panel){
+
+panel.style.display =
+"block";
+
+}
 
 renderRegionLogs();
 
@@ -438,46 +500,160 @@ createLog(
 }
 
 /* =========================
+STOP QR
+========================= */
+
+async function stopScanner(){
+
+try{
+
+if(qrScanner){
+
+await qrScanner.stop();
+
+await qrScanner.clear();
+
+qrScanner = null;
+
+}
+
+}catch(e){}
+
+const reader =
+document.getElementById(
+"reader"
+);
+
+if(reader){
+
+reader.innerHTML = "";
+
+reader.style.display =
+"none";
+
+}
+
+qrRunning = false;
+
+qrProcessed = false;
+
+}
+
+/* =========================
+START QR
+========================= */
+
+async function startQRScanner(){
+
+if(qrRunning){
+
+return;
+
+}
+
+const code =
+document.getElementById(
+"personCode"
+).value;
+
+if(!code){
+
+alert(
+"Personel kodu gerekli"
+);
+
+return;
+
+}
+
+await stopScanner();
+
+qrRunning = true;
+
+const reader =
+document.getElementById(
+"reader"
+);
+
+if(reader){
+
+reader.innerHTML = "";
+
+reader.style.display =
+"block";
+
+}
+
+qrScanner =
+new Html5Qrcode("reader");
+
+try{
+
+await qrScanner.start(
+
+{
+facingMode:"environment"
+},
+
+{
+fps:5,
+qrbox:200
+},
+
+async(decodedText)=>{
+
+if(qrProcessed){
+
+return;
+
+}
+
+qrProcessed = true;
+
+await stopScanner();
+
+if(
+decodedText !==
+"STORE:" + selectedStore
+){
+
+createPending(
+"Yanlış mağaza QR okutuldu"
+);
+
+alert(
+"Geçersiz QR"
+);
+
+return;
+
+}
+
+processAction(code);
+
+},
+
+()=>{}
+
+);
+
+}catch(e){
+
+await stopScanner();
+
+alert(
+"Kamera açılamadı"
+);
+
+}
+
+}
+
+/* =========================
 PROCESS ACTION
 ========================= */
 
 function processAction(code){
-
-const person =
-findPersonnel(code);
-
-if(!person){
-
-createPending(
-"Bilinmeyen personel: " +
-code
-);
-
-alert(
-"Personel bulunamadı"
-);
-
-return;
-
-}
-
-if(
-person.store !== selectedStore &&
-person.role !== "MASTER"
-){
-
-createPending(
-"Yanlış mağaza personeli: " +
-code
-);
-
-alert(
-"Bu mağaza için yetkisiz"
-);
-
-return;
-
-}
 
 const user =
 users.find(
@@ -508,7 +684,7 @@ return;
 users.push({
 
 code,
-role:person.role,
+role:"PERSONNEL",
 store:selectedStore,
 status:"ACTIVE"
 
@@ -522,9 +698,7 @@ JSON.stringify(users)
 createLog(
 "✅ " +
 code +
-" giriş yaptı (" +
-person.role +
-")"
+" giriş yaptı"
 );
 
 updateCounters();
@@ -625,5 +799,142 @@ alert(
 }
 
 }
+
+/* =========================
+COUNTERS
+========================= */
+
+function updateCounters(){
+
+const active =
+users.filter(
+u =>
+u.store===selectedStore &&
+u.status==="ACTIVE"
+).length;
+
+const breaks =
+users.filter(
+u =>
+u.store===selectedStore &&
+u.status==="BREAK"
+).length;
+
+const exits =
+logs.filter(
+l =>
+l.store===selectedStore &&
+l.text.includes("çıkış")
+).length;
+
+const activeEl =
+document.getElementById(
+"activeCount"
+);
+
+const breakEl =
+document.getElementById(
+"breakCount"
+);
+
+const exitEl =
+document.getElementById(
+"exitCount"
+);
+
+if(activeEl)
+activeEl.innerText = active;
+
+if(breakEl)
+breakEl.innerText = breaks;
+
+if(exitEl)
+exitEl.innerText = exits;
+
+}
+
+/* =========================
+RENDER LOGS
+========================= */
+
+function renderLogs(){
+
+const area =
+document.getElementById(
+"logsArea"
+);
+
+if(!area) return;
+
+area.innerHTML = "";
+
+logs
+.filter(
+l=>l.store===selectedStore
+)
+.slice(0,30)
+.forEach(log=>{
+
+area.innerHTML += `
+
+<div class="log">
+
+🏪 ${log.store}<br>
+
+${log.text}<br>
+
+<small>
+${log.time}
+</small>
+
+</div>
+
+`;
+
+});
+
+}
+
+function renderRegionLogs(){
+
+const area =
+document.getElementById(
+"regionLogs"
+);
+
+if(!area) return;
+
+area.innerHTML = "";
+
+logs
+.slice(0,50)
+.forEach(log=>{
+
+area.innerHTML += `
+
+<div class="log">
+
+🏪 ${log.store}<br>
+
+${log.text}<br>
+
+<small>
+${log.time}
+</small>
+
+</div>
+
+`;
+
+});
+
+}
+
+/* =========================
+INIT
+========================= */
+
+updateCounters();
+renderLogs();
 
 </script>
