@@ -1,562 +1,8 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>AL Mether Workforce</title>
-
-<script src="https://unpkg.com/html5-qrcode"></script>
-
-<style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
-body{
-background:#020b2d;
-color:white;
-padding:15px;
-}
-
-.container{
-max-width:520px;
-margin:auto;
-}
-
-.logo{
-text-align:center;
-margin-top:20px;
-margin-bottom:25px;
-}
-
-.logo h1{
-font-size:48px;
-color:#39b8ff;
-}
-
-.logo p{
-font-size:18px;
-color:#9ca8c7;
-margin-top:5px;
-}
-
-.card{
-background:#07153d;
-padding:20px;
-border-radius:24px;
-margin-top:20px;
-box-shadow:0 0 20px rgba(0,0,0,0.2);
-}
-
-.mainBtn,
-.loginBtn{
-width:100%;
-padding:18px;
-border:none;
-border-radius:18px;
-font-size:20px;
-font-weight:bold;
-color:white;
-margin-top:15px;
-}
-
-.blue{
-background:#3567ff;
-}
-
-.green{
-background:#18c84b;
-}
-
-.red{
-background:#ff2d55;
-}
-
-.orange{
-background:#ff9800;
-}
-
-.purple{
-background:#7a3dff;
-}
-
-.gray{
-background:#4f5974;
-}
-
-input,
-select{
-width:100%;
-padding:16px;
-border:none;
-border-radius:16px;
-background:#08163a;
-color:white;
-font-size:18px;
-margin-top:15px;
-}
-
-.panel{
-display:none;
-}
-
-.actionBox{
-display:flex;
-gap:10px;
-margin-top:15px;
-}
-
-.actionBtn{
-flex:1;
-padding:14px;
-border:none;
-border-radius:14px;
-font-weight:bold;
-font-size:16px;
-color:white;
-}
-
-.selectedAction{
-outline:3px solid white;
-}
-
-.breakArea{
-display:flex;
-gap:10px;
-margin-top:15px;
-}
-
-.breakArea button{
-flex:1;
-padding:14px;
-border:none;
-border-radius:14px;
-font-weight:bold;
-font-size:16px;
-color:white;
-}
-
-.counterArea{
-display:flex;
-gap:10px;
-margin-top:20px;
-}
-
-.counter{
-flex:1;
-padding:16px;
-border-radius:18px;
-text-align:center;
-font-weight:bold;
-}
-
-.activeBox{
-background:#18c84b;
-}
-
-.breakBox{
-background:#ff9800;
-}
-
-.exitBox{
-background:#ff2d55;
-}
-
-.logs{
-margin-top:20px;
-max-height:320px;
-overflow:auto;
-}
-
-.log{
-background:#09183f;
-padding:12px;
-border-radius:14px;
-margin-top:10px;
-font-size:14px;
-line-height:1.5;
-}
-
-.pendingBox{
-background:#381919;
-padding:14px;
-border-radius:16px;
-margin-top:15px;
-}
-
-.status{
-margin-top:15px;
-padding:14px;
-border-radius:16px;
-background:#0b1d4a;
-font-size:14px;
-text-align:center;
-color:#9cc2ff;
-}
-
-#reader{
-width:100%;
-margin-top:15px;
-border-radius:20px;
-overflow:hidden;
-display:none;
-background:black;
-min-height:250px;
-}
-
-.topInfo{
-background:#08163a;
-padding:14px;
-border-radius:16px;
-margin-top:15px;
-font-size:14px;
-line-height:1.7;
-}
-
-</style>
-</head>
-
-<body>
-
-<div class="container">
-
-<div class="logo">
-<h1>AL Mether</h1>
-<p>Workforce Platform</p>
-</div>
-
-<!-- STORE -->
-
-<div id="storePage" class="card">
-
-<h2>Mağaza Seç</h2>
-
-<select id="storeSelect">
-
-<option value="SKX-M085">
-SKX - M085
-</option>
-
-<option value="SKX-M086">
-SKX - M086
-</option>
-
-<option value="LTB-M201">
-LTB - M201
-</option>
-
-<option value="X-M001">
-X STORE - M001
-</option>
-
-</select>
-
-<button
-class="mainBtn blue"
-onclick="saveStore()">
-Devam Et
-</button>
-
-</div>
-
-<!-- HOME -->
-
-<div id="homePage" class="panel">
-
-<div class="card">
-
-<h2>Giriş Tipi</h2>
-
-<button
-class="mainBtn green"
-onclick="openPersonPanel()">
-Personel Terminali
-</button>
-
-<button
-class="mainBtn blue"
-onclick="openManagerLogin()">
-Yönetici Girişi
-</button>
-
-<button
-class="mainBtn purple"
-onclick="openRegionLogin()">
-Bölge Müdürü
-</button>
-
-</div>
-
-</div>
-
-<!-- PERSON -->
-
-<div id="personPanel" class="panel">
-
-<div class="card">
-
-<h2>Personel Terminali</h2>
-
-<input
-id="personCode"
-placeholder="Personel Kodu">
-
-<select id="personRole">
-
-<option value="SD">
-SD
-</option>
-
-<option value="PARTTIME">
-Part Time
-</option>
-
-<option value="MANAGER">
-Yönetici
-</option>
-
-</select>
-
-<div class="actionBox">
-
-<button
-id="loginAction"
-class="actionBtn green selectedAction"
-onclick="setAction('LOGIN')">
-Giriş
-</button>
-
-<button
-id="breakAction"
-class="actionBtn orange"
-onclick="setAction('BREAK')">
-Mola
-</button>
-
-<button
-id="exitAction"
-class="actionBtn red"
-onclick="setAction('EXIT')">
-Çıkış
-</button>
-
-</div>
-
-<div class="breakArea">
-
-<button
-class="orange"
-onclick="setBreakTime(15)">
-15 DK
-</button>
-
-<button
-class="orange"
-onclick="setBreakTime(30)">
-30 DK
-</button>
-
-<button
-class="red"
-onclick="setBreakTime(45)">
-45 DK
-</button>
-
-</div>
-
-<button
-class="loginBtn blue"
-onclick="startQRScanner()">
-MAĞAZA QR OKUT
-</button>
-
-<div id="reader"></div>
-
-<button
-class="loginBtn gray"
-onclick="goHome()">
-Geri
-</button>
-
-<div class="status">
-Stable QR + Approval Engine Aktif
-</div>
-
-</div>
-
-</div>
-
-<!-- MANAGER LOGIN -->
-
-<div id="managerLoginPanel" class="panel">
-
-<div class="card">
-
-<h2>Yönetici Girişi</h2>
-
-<input
-id="managerCode"
-placeholder="Yönetici Kodu">
-
-<input
-id="managerPassword"
-type="password"
-placeholder="Şifre">
-
-<button
-class="loginBtn blue"
-onclick="managerLogin()">
-Giriş Yap
-</button>
-
-<button
-class="loginBtn gray"
-onclick="goHome()">
-Geri
-</button>
-
-</div>
-
-</div>
-
-<!-- REGION LOGIN -->
-
-<div id="regionLoginPanel" class="panel">
-
-<div class="card">
-
-<h2>Bölge Müdürü</h2>
-
-<input
-id="regionCode"
-placeholder="Kod">
-
-<input
-id="regionPassword"
-type="password"
-placeholder="Şifre">
-
-<button
-class="loginBtn purple"
-onclick="regionLogin()">
-Giriş Yap
-</button>
-
-<button
-class="loginBtn gray"
-onclick="goHome()">
-Geri
-</button>
-
-</div>
-
-</div>
-
-<!-- MANAGER PANEL -->
-
-<div id="managerPanel" class="panel">
-
-<div class="card">
-
-<h2>Yönetici Paneli</h2>
-
-<div class="topInfo">
-
-🏪 Store:
-<span id="managerStore"></span>
-
-</div>
-
-<div class="counterArea">
-
-<div class="counter activeBox">
-
-<div id="activeCount">
-0
-</div>
-
-<div>
-Aktif
-</div>
-
-</div>
-
-<div class="counter breakBox">
-
-<div id="breakCount">
-0
-</div>
-
-<div>
-Molada
-</div>
-
-</div>
-
-<div class="counter exitBox">
-
-<div id="exitCount">
-0
-</div>
-
-<div>
-Çıkış
-</div>
-
-</div>
-
-</div>
-
-<div id="pendingArea"></div>
-
-<div
-class="logs"
-id="logsArea"></div>
-
-<button
-class="loginBtn gray"
-onclick="goHome()">
-Ana Sayfa
-</button>
-
-</div>
-
-</div>
-
-<!-- REGION PANEL -->
-
-<div id="regionPanel" class="panel">
-
-<div class="card">
-
-<h2>Bölge Müdürü</h2>
-
-<div class="topInfo">
-
-🌍 MASTER ACCESS AKTİF
-
-</div>
-
-<div
-class="logs"
-id="regionLogs"></div>
-
-<button
-class="loginBtn gray"
-onclick="goHome()">
-Ana Sayfa
-</button>
-
-</div>
-
-</div>
-
-</div>
+<!-- =========================
+AL METHER WORKFORCE
+CORE V4
+PERSONNEL DATABASE UPDATE
+========================= -->
 
 <script>
 
@@ -583,40 +29,70 @@ let selectedStore =
 localStorage.getItem("selectedStore");
 
 /* =========================
-MASTER ACCOUNT
+PERSONNEL DATABASE
 ========================= */
 
-const MASTER_CODE =
-"9-9-999";
+let personnelDatabase =
+JSON.parse(
+localStorage.getItem(
+"personnelDatabase"
+)
+) || [
 
-const MASTER_PASSWORD =
-"1234";
+/* MASTER */
 
-/* =========================
-MANAGERS
-========================= */
+{
+code:"9-9-999",
+password:"1234",
+role:"MASTER",
+store:"ALL",
+active:true
+},
 
-const managers = [
+/* MANAGERS */
 
 {
 code:"M085-ADMIN",
 password:"1234",
-store:"SKX-M085"
+role:"MANAGER",
+store:"SKX-M085",
+active:true
 },
 
 {
 code:"M086-ADMIN",
 password:"1234",
-store:"SKX-M086"
+role:"MANAGER",
+store:"SKX-M086",
+active:true
 },
 
 {
 code:"LTB-ADMIN",
 password:"1234",
-store:"LTB-M201"
+role:"MANAGER",
+store:"LTB-M201",
+active:true
+},
+
+/* PERSONNEL */
+
+{
+code:"1-8-350",
+password:"1234",
+role:"MANAGER",
+store:"SKX-M085",
+active:true
 }
 
 ];
+
+localStorage.setItem(
+"personnelDatabase",
+JSON.stringify(
+personnelDatabase
+)
+);
 
 /* =========================
 QR STATE
@@ -637,118 +113,190 @@ let currentAction = "LOGIN";
 let selectedBreak = 15;
 
 /* =========================
-INIT
+FIND PERSONNEL
 ========================= */
 
-if(selectedStore){
+function findPersonnel(
+code
+){
 
-document.getElementById(
-"storePage"
-).style.display = "none";
-
-document.getElementById(
-"homePage"
-).style.display = "block";
-
-}
-
-/* =========================
-STORE SAVE
-========================= */
-
-function saveStore(){
-
-selectedStore =
-document.getElementById(
-"storeSelect"
-).value;
-
-localStorage.setItem(
-"selectedStore",
-selectedStore
+return personnelDatabase.find(
+p =>
+p.code === code
 );
 
-document.getElementById(
-"storePage"
-).style.display = "none";
+}
 
-document.getElementById(
-"homePage"
-).style.display = "block";
+/* =========================
+VALIDATE PERSONNEL
+========================= */
+
+function validatePersonnel(
+code,
+password
+){
+
+const person =
+personnelDatabase.find(
+p =>
+p.code === code &&
+p.password === password &&
+p.active === true
+);
+
+return person;
 
 }
 
 /* =========================
-UI
+ADD PERSONNEL
 ========================= */
 
-function hideAll(){
+function addPersonnel(
+code,
+password,
+role,
+store
+){
 
-document.getElementById(
-"homePage"
-).style.display = "none";
+const exists =
+personnelDatabase.find(
+p => p.code === code
+);
 
-document.getElementById(
-"personPanel"
-).style.display = "none";
+if(exists){
 
-document.getElementById(
-"managerPanel"
-).style.display = "none";
+alert(
+"Bu personel mevcut"
+);
 
-document.getElementById(
-"regionPanel"
-).style.display = "none";
-
-document.getElementById(
-"managerLoginPanel"
-).style.display = "none";
-
-document.getElementById(
-"regionLoginPanel"
-).style.display = "none";
+return;
 
 }
 
-function goHome(){
+personnelDatabase.push({
 
-hideAll();
+code,
+password,
+role,
+store,
+active:true
 
-document.getElementById(
-"homePage"
-).style.display = "block";
+});
 
-stopScanner();
+localStorage.setItem(
 
-}
+"personnelDatabase",
 
-function openPersonPanel(){
+JSON.stringify(
+personnelDatabase
+)
 
-hideAll();
+);
 
-document.getElementById(
-"personPanel"
-).style.display = "block";
+createLog(
 
-}
+"➕ Personel eklendi: " +
+code
 
-function openManagerLogin(){
-
-hideAll();
-
-document.getElementById(
-"managerLoginPanel"
-).style.display = "block";
+);
 
 }
 
-function openRegionLogin(){
+/* =========================
+PASSIVE PERSONNEL
+========================= */
 
-hideAll();
+function passivePersonnel(
+code
+){
 
-document.getElementById(
-"regionLoginPanel"
-).style.display = "block";
+const person =
+personnelDatabase.find(
+p => p.code === code
+);
+
+if(!person){
+
+return;
+
+}
+
+person.active = false;
+
+localStorage.setItem(
+
+"personnelDatabase",
+
+JSON.stringify(
+personnelDatabase
+)
+
+);
+
+createLog(
+
+"⛔ Personel pasif: " +
+code
+
+);
+
+}
+
+/* =========================
+RESET PASSWORD
+========================= */
+
+function resetPassword(
+code,
+newPassword
+){
+
+const person =
+personnelDatabase.find(
+p => p.code === code
+);
+
+if(!person){
+
+return;
+
+}
+
+person.password =
+newPassword;
+
+localStorage.setItem(
+
+"personnelDatabase",
+
+JSON.stringify(
+personnelDatabase
+)
+
+);
+
+createLog(
+
+"🔑 Şifre reset: " +
+code
+
+);
+
+}
+
+/* =========================
+GET STORE PERSONNEL
+========================= */
+
+function getStorePersonnel(){
+
+return personnelDatabase.filter(
+
+p =>
+p.store === selectedStore
+
+);
 
 }
 
@@ -769,10 +317,9 @@ document.getElementById(
 ).value;
 
 const manager =
-managers.find(
-m =>
-m.code===code &&
-m.password===password
+validatePersonnel(
+code,
+password
 );
 
 if(!manager){
@@ -785,7 +332,23 @@ return;
 
 }
 
-if(manager.store !== selectedStore){
+if(
+manager.role !== "MANAGER" &&
+manager.role !== "MASTER"
+){
+
+alert(
+"Yetkisiz erişim"
+);
+
+return;
+
+}
+
+if(
+manager.store !== selectedStore &&
+manager.role !== "MASTER"
+){
 
 alert(
 "Bu mağaza için yetkiniz yok"
@@ -810,6 +373,10 @@ updateCounters();
 renderLogs();
 renderPending();
 
+createLog(
+"🔐 Yönetici giriş yaptı"
+);
+
 }
 
 /* =========================
@@ -828,13 +395,28 @@ document.getElementById(
 "regionPassword"
 ).value;
 
-if(
-code !== MASTER_CODE ||
-password !== MASTER_PASSWORD
-){
+const region =
+validatePersonnel(
+code,
+password
+);
+
+if(!region){
 
 alert(
 "Erişim reddedildi"
+);
+
+return;
+
+}
+
+if(
+region.role !== "MASTER"
+){
+
+alert(
+"MASTER yetkisi gerekli"
 );
 
 return;
@@ -849,327 +431,9 @@ document.getElementById(
 
 renderRegionLogs();
 
-}
-
-/* =========================
-ACTION
-========================= */
-
-function setAction(action){
-
-currentAction = action;
-
-document.getElementById(
-"loginAction"
-).classList.remove("selectedAction");
-
-document.getElementById(
-"breakAction"
-).classList.remove("selectedAction");
-
-document.getElementById(
-"exitAction"
-).classList.remove("selectedAction");
-
-if(action==="LOGIN"){
-
-document.getElementById(
-"loginAction"
-).classList.add("selectedAction");
-
-}
-
-if(action==="BREAK"){
-
-document.getElementById(
-"breakAction"
-).classList.add("selectedAction");
-
-}
-
-if(action==="EXIT"){
-
-document.getElementById(
-"exitAction"
-).classList.add("selectedAction");
-
-}
-
-}
-
-function setBreakTime(min){
-
-selectedBreak = min;
-
-}
-
-/* =========================
-LOG ENGINE
-========================= */
-
-function createLog(text){
-
-logs.unshift({
-
-store:selectedStore,
-text,
-time:new Date()
-.toLocaleString()
-
-});
-
-localStorage.setItem(
-"logs",
-JSON.stringify(logs)
-);
-
-renderLogs();
-renderRegionLogs();
-
-}
-
-/* =========================
-PENDING
-========================= */
-
-function createPending(text){
-
-pendingApprovals.unshift({
-
-store:selectedStore,
-text,
-time:new Date()
-.toLocaleString()
-
-});
-
-localStorage.setItem(
-"pendingApprovals",
-JSON.stringify(pendingApprovals)
-);
-
-renderPending();
-
-}
-
-function renderPending(){
-
-const area =
-document.getElementById(
-"pendingArea"
-);
-
-if(!area) return;
-
-area.innerHTML = "";
-
-pendingApprovals
-.filter(
-p=>p.store===selectedStore
-)
-.slice(0,10)
-.forEach((item,index)=>{
-
-area.innerHTML += `
-<div class="pendingBox">
-
-⚠️ ${item.text}<br>
-<small>${item.time}</small>
-
-<button
-class="loginBtn green"
-onclick="approvePending(${index})">
-Onayla
-</button>
-
-<button
-class="loginBtn red"
-onclick="rejectPending(${index})">
-Reddet
-</button>
-
-</div>
-`;
-
-});
-
-}
-
-function approvePending(index){
-
-pendingApprovals.splice(index,1);
-
-localStorage.setItem(
-"pendingApprovals",
-JSON.stringify(pendingApprovals)
-);
-
-renderPending();
-
 createLog(
-"✅ Yönetici işlem onayladı"
+"🌍 MASTER ACCESS"
 );
-
-}
-
-function rejectPending(index){
-
-pendingApprovals.splice(index,1);
-
-localStorage.setItem(
-"pendingApprovals",
-JSON.stringify(pendingApprovals)
-);
-
-renderPending();
-
-createLog(
-"❌ Yönetici işlem reddetti"
-);
-
-}
-
-/* =========================
-STOP QR
-========================= */
-
-async function stopScanner(){
-
-try{
-
-if(qrScanner){
-
-await qrScanner.stop();
-
-await qrScanner.clear();
-
-qrScanner = null;
-
-}
-
-}catch(e){}
-
-const reader =
-document.getElementById(
-"reader"
-);
-
-if(reader){
-
-reader.innerHTML = "";
-
-reader.style.display = "none";
-
-}
-
-qrRunning = false;
-
-qrProcessed = false;
-
-}
-
-/* =========================
-START QR
-========================= */
-
-async function startQRScanner(){
-
-if(qrRunning){
-
-return;
-
-}
-
-const code =
-document.getElementById(
-"personCode"
-).value;
-
-if(!code){
-
-alert(
-"Personel kodu gerekli"
-);
-
-return;
-
-}
-
-await stopScanner();
-
-qrRunning = true;
-
-const reader =
-document.getElementById(
-"reader"
-);
-
-reader.style.display = "block";
-
-reader.innerHTML = "";
-
-qrScanner =
-new Html5Qrcode("reader");
-
-try{
-
-await qrScanner.start(
-
-{
-facingMode:"environment"
-},
-
-{
-fps:5,
-qrbox:200
-},
-
-async(decodedText)=>{
-
-if(qrProcessed){
-
-return;
-
-}
-
-qrProcessed = true;
-
-await stopScanner();
-
-if(
-decodedText !==
-"STORE:" + selectedStore
-){
-
-createPending(
-"Yanlış mağaza QR okutuldu"
-);
-
-alert(
-"Geçersiz QR"
-);
-
-return;
-
-}
-
-processAction(code);
-
-},
-
-()=>{}
-
-);
-
-}catch(e){
-
-await stopScanner();
-
-alert(
-"Kamera açılamadı"
-);
-
-}
 
 }
 
@@ -1179,10 +443,41 @@ PROCESS ACTION
 
 function processAction(code){
 
-const role =
-document.getElementById(
-"personRole"
-).value;
+const person =
+findPersonnel(code);
+
+if(!person){
+
+createPending(
+"Bilinmeyen personel: " +
+code
+);
+
+alert(
+"Personel bulunamadı"
+);
+
+return;
+
+}
+
+if(
+person.store !== selectedStore &&
+person.role !== "MASTER"
+){
+
+createPending(
+"Yanlış mağaza personeli: " +
+code
+);
+
+alert(
+"Bu mağaza için yetkisiz"
+);
+
+return;
+
+}
 
 const user =
 users.find(
@@ -1213,7 +508,7 @@ return;
 users.push({
 
 code,
-role,
+role:person.role,
 store:selectedStore,
 status:"ACTIVE"
 
@@ -1228,7 +523,7 @@ createLog(
 "✅ " +
 code +
 " giriş yaptı (" +
-role +
+person.role +
 ")"
 );
 
@@ -1331,109 +626,4 @@ alert(
 
 }
 
-/* =========================
-COUNTERS
-========================= */
-
-function updateCounters(){
-
-document.getElementById(
-"activeCount"
-).innerText =
-users.filter(
-u =>
-u.store===selectedStore &&
-u.status==="ACTIVE"
-).length;
-
-document.getElementById(
-"breakCount"
-).innerText =
-users.filter(
-u =>
-u.store===selectedStore &&
-u.status==="BREAK"
-).length;
-
-document.getElementById(
-"exitCount"
-).innerText =
-logs.filter(
-l =>
-l.store===selectedStore &&
-l.text.includes("çıkış")
-).length;
-
-}
-
-/* =========================
-RENDER LOGS
-========================= */
-
-function renderLogs(){
-
-const area =
-document.getElementById(
-"logsArea"
-);
-
-if(!area) return;
-
-area.innerHTML = "";
-
-logs
-.filter(
-l=>l.store===selectedStore
-)
-.slice(0,30)
-.forEach(log=>{
-
-area.innerHTML += `
-<div class="log">
-🏪 ${log.store}<br>
-${log.text}<br>
-<small>${log.time}</small>
-</div>
-`;
-
-});
-
-}
-
-function renderRegionLogs(){
-
-const area =
-document.getElementById(
-"regionLogs"
-);
-
-if(!area) return;
-
-area.innerHTML = "";
-
-logs.slice(0,50)
-.forEach(log=>{
-
-area.innerHTML += `
-<div class="log">
-🏪 ${log.store}<br>
-${log.text}<br>
-<small>${log.time}</small>
-</div>
-`;
-
-});
-
-}
-
-/* =========================
-INIT
-========================= */
-
-updateCounters();
-renderLogs();
-
 </script>
-
-</body>
-</html>
