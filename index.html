@@ -41,7 +41,7 @@ color:#36b8ff;
 
 .logo p{
 font-size:18px;
-color:#98a5c3;
+color:#9ca8c7;
 margin-top:5px;
 }
 
@@ -69,7 +69,7 @@ background:#3567ff;
 }
 
 .green{
-background:#17c84b;
+background:#18c84b;
 }
 
 .red{
@@ -77,19 +77,15 @@ background:#ff2d55;
 }
 
 .orange{
-background:#ff9500;
+background:#ff9800;
 }
 
 .purple{
-background:#7b3cff;
+background:#7a3dff;
 }
 
 .gray{
 background:#4f5974;
-}
-
-.panel{
-display:none;
 }
 
 input,
@@ -102,6 +98,26 @@ background:#08163a;
 color:white;
 font-size:18px;
 margin-top:15px;
+}
+
+.panel{
+display:none;
+}
+
+.breakArea{
+display:flex;
+gap:10px;
+margin-top:15px;
+}
+
+.breakArea button{
+flex:1;
+padding:14px;
+border:none;
+border-radius:14px;
+font-weight:bold;
+font-size:16px;
+color:white;
 }
 
 .counterArea{
@@ -119,11 +135,11 @@ font-weight:bold;
 }
 
 .activeBox{
-background:#17c84b;
+background:#18c84b;
 }
 
 .breakBox{
-background:#ff9500;
+background:#ff9800;
 }
 
 .exitBox{
@@ -148,27 +164,11 @@ line-height:1.5;
 .status{
 margin-top:15px;
 padding:14px;
-background:#0b1d4a;
 border-radius:16px;
+background:#0b1d4a;
 font-size:14px;
 text-align:center;
 color:#9cc2ff;
-}
-
-.breakArea{
-display:flex;
-gap:10px;
-margin-top:15px;
-}
-
-.breakArea button{
-flex:1;
-padding:14px;
-border:none;
-border-radius:14px;
-font-weight:bold;
-color:white;
-font-size:16px;
 }
 
 #reader{
@@ -180,8 +180,28 @@ display:none;
 background:black;
 }
 
+.actionBox{
+display:flex;
+gap:10px;
+margin-top:15px;
+}
+
+.actionBtn{
+flex:1;
+padding:14px;
+border:none;
+border-radius:14px;
+font-weight:bold;
+font-size:16px;
+color:white;
+}
+
+.selectedAction{
+outline:3px solid white;
+}
+
 .pendingBox{
-background:#3d1d1d;
+background:#381919;
 padding:14px;
 border-radius:16px;
 margin-top:15px;
@@ -199,9 +219,9 @@ margin-top:15px;
 <p>Workforce Platform</p>
 </div>
 
-<!-- STORE SELECT -->
+<!-- STORE -->
 
-<div id="storeSelectPage" class="card">
+<div id="storePage" class="card">
 
 <h2>Mağaza Seç</h2>
 
@@ -229,15 +249,15 @@ Devam Et
 <div class="card">
 
 <button
-class="mainBtn blue"
-onclick="openManagerPanel()">
-Yönetici
+class="mainBtn green"
+onclick="openPersonPanel()">
+Personel Terminali
 </button>
 
 <button
-class="mainBtn green"
-onclick="openPersonPanel()">
-Personel
+class="mainBtn blue"
+onclick="openManagerPanel()">
+Yönetici Paneli
 </button>
 
 <button
@@ -256,7 +276,7 @@ Bölge Müdürü
 
 <div class="card">
 
-<h2>Personel Girişi</h2>
+<h2>Personel Terminali</h2>
 
 <input
 id="personCode"
@@ -270,37 +290,48 @@ placeholder="Personel Kodu">
 
 </select>
 
-<button
-class="loginBtn green"
-onclick="startQRScanner()">
-QR OKUT
-</button>
-
-<div id="reader"></div>
+<div class="actionBox">
 
 <button
-class="loginBtn blue"
-onclick="personLogin()">
-Giriş Yap
+id="loginAction"
+class="actionBtn green selectedAction"
+onclick="setAction('LOGIN')">
+Giriş
 </button>
+
+<button
+id="breakAction"
+class="actionBtn orange"
+onclick="setAction('BREAK')">
+Mola
+</button>
+
+<button
+id="exitAction"
+class="actionBtn red"
+onclick="setAction('EXIT')">
+Çıkış
+</button>
+
+</div>
 
 <div class="breakArea">
 
 <button
 class="orange"
-onclick="startBreak(15)">
+onclick="setBreakTime(15)">
 15 DK
 </button>
 
 <button
 class="orange"
-onclick="startBreak(30)">
+onclick="setBreakTime(30)">
 30 DK
 </button>
 
 <button
 class="red"
-onclick="startBreak(45)">
+onclick="setBreakTime(45)">
 45 DK
 </button>
 
@@ -308,15 +339,11 @@ onclick="startBreak(45)">
 
 <button
 class="loginBtn blue"
-onclick="finishBreak()">
-Molayı Bitir
+onclick="startQRScanner()">
+MAĞAZA QR OKUT
 </button>
 
-<button
-class="loginBtn red"
-onclick="exitShift()">
-Çıkış Yap
-</button>
+<div id="reader"></div>
 
 <button
 class="loginBtn gray"
@@ -325,7 +352,7 @@ Geri
 </button>
 
 <div class="status">
-GPS + QR + Güvenlik Sistemi Aktif
+Store QR + GPS + Approval Engine Aktif
 </div>
 
 </div>
@@ -375,7 +402,7 @@ Ana Sayfa
 
 </div>
 
-<!-- REGION PANEL -->
+<!-- REGION -->
 
 <div id="regionPanel" class="panel">
 
@@ -423,6 +450,12 @@ localStorage.getItem("pendingApprovals")
 let selectedStore =
 localStorage.getItem("selectedStore");
 
+let currentAction = "LOGIN";
+
+let selectedBreak = 15;
+
+let qrScanner = null;
+
 /* =========================
 INIT
 ========================= */
@@ -430,7 +463,7 @@ INIT
 if(selectedStore){
 
 document.getElementById(
-"storeSelectPage"
+"storePage"
 ).style.display = "none";
 
 document.getElementById(
@@ -440,7 +473,7 @@ document.getElementById(
 }
 
 /* =========================
-STORE SAVE
+STORE
 ========================= */
 
 function saveStore(){
@@ -456,7 +489,7 @@ selectedStore
 );
 
 document.getElementById(
-"storeSelectPage"
+"storePage"
 ).style.display = "none";
 
 document.getElementById(
@@ -497,6 +530,8 @@ document.getElementById(
 "homePage"
 ).style.display = "block";
 
+stopScanner();
+
 }
 
 function openPersonPanel(){
@@ -536,62 +571,54 @@ renderRegionLogs();
 }
 
 /* =========================
-QR ENGINE
+ACTION ENGINE
 ========================= */
 
-let qrScanner = null;
+function setAction(action){
 
-function startQRScanner(){
-
-const reader =
-document.getElementById(
-"reader"
-);
-
-reader.style.display = "block";
-
-qrScanner =
-new Html5Qrcode("reader");
-
-qrScanner.start(
-
-{
-facingMode:"environment"
-},
-
-{
-fps:10,
-qrbox:220
-},
-
-(qrCodeMessage)=>{
+currentAction = action;
 
 document.getElementById(
-"personCode"
-).value =
-qrCodeMessage;
+"loginAction"
+).classList.remove("selectedAction");
 
-createLog(
-"🔳 QR okutuldu: " +
-qrCodeMessage
-);
+document.getElementById(
+"breakAction"
+).classList.remove("selectedAction");
 
-qrScanner.stop();
+document.getElementById(
+"exitAction"
+).classList.remove("selectedAction");
 
-reader.style.display =
-"none";
+if(action === "LOGIN"){
 
-},
+document.getElementById(
+"loginAction"
+).classList.add("selectedAction");
 
-()=>{}
+}
 
-).catch(()=>{
+if(action === "BREAK"){
 
-alert(
-"Kamera açılamadı"
-);
+document.getElementById(
+"breakAction"
+).classList.add("selectedAction");
 
-});
+}
+
+if(action === "EXIT"){
+
+document.getElementById(
+"exitAction"
+).classList.add("selectedAction");
+
+}
+
+}
+
+function setBreakTime(min){
+
+selectedBreak = min;
 
 }
 
@@ -621,102 +648,7 @@ renderRegionLogs();
 }
 
 /* =========================
-COUNTERS
-========================= */
-
-function updateCounters(){
-
-document.getElementById(
-"activeCount"
-).innerText =
-users.filter(
-u =>
-u.store === selectedStore &&
-u.status === "ACTIVE"
-).length;
-
-document.getElementById(
-"breakCount"
-).innerText =
-users.filter(
-u =>
-u.store === selectedStore &&
-u.status === "BREAK"
-).length;
-
-document.getElementById(
-"exitCount"
-).innerText =
-logs.filter(
-l =>
-l.store === selectedStore &&
-l.text.includes("çıkış")
-).length;
-
-}
-
-/* =========================
-RENDER LOGS
-========================= */
-
-function renderLogs(){
-
-const area =
-document.getElementById(
-"logsArea"
-);
-
-area.innerHTML = "";
-
-logs
-.filter(
-l => l.store === selectedStore
-)
-.slice(0,30)
-.forEach(log=>{
-
-area.innerHTML += `
-<div class="log">
-🏪 ${log.store}<br>
-${log.text}<br>
-<small>${log.time}</small>
-</div>
-`;
-
-});
-
-}
-
-/* =========================
-REGION LOGS
-========================= */
-
-function renderRegionLogs(){
-
-const area =
-document.getElementById(
-"regionLogs"
-);
-
-area.innerHTML = "";
-
-logs.slice(0,40)
-.forEach(log=>{
-
-area.innerHTML += `
-<div class="log">
-🏪 ${log.store}<br>
-${log.text}<br>
-<small>${log.time}</small>
-</div>
-`;
-
-});
-
-}
-
-/* =========================
-APPROVAL ENGINE
+PENDING
 ========================= */
 
 function createPending(text){
@@ -757,6 +689,7 @@ p => p.store === selectedStore
 
 area.innerHTML += `
 <div class="pendingBox">
+
 ⚠️ ${item.text}<br>
 <small>${item.time}</small>
 
@@ -791,7 +724,7 @@ JSON.stringify(pendingApprovals)
 renderPending();
 
 createLog(
-"✅ İşlem yönetici tarafından onaylandı"
+"✅ Yönetici işlem onayladı"
 );
 
 }
@@ -808,25 +741,41 @@ JSON.stringify(pendingApprovals)
 renderPending();
 
 createLog(
-"❌ İşlem reddedildi"
+"❌ Yönetici işlem reddetti"
 );
 
 }
 
 /* =========================
-PERSON LOGIN
+QR ENGINE
 ========================= */
 
-function personLogin(){
+async function stopScanner(){
+
+try{
+
+if(qrScanner){
+
+await qrScanner.stop();
+await qrScanner.clear();
+
+qrScanner = null;
+
+}
+
+}catch(e){}
+
+document.getElementById(
+"reader"
+).style.display = "none";
+
+}
+
+async function startQRScanner(){
 
 const code =
 document.getElementById(
 "personCode"
-).value;
-
-const role =
-document.getElementById(
-"personRole"
 ).value;
 
 if(!code){
@@ -839,14 +788,91 @@ return;
 
 }
 
-const exists =
+const reader =
+document.getElementById(
+"reader"
+);
+
+reader.style.display = "block";
+
+await stopScanner();
+
+reader.style.display = "block";
+
+qrScanner =
+new Html5Qrcode("reader");
+
+qrScanner.start(
+
+{
+facingMode:"environment"
+},
+
+{
+fps:10,
+qrbox:220
+},
+
+async(qrMessage)=>{
+
+if(qrMessage !==
+"STORE:" + selectedStore){
+
+createPending(
+"Yanlış mağaza QR okutuldu"
+);
+
+alert(
+"Yanlış mağaza QR"
+);
+
+await stopScanner();
+
+return;
+
+}
+
+await stopScanner();
+
+processAction(code);
+
+},
+
+()=>{}
+
+).catch(()=>{
+
+alert(
+"Kamera açılamadı"
+);
+
+stopScanner();
+
+});
+
+}
+
+/* =========================
+ACTION PROCESS
+========================= */
+
+function processAction(code){
+
+const role =
+document.getElementById(
+"personRole"
+).value;
+
+const user =
 users.find(
 u =>
 u.code === code &&
 u.store === selectedStore
 );
 
-if(exists){
+if(currentAction === "LOGIN"){
+
+if(user){
 
 createPending(
 "Çoklu giriş denemesi: " +
@@ -891,28 +917,19 @@ alert(
 
 }
 
-/* =========================
-BREAK
-========================= */
+/* BREAK */
 
-function startBreak(min){
-
-const code =
-document.getElementById(
-"personCode"
-).value;
-
-const user =
-users.find(
-u =>
-u.code === code &&
-u.store === selectedStore
-);
+if(currentAction === "BREAK"){
 
 if(!user){
 
+createPending(
+"Girişsiz mola denemesi: " +
+code
+);
+
 alert(
-"Önce giriş yap"
+"Yönetici onayı gerekiyor"
 );
 
 return;
@@ -930,69 +947,36 @@ createLog(
 "☕ " +
 code +
 " " +
-min +
+selectedBreak +
 " dk molaya çıktı"
 );
 
 updateCounters();
 
+alert(
+"Mola başlatıldı"
+);
+
 }
 
-/* =========================
-FINISH BREAK
-========================= */
+/* EXIT */
 
-function finishBreak(){
-
-const code =
-document.getElementById(
-"personCode"
-).value;
-
-const user =
-users.find(
-u =>
-u.code === code &&
-u.store === selectedStore
-);
+if(currentAction === "EXIT"){
 
 if(!user){
 
+createPending(
+"Geçersiz çıkış denemesi: " +
+code
+);
+
 alert(
-"Personel bulunamadı"
+"Yönetici onayı gerekiyor"
 );
 
 return;
 
 }
-
-user.status = "ACTIVE";
-
-localStorage.setItem(
-"users",
-JSON.stringify(users)
-);
-
-createLog(
-"✅ " +
-code +
-" moladan döndü"
-);
-
-updateCounters();
-
-}
-
-/* =========================
-EXIT
-========================= */
-
-function exitShift(){
-
-const code =
-document.getElementById(
-"personCode"
-).value;
 
 users =
 users.filter(
@@ -1015,6 +999,103 @@ code +
 );
 
 updateCounters();
+
+alert(
+"Çıkış başarılı"
+);
+
+}
+
+}
+
+/* =========================
+COUNTERS
+========================= */
+
+function updateCounters(){
+
+document.getElementById(
+"activeCount"
+).innerText =
+users.filter(
+u =>
+u.store === selectedStore &&
+u.status === "ACTIVE"
+).length;
+
+document.getElementById(
+"breakCount"
+).innerText =
+users.filter(
+u =>
+u.store === selectedStore &&
+u.status === "BREAK"
+).length;
+
+document.getElementById(
+"exitCount"
+).innerText =
+logs.filter(
+l =>
+l.store === selectedStore &&
+l.text.includes("çıkış")
+).length;
+
+}
+
+/* =========================
+LOGS
+========================= */
+
+function renderLogs(){
+
+const area =
+document.getElementById(
+"logsArea"
+);
+
+area.innerHTML = "";
+
+logs
+.filter(
+l => l.store === selectedStore
+)
+.slice(0,30)
+.forEach(log=>{
+
+area.innerHTML += `
+<div class="log">
+🏪 ${log.store}<br>
+${log.text}<br>
+<small>${log.time}</small>
+</div>
+`;
+
+});
+
+}
+
+function renderRegionLogs(){
+
+const area =
+document.getElementById(
+"regionLogs"
+);
+
+area.innerHTML = "";
+
+logs.slice(0,40)
+.forEach(log=>{
+
+area.innerHTML += `
+<div class="log">
+🏪 ${log.store}<br>
+${log.text}<br>
+<small>${log.time}</small>
+</div>
+`;
+
+});
 
 }
 
