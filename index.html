@@ -35,7 +35,7 @@ margin-bottom:25px;
 }
 
 .logo h1{
-font-size:50px;
+font-size:48px;
 color:#36b8ff;
 }
 
@@ -104,6 +104,26 @@ margin-top:15px;
 display:none;
 }
 
+.actionBox{
+display:flex;
+gap:10px;
+margin-top:15px;
+}
+
+.actionBtn{
+flex:1;
+padding:14px;
+border:none;
+border-radius:14px;
+font-weight:bold;
+font-size:16px;
+color:white;
+}
+
+.selectedAction{
+outline:3px solid white;
+}
+
 .breakArea{
 display:flex;
 gap:10px;
@@ -161,6 +181,13 @@ font-size:14px;
 line-height:1.5;
 }
 
+.pendingBox{
+background:#381919;
+padding:14px;
+border-radius:16px;
+margin-top:15px;
+}
+
 .status{
 margin-top:15px;
 padding:14px;
@@ -174,38 +201,11 @@ color:#9cc2ff;
 #reader{
 width:100%;
 margin-top:15px;
-overflow:hidden;
 border-radius:20px;
+overflow:hidden;
 display:none;
 background:black;
-min-height:300px;
-}
-
-.actionBox{
-display:flex;
-gap:10px;
-margin-top:15px;
-}
-
-.actionBtn{
-flex:1;
-padding:14px;
-border:none;
-border-radius:14px;
-font-weight:bold;
-font-size:16px;
-color:white;
-}
-
-.selectedAction{
-outline:3px solid white;
-}
-
-.pendingBox{
-background:#381919;
-padding:14px;
-border-radius:16px;
-margin-top:15px;
+min-height:250px;
 }
 
 </style>
@@ -271,7 +271,7 @@ Bölge Müdürü
 
 </div>
 
-<!-- PERSON PANEL -->
+<!-- PERSON -->
 
 <div id="personPanel" class="panel">
 
@@ -353,7 +353,7 @@ Geri
 </button>
 
 <div class="status">
-Store QR + Approval Engine + Stable QR Aktif
+Stable QR + Approval Engine + Workforce Active
 </div>
 
 </div>
@@ -455,9 +455,15 @@ let currentAction = "LOGIN";
 
 let selectedBreak = 15;
 
+/* =========================
+QR STATE
+========================= */
+
 let qrScanner = null;
 
-let qrLocked = false;
+let qrRunning = false;
+
+let qrProcessed = false;
 
 /* =========================
 INIT
@@ -750,7 +756,7 @@ createLog(
 }
 
 /* =========================
-QR ENGINE
+STOP QR
 ========================= */
 
 async function stopScanner(){
@@ -774,19 +780,23 @@ document.getElementById(
 "reader"
 );
 
-if(reader){
-
 reader.innerHTML = "";
 
 reader.style.display = "none";
 
-}
+qrRunning = false;
+
+qrProcessed = false;
 
 }
+
+/* =========================
+START QR
+========================= */
 
 async function startQRScanner(){
 
-if(qrLocked){
+if(qrRunning){
 
 return;
 
@@ -807,54 +817,55 @@ return;
 
 }
 
+await stopScanner();
+
+qrRunning = true;
+
 const reader =
 document.getElementById(
 "reader"
 );
 
-reader.innerHTML = "";
-
-await stopScanner();
-
 reader.style.display = "block";
+
+reader.innerHTML = "";
 
 qrScanner =
 new Html5Qrcode("reader");
 
-let scanCompleted = false;
+try{
 
-qrScanner.start(
+await qrScanner.start(
 
 {
 facingMode:"environment"
 },
 
 {
-fps:10,
-qrbox:220,
-aspectRatio:1
+fps:5,
+qrbox:200
 },
 
-async(qrMessage)=>{
+async(decodedText)=>{
 
-if(scanCompleted){
+if(qrProcessed){
 
 return;
 
 }
 
-scanCompleted = true;
+qrProcessed = true;
 
-qrLocked = true;
-
-/* VALIDATION */
-
-if(
-qrMessage !==
-"STORE:" + selectedStore
-){
+/* KAMERA ANINDA KAPANIR */
 
 await stopScanner();
+
+/* QR VALIDATION */
+
+if(
+decodedText !==
+"STORE:" + selectedStore
+){
 
 createPending(
 "Yanlış mağaza QR okutuldu"
@@ -864,37 +875,21 @@ alert(
 "Geçersiz QR"
 );
 
-setTimeout(()=>{
-
-qrLocked = false;
-
-},2000);
-
 return;
 
 }
-
-/* CLOSE CAMERA */
-
-await stopScanner();
 
 /* PROCESS */
 
 processAction(code);
 
-/* RELEASE */
-
-setTimeout(()=>{
-
-qrLocked = false;
-
-},2000);
-
 },
 
 ()=>{}
 
-).catch(async()=>{
+);
+
+}catch(e){
 
 await stopScanner();
 
@@ -902,7 +897,7 @@ alert(
 "Kamera açılamadı"
 );
 
-});
+}
 
 }
 
