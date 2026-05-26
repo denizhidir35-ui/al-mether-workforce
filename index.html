@@ -36,7 +36,7 @@ margin-bottom:25px;
 
 .logo h1{
 font-size:48px;
-color:#36b8ff;
+color:#39b8ff;
 }
 
 .logo p{
@@ -50,6 +50,7 @@ background:#07153d;
 padding:20px;
 border-radius:24px;
 margin-top:20px;
+box-shadow:0 0 20px rgba(0,0,0,0.2);
 }
 
 .mainBtn,
@@ -208,6 +209,15 @@ background:black;
 min-height:250px;
 }
 
+.topInfo{
+background:#08163a;
+padding:14px;
+border-radius:16px;
+margin-top:15px;
+font-size:14px;
+line-height:1.7;
+}
+
 </style>
 </head>
 
@@ -228,10 +238,21 @@ min-height:250px;
 
 <select id="storeSelect">
 
-<option value="SKX-M085">SKX - M085</option>
-<option value="SKX-M086">SKX - M086</option>
-<option value="LTB-M201">LTB - M201</option>
-<option value="X-M001">X STORE - M001</option>
+<option value="SKX-M085">
+SKX - M085
+</option>
+
+<option value="SKX-M086">
+SKX - M086
+</option>
+
+<option value="LTB-M201">
+LTB - M201
+</option>
+
+<option value="X-M001">
+X STORE - M001
+</option>
 
 </select>
 
@@ -249,6 +270,8 @@ Devam Et
 
 <div class="card">
 
+<h2>Giriş Tipi</h2>
+
 <button
 class="mainBtn green"
 onclick="openPersonPanel()">
@@ -257,13 +280,13 @@ Personel Terminali
 
 <button
 class="mainBtn blue"
-onclick="openManagerPanel()">
-Yönetici Paneli
+onclick="openManagerLogin()">
+Yönetici Girişi
 </button>
 
 <button
 class="mainBtn purple"
-onclick="openRegionPanel()">
+onclick="openRegionLogin()">
 Bölge Müdürü
 </button>
 
@@ -285,9 +308,17 @@ placeholder="Personel Kodu">
 
 <select id="personRole">
 
-<option value="SD">SD</option>
-<option value="PARTTIME">Part Time</option>
-<option value="MANAGER">Yönetici</option>
+<option value="SD">
+SD
+</option>
+
+<option value="PARTTIME">
+Part Time
+</option>
+
+<option value="MANAGER">
+Yönetici
+</option>
 
 </select>
 
@@ -353,14 +384,80 @@ Geri
 </button>
 
 <div class="status">
-Stable QR + Approval Engine + Workforce Active
+Stable QR + Approval Engine Aktif
 </div>
 
 </div>
 
 </div>
 
-<!-- MANAGER -->
+<!-- MANAGER LOGIN -->
+
+<div id="managerLoginPanel" class="panel">
+
+<div class="card">
+
+<h2>Yönetici Girişi</h2>
+
+<input
+id="managerCode"
+placeholder="Yönetici Kodu">
+
+<input
+id="managerPassword"
+type="password"
+placeholder="Şifre">
+
+<button
+class="loginBtn blue"
+onclick="managerLogin()">
+Giriş Yap
+</button>
+
+<button
+class="loginBtn gray"
+onclick="goHome()">
+Geri
+</button>
+
+</div>
+
+</div>
+
+<!-- REGION LOGIN -->
+
+<div id="regionLoginPanel" class="panel">
+
+<div class="card">
+
+<h2>Bölge Müdürü</h2>
+
+<input
+id="regionCode"
+placeholder="Kod">
+
+<input
+id="regionPassword"
+type="password"
+placeholder="Şifre">
+
+<button
+class="loginBtn purple"
+onclick="regionLogin()">
+Giriş Yap
+</button>
+
+<button
+class="loginBtn gray"
+onclick="goHome()">
+Geri
+</button>
+
+</div>
+
+</div>
+
+<!-- MANAGER PANEL -->
 
 <div id="managerPanel" class="panel">
 
@@ -368,21 +465,49 @@ Stable QR + Approval Engine + Workforce Active
 
 <h2>Yönetici Paneli</h2>
 
+<div class="topInfo">
+
+🏪 Store:
+<span id="managerStore"></span>
+
+</div>
+
 <div class="counterArea">
 
 <div class="counter activeBox">
-<div id="activeCount">0</div>
-<div>Aktif</div>
+
+<div id="activeCount">
+0
+</div>
+
+<div>
+Aktif
+</div>
+
 </div>
 
 <div class="counter breakBox">
-<div id="breakCount">0</div>
-<div>Molada</div>
+
+<div id="breakCount">
+0
+</div>
+
+<div>
+Molada
+</div>
+
 </div>
 
 <div class="counter exitBox">
-<div id="exitCount">0</div>
-<div>Çıkış</div>
+
+<div id="exitCount">
+0
+</div>
+
+<div>
+Çıkış
+</div>
+
 </div>
 
 </div>
@@ -403,13 +528,19 @@ Ana Sayfa
 
 </div>
 
-<!-- REGION -->
+<!-- REGION PANEL -->
 
 <div id="regionPanel" class="panel">
 
 <div class="card">
 
 <h2>Bölge Müdürü</h2>
+
+<div class="topInfo">
+
+🌍 MASTER ACCESS AKTİF
+
+</div>
 
 <div
 class="logs"
@@ -451,9 +582,41 @@ localStorage.getItem("pendingApprovals")
 let selectedStore =
 localStorage.getItem("selectedStore");
 
-let currentAction = "LOGIN";
+/* =========================
+MASTER ACCOUNT
+========================= */
 
-let selectedBreak = 15;
+const MASTER_CODE =
+"9-9-999";
+
+const MASTER_PASSWORD =
+"1234";
+
+/* =========================
+MANAGERS
+========================= */
+
+const managers = [
+
+{
+code:"M085-ADMIN",
+password:"1234",
+store:"SKX-M085"
+},
+
+{
+code:"M086-ADMIN",
+password:"1234",
+store:"SKX-M086"
+},
+
+{
+code:"LTB-ADMIN",
+password:"1234",
+store:"LTB-M201"
+}
+
+];
 
 /* =========================
 QR STATE
@@ -464,6 +627,14 @@ let qrScanner = null;
 let qrRunning = false;
 
 let qrProcessed = false;
+
+/* =========================
+ACTION
+========================= */
+
+let currentAction = "LOGIN";
+
+let selectedBreak = 15;
 
 /* =========================
 INIT
@@ -482,7 +653,7 @@ document.getElementById(
 }
 
 /* =========================
-STORE
+STORE SAVE
 ========================= */
 
 function saveStore(){
@@ -529,6 +700,14 @@ document.getElementById(
 "regionPanel"
 ).style.display = "none";
 
+document.getElementById(
+"managerLoginPanel"
+).style.display = "none";
+
+document.getElementById(
+"regionLoginPanel"
+).style.display = "none";
+
 }
 
 function goHome(){
@@ -553,7 +732,68 @@ document.getElementById(
 
 }
 
-function openManagerPanel(){
+function openManagerLogin(){
+
+hideAll();
+
+document.getElementById(
+"managerLoginPanel"
+).style.display = "block";
+
+}
+
+function openRegionLogin(){
+
+hideAll();
+
+document.getElementById(
+"regionLoginPanel"
+).style.display = "block";
+
+}
+
+/* =========================
+MANAGER LOGIN
+========================= */
+
+function managerLogin(){
+
+const code =
+document.getElementById(
+"managerCode"
+).value;
+
+const password =
+document.getElementById(
+"managerPassword"
+).value;
+
+const manager =
+managers.find(
+m =>
+m.code===code &&
+m.password===password
+);
+
+if(!manager){
+
+alert(
+"Yönetici bilgileri yanlış"
+);
+
+return;
+
+}
+
+if(manager.store !== selectedStore){
+
+alert(
+"Bu mağaza için yetkiniz yok"
+);
+
+return;
+
+}
 
 hideAll();
 
@@ -561,13 +801,45 @@ document.getElementById(
 "managerPanel"
 ).style.display = "block";
 
+document.getElementById(
+"managerStore"
+).innerText =
+selectedStore;
+
 updateCounters();
 renderLogs();
 renderPending();
 
 }
 
-function openRegionPanel(){
+/* =========================
+REGION LOGIN
+========================= */
+
+function regionLogin(){
+
+const code =
+document.getElementById(
+"regionCode"
+).value;
+
+const password =
+document.getElementById(
+"regionPassword"
+).value;
+
+if(
+code !== MASTER_CODE ||
+password !== MASTER_PASSWORD
+){
+
+alert(
+"Erişim reddedildi"
+);
+
+return;
+
+}
 
 hideAll();
 
@@ -632,7 +904,7 @@ selectedBreak = min;
 }
 
 /* =========================
-LOGS
+LOG ENGINE
 ========================= */
 
 function createLog(text){
@@ -686,6 +958,8 @@ const area =
 document.getElementById(
 "pendingArea"
 );
+
+if(!area) return;
 
 area.innerHTML = "";
 
@@ -780,9 +1054,13 @@ document.getElementById(
 "reader"
 );
 
+if(reader){
+
 reader.innerHTML = "";
 
 reader.style.display = "none";
+
+}
 
 qrRunning = false;
 
@@ -856,11 +1134,7 @@ return;
 
 qrProcessed = true;
 
-/* KAMERA ANINDA KAPANIR */
-
 await stopScanner();
-
-/* QR VALIDATION */
 
 if(
 decodedText !==
@@ -878,8 +1152,6 @@ alert(
 return;
 
 }
-
-/* PROCESS */
 
 processAction(code);
 
@@ -1105,6 +1377,8 @@ document.getElementById(
 "logsArea"
 );
 
+if(!area) return;
+
 area.innerHTML = "";
 
 logs
@@ -1133,9 +1407,11 @@ document.getElementById(
 "regionLogs"
 );
 
+if(!area) return;
+
 area.innerHTML = "";
 
-logs.slice(0,40)
+logs.slice(0,50)
 .forEach(log=>{
 
 area.innerHTML += `
