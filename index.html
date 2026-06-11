@@ -60,7 +60,7 @@
 
 <button class="loginBtn gray" onclick="goHome()">Geri</button>
 
-<div class="status">AL Mether Workforce v3.2</div>
+<div class="status">AL Mether Workforce v3.3</div>
 
 </div>
 </div>
@@ -85,20 +85,9 @@
 <h2>Yönetici Paneli</h2>
 
 <div class="counterArea">
-<div class="counter activeBox">
-<div id="activeCount">0</div>
-<div>Aktif</div>
-</div>
-
-<div class="counter breakBox">
-<div id="breakCount">0</div>
-<div>Molada</div>
-</div>
-
-<div class="counter exitBox">
-<div id="exitCount">0</div>
-<div>Çıkış</div>
-</div>
+<div class="counter activeBox"><div id="activeCount">0</div><div>Aktif</div></div>
+<div class="counter breakBox"><div id="breakCount">0</div><div>Molada</div></div>
+<div class="counter exitBox"><div id="exitCount">0</div><div>Çıkış</div></div>
 </div>
 
 <h3 style="margin-top:20px;">Personel Ekle</h3>
@@ -148,23 +137,12 @@
 <h2>Bölge Müdürü Paneli</h2>
 
 <div class="counterArea">
-<div class="counter activeBox">
-<div id="regionStoreCount">0</div>
-<div>Mağaza</div>
+<div class="counter activeBox"><div id="regionStoreCount">0</div><div>Mağaza</div></div>
+<div class="counter breakBox"><div id="regionManagerCount">0</div><div>Yönetici</div></div>
+<div class="counter exitBox"><div id="regionPersonnelCount">0</div><div>Personel</div></div>
 </div>
 
-<div class="counter breakBox">
-<div id="regionManagerCount">0</div>
-<div>Yönetici</div>
-</div>
-
-<div class="counter exitBox">
-<div id="regionPersonnelCount">0</div>
-<div>Personel</div>
-</div>
-</div>
-
-<h3 style="margin-top:25px;">1. Bölge Mağaza Kurulumu</h3>
+<h3 style="margin-top:25px;">1. Mağaza Kurulumu</h3>
 
 <input id="regionStoreName" placeholder="Mağaza Adı Örn: Agora Skechers">
 <input id="regionStoreCode" placeholder="Mağaza Kodu Örn: M085">
@@ -186,29 +164,16 @@
 
 <button class="loginBtn blue" onclick="regionAddManager()">Yönetici Ekle / Ata</button>
 
-<h3 style="margin-top:25px;">3. Mağaza QR</h3>
-
-<div class="status">
-Seçili mağazanın QR kodunu üret. Mağazaya asılacak QR budur.
-</div>
-
-<button class="loginBtn blue" onclick="regionGenerateStoreQR()">Seçili Mağaza QR Oluştur</button>
-
-<div id="regionQrBox" class="log" style="text-align:center; display:none;">
-<canvas id="regionQrCanvas"></canvas>
-<div id="regionQrText" style="margin-top:10px;"></div>
-</div>
-
-<h3 style="margin-top:25px;">4. Mağazalar</h3>
+<h3 style="margin-top:25px;">3. Mağazalar</h3>
 <div class="logs" id="regionStoreList"></div>
 
-<h3 style="margin-top:25px;">5. Yöneticiler</h3>
+<h3 style="margin-top:25px;">4. Yöneticiler</h3>
 <div class="logs" id="regionManagerList"></div>
 
-<h3 style="margin-top:25px;">6. Personeller</h3>
+<h3 style="margin-top:25px;">5. Personeller</h3>
 <div class="logs" id="regionPersonnelList"></div>
 
-<h3 style="margin-top:25px;">7. Hareketler</h3>
+<h3 style="margin-top:25px;">6. Hareketler</h3>
 <div class="logs" id="regionLogs"></div>
 
 <button class="loginBtn gray" onclick="goHome()">Ana Sayfa</button>
@@ -221,9 +186,7 @@ Seçili mağazanın QR kodunu üret. Mağazaya asılacak QR budur.
 
 <h2>Admin Paneli</h2>
 
-<div class="status">
-9-9-999 master erişim aktif
-</div>
+<div class="status">9-9-999 master erişim aktif</div>
 
 <h3 style="margin-top:20px;">1. Şirket Kurulumu</h3>
 
@@ -244,20 +207,7 @@ Seçili mağazanın QR kodunu üret. Mağazaya asılacak QR budur.
 
 <button class="loginBtn green" onclick="adminAddStore()">Mağaza Ekle / Seç</button>
 
-<h3 style="margin-top:25px;">3. Mağaza QR</h3>
-
-<div class="status">
-Bu QR mağazaya asılır. Personel giriş, mola ve çıkış için bu QR'ı okutur.
-</div>
-
-<button class="loginBtn blue" onclick="adminGenerateStoreQR()">Seçili Mağaza QR Oluştur</button>
-
-<div id="adminQrBox" class="log" style="text-align:center; display:none;">
-<canvas id="adminQrCanvas"></canvas>
-<div id="adminQrText" style="margin-top:10px;"></div>
-</div>
-
-<h3 style="margin-top:25px;">4. Yönetici Ekle</h3>
+<h3 style="margin-top:25px;">3. Yönetici Ekle</h3>
 
 <input id="adminManagerName" placeholder="Yönetici Ad Soyad">
 <input id="adminManagerCode" placeholder="Yönetici Kodu">
@@ -265,7 +215,7 @@ Bu QR mağazaya asılır. Personel giriş, mola ve çıkış için bu QR'ı okut
 
 <button class="loginBtn blue" onclick="adminAddManager()">Yönetici Ekle</button>
 
-<h3 style="margin-top:25px;">5. Bölge Müdürü Ekle</h3>
+<h3 style="margin-top:25px;">4. Bölge Müdürü Ekle</h3>
 
 <input id="adminRegionName" placeholder="Bölge Müdürü Ad Soyad">
 <input id="adminRegionCode" placeholder="Bölge Müdürü Kodu">
@@ -273,7 +223,7 @@ Bu QR mağazaya asılır. Personel giriş, mola ve çıkış için bu QR'ı okut
 
 <button class="loginBtn purple" onclick="adminAddRegion()">Bölge Müdürü Ekle</button>
 
-<h3 style="margin-top:25px;">6. Sistem Özeti</h3>
+<h3 style="margin-top:25px;">5. Sistem Özeti</h3>
 
 <div class="logs" id="adminLogs"></div>
 
