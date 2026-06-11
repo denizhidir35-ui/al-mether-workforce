@@ -19,14 +19,23 @@
 <p>Workforce Platform</p>
 </div>
 
-<div id="storePage" class="card">
+<div id="companyPage" class="card">
+<h2>Şirket Seç</h2>
+
+<select id="companySelect">
+<option value="POZITIF">Pozitif Matbaa</option>
+<option value="SKX">Skechers</option>
+<option value="LTB">LTB</option>
+<option value="DEMO">Demo Firma</option>
+</select>
+
+<button class="mainBtn blue" onclick="saveCompany()">Devam Et</button>
+</div>
+
+<div id="storePage" class="card panel">
 <h2>Mağaza Seç</h2>
 
-<select id="storeSelect">
-<option value="SKX-M085">SKX - M085</option>
-<option value="SKX-M086">SKX - M086</option>
-<option value="LTB-M201">LTB - M201</option>
-</select>
+<select id="storeSelect"></select>
 
 <button class="mainBtn blue" onclick="saveStore()">Devam Et</button>
 </div>
@@ -47,7 +56,8 @@
 
 <div class="actionBox">
 <button id="loginAction" class="actionBtn green selectedAction" onclick="setAction('LOGIN')">Giriş</button>
-<button id="breakAction" class="actionBtn orange" onclick="setAction('BREAK')">Mola</button>
+<button id="breakAction" class="actionBtn orange" onclick="setAction('BREAK')">Mola Başlat</button>
+<button id="returnAction" class="actionBtn blue" onclick="setAction('RETURN')">Mola Bitir</button>
 <button id="exitAction" class="actionBtn red" onclick="setAction('EXIT')">Çıkış</button>
 </div>
 
@@ -57,7 +67,7 @@
 
 <button class="loginBtn gray" onclick="goHome()">Geri</button>
 
-<div class="status">Stable Workforce Core</div>
+<div class="status">AL Mether Workforce v1.0</div>
 </div>
 </div>
 
@@ -103,7 +113,7 @@
 
 <div id="regionLoginPanel" class="panel">
 <div class="card">
-<h2>MASTER ACCESS</h2>
+<h2>Bölge Müdürü Girişi</h2>
 
 <input id="regionCode" placeholder="Kod">
 <input id="regionPassword" type="password" placeholder="Şifre">
@@ -115,7 +125,7 @@
 
 <div id="regionPanel" class="panel">
 <div class="card">
-<h2>MASTER PANEL</h2>
+<h2>Bölge Müdürü Paneli</h2>
 
 <div class="logs" id="regionLogs"></div>
 
