@@ -1,27 +1,17 @@
-/* AL METHER WORKFORCE - APP.JS v2.1 */
-
-/* DEFAULT DATA */
+/* AL METHER WORKFORCE - APP.JS v2.2 */
 
 const DEFAULT_COMPANIES = {
-  POZITIF: [
-    { code: "POZ-M001", name: "Pozitif Matbaa - Merkez", lat: null, lng: null, radius: 150 }
-  ],
+  POZITIF: [{ code: "POZ-M001", name: "Pozitif Matbaa - Merkez", lat: null, lng: null, radius: 150 }],
   SKX: [
     { code: "SKX-M085", name: "SKX - M085", lat: null, lng: null, radius: 150 },
     { code: "SKX-M086", name: "SKX - M086", lat: null, lng: null, radius: 150 }
   ],
-  LTB: [
-    { code: "LTB-M201", name: "LTB - M201", lat: null, lng: null, radius: 150 }
-  ],
-  DEMO: [
-    { code: "DEMO-M001", name: "Demo Mağaza", lat: null, lng: null, radius: 150 }
-  ]
+  LTB: [{ code: "LTB-M201", name: "LTB - M201", lat: null, lng: null, radius: 150 }],
+  DEMO: [{ code: "DEMO-M001", name: "Demo Mağaza", lat: null, lng: null, radius: 150 }]
 };
 
 const MASTER_CODE = "9-9-999";
 const MASTER_PASSWORD = "1234";
-
-/* DATABASE */
 
 let companies = JSON.parse(localStorage.getItem("companiesDB")) || DEFAULT_COMPANIES;
 let users = JSON.parse(localStorage.getItem("users")) || [];
@@ -40,12 +30,12 @@ let qrProcessed = false;
 let currentAction = "LOGIN";
 let lastLocationResult = null;
 
-/* SEED */
+/* INIT */
 
 function seedDefaultData() {
   localStorage.setItem("companiesDB", JSON.stringify(companies));
 
-  if (!managersDB || managersDB.length === 0) {
+  if (!managersDB.length) {
     managersDB = [
       { code: "M085-ADMIN", password: "1234", name: "M085 Yönetici", company: "SKX", store: "SKX-M085" },
       { code: "M086-ADMIN", password: "1234", name: "M086 Yönetici", company: "SKX", store: "SKX-M086" },
@@ -53,23 +43,16 @@ function seedDefaultData() {
       { code: "POZ-ADMIN", password: "1234", name: "Pozitif Yönetici", company: "POZITIF", store: "POZ-M001" },
       { code: "DEMO-ADMIN", password: "1234", name: "Demo Yönetici", company: "DEMO", store: "DEMO-M001" }
     ];
-    localStorage.setItem("managersDB", JSON.stringify(managersDB));
   }
 
-  if (!regionsDB || regionsDB.length === 0) {
+  if (!regionsDB.length) {
     regionsDB = [
-      {
-        code: "BOLGE-ADMIN",
-        password: "1234",
-        name: "Bölge Müdürü",
-        companies: ["POZITIF", "SKX", "LTB", "DEMO"]
-      }
+      { code: "BOLGE-ADMIN", password: "1234", name: "Bölge Müdürü", companies: ["POZITIF", "SKX", "LTB", "DEMO"] }
     ];
-    localStorage.setItem("regionsDB", JSON.stringify(regionsDB));
   }
-}
 
-/* INIT */
+  saveAll();
+}
 
 function initApp() {
   seedDefaultData();
@@ -93,7 +76,47 @@ function initApp() {
   renderPersonnelList();
 }
 
-/* STORE */
+/* SAVE */
+
+function saveAll() {
+  localStorage.setItem("companiesDB", JSON.stringify(companies));
+  localStorage.setItem("users", JSON.stringify(users));
+  localStorage.setItem("logs", JSON.stringify(logs));
+  localStorage.setItem("pendingApprovals", JSON.stringify(pendingApprovals));
+  localStorage.setItem("personnelDB", JSON.stringify(personnelDB));
+  localStorage.setItem("managersDB", JSON.stringify(managersDB));
+  localStorage.setItem("regionsDB", JSON.stringify(regionsDB));
+}
+
+/* HELPERS */
+
+function escapeHTML(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function generateId() {
+  return "ID-" + Date.now() + "-" + Math.floor(Math.random() * 9999);
+}
+
+function getCurrentStoreInfo() {
+  const list = companies[selectedCompany] || [];
+  return list.find(s => s.code === selectedStore) || null;
+}
+
+function getPersonnel(code) {
+  return personnelDB.find(p => p.code === code && p.store === selectedStore);
+}
+
+function getActiveUser(code) {
+  return users.find(u => u.code === code && u.store === selectedStore);
+}
+
+/* COMPANY / STORE */
 
 function renderCompanyOptions() {
   const select = document.getElementById("companySelect");
@@ -117,8 +140,8 @@ function saveCompany() {
   selectedCompany = document.getElementById("companySelect").value;
   localStorage.setItem("selectedCompany", selectedCompany);
 
-  localStorage.removeItem("selectedStore");
   selectedStore = null;
+  localStorage.removeItem("selectedStore");
 
   hideAll();
   document.getElementById("storePage").style.display = "block";
@@ -150,7 +173,6 @@ function saveStore() {
   }
 
   localStorage.setItem("selectedStore", selectedStore);
-
   hideAll();
   document.getElementById("homePage").style.display = "block";
 }
@@ -212,8 +234,6 @@ function prepareBreakButtonUI() {
   }
 }
 
-/* ACTION */
-
 function setAction(action) {
   currentAction = action;
 
@@ -228,47 +248,7 @@ function setAction(action) {
     action === "EXIT" ? "exitAction" :
     null;
 
-  if (target) {
-    document.getElementById(target)?.classList.add("selectedAction");
-  }
-}
-
-/* HELPERS */
-
-function saveAll() {
-  localStorage.setItem("companiesDB", JSON.stringify(companies));
-  localStorage.setItem("users", JSON.stringify(users));
-  localStorage.setItem("logs", JSON.stringify(logs));
-  localStorage.setItem("pendingApprovals", JSON.stringify(pendingApprovals));
-  localStorage.setItem("personnelDB", JSON.stringify(personnelDB));
-  localStorage.setItem("managersDB", JSON.stringify(managersDB));
-  localStorage.setItem("regionsDB", JSON.stringify(regionsDB));
-}
-
-function escapeHTML(value) {
-  return String(value || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function getCurrentStoreInfo() {
-  const list = companies[selectedCompany] || [];
-  return list.find(s => s.code === selectedStore) || null;
-}
-
-function getPersonnel(code) {
-  return personnelDB.find(p => p.code === code && p.store === selectedStore);
-}
-
-function getActiveUser(code) {
-  return users.find(u => u.code === code && u.store === selectedStore);
-}
-
-function generateId() {
-  return "ID-" + Date.now() + "-" + Math.floor(Math.random() * 9999);
+  if (target) document.getElementById(target)?.classList.add("selectedAction");
 }
 
 /* LOGS */
@@ -285,7 +265,6 @@ function createLog(text, extra = {}) {
   });
 
   saveAll();
-
   renderLogs();
   renderRegionLogs();
   renderAdminLogs();
@@ -306,62 +285,7 @@ function createPending(text, extra = {}) {
   renderPending();
 }
 
-function renderPending() {
-  const area = document.getElementById("pendingArea");
-  if (!area) return;
-
-  const list = pendingApprovals.filter(p => p.store === selectedStore);
-
-  if (list.length === 0) {
-    area.innerHTML = "";
-    return;
-  }
-
-  area.innerHTML = "<h3 style='margin-top:20px;'>Yönetici Onayı Bekleyenler</h3>";
-
-  list.forEach(item => {
-    area.innerHTML += `
-      <div class="pendingBox">
-        ⚠️ ${escapeHTML(item.text)}<br>
-        <small>${escapeHTML(item.time)}</small>
-
-        <button class="loginBtn green" onclick="approvePending('${item.id}')">
-          Onayla
-        </button>
-
-        <button class="loginBtn red" onclick="rejectPending('${item.id}')">
-          Reddet
-        </button>
-      </div>
-    `;
-  });
-}
-
-function approvePending(id) {
-  const item = pendingApprovals.find(p => p.id === id);
-
-  if (item) {
-    createLog("✅ Yönetici onayı verildi: " + item.text);
-  }
-
-  pendingApprovals = pendingApprovals.filter(p => p.id !== id);
-  saveAll();
-  renderPending();
-}
-
-function rejectPending(id) {
-  const item = pendingApprovals.find(p => p.id === id);
-
-  if (item) {
-    createLog("❌ Yönetici reddetti: " + item.text);
-  }
-
-  pendingApprovals = pendingApprovals.filter(p => p.id !== id);
-  saveAll();
-  renderPending();
-}
-
-/* LOGIN PANELS */
+/* LOGIN */
 
 function openAdminPanel() {
   hideAll();
@@ -378,9 +302,7 @@ function managerLogin() {
     return;
   }
 
-  const manager = managersDB.find(
-    m => m.code === code && m.password === password
-  );
+  const manager = managersDB.find(m => m.code === code && m.password === password);
 
   if (!manager) {
     alert("Bilgiler yanlış");
@@ -410,9 +332,7 @@ function regionLogin() {
     return;
   }
 
-  const region = regionsDB.find(
-    r => r.code === code && r.password === password
-  );
+  const region = regionsDB.find(r => r.code === code && r.password === password);
 
   if (!region) {
     alert("Bölge müdürü bilgileri yanlış");
@@ -424,7 +344,7 @@ function regionLogin() {
   renderRegionLogs();
 }
 
-/* ADMIN PANEL */
+/* ADMIN */
 
 function adminAddCompany() {
   const name = document.getElementById("adminCompanyName").value.trim();
@@ -435,17 +355,13 @@ function adminAddCompany() {
     return;
   }
 
-  if (companies[code]) {
-    alert("Bu şirket kodu zaten var");
-    return;
-  }
-
-  companies[code] = [];
+  if (!companies[code]) companies[code] = [];
 
   selectedCompany = code;
+  selectedStore = null;
+
   localStorage.setItem("selectedCompany", selectedCompany);
   localStorage.removeItem("selectedStore");
-  selectedStore = null;
 
   saveAll();
   renderCompanyOptions();
@@ -454,7 +370,36 @@ function adminAddCompany() {
   document.getElementById("adminCompanyName").value = "";
   document.getElementById("adminCompanyCode").value = "";
 
-  alert(name + " şirketi eklendi. Şimdi mağaza ekle.");
+  alert(name + " şirketi seçildi / oluşturuldu.");
+}
+
+function adminUseCurrentLocation() {
+  if (!navigator.geolocation) {
+    alert("Bu cihaz konum desteklemiyor");
+    return;
+  }
+
+  alert("Konum izni isteyeceğim. Mağazadaysan izin ver.");
+
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+
+      document.getElementById("adminStoreLat").value = lat;
+      document.getElementById("adminStoreLng").value = lng;
+
+      alert("GPS alındı");
+    },
+    () => {
+      alert("Konum alınamadı. İzin verilmedi veya cihaz engelledi.");
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0
+    }
+  );
 }
 
 function adminAddStore() {
@@ -464,7 +409,7 @@ function adminAddStore() {
   const lngRaw = document.getElementById("adminStoreLng").value.trim();
 
   if (!selectedCompany) {
-    alert("Önce şirket seç veya şirket ekle");
+    alert("Önce şirket ekle / seç");
     return;
   }
 
@@ -473,27 +418,27 @@ function adminAddStore() {
     return;
   }
 
-  if (!companies[selectedCompany]) {
-    companies[selectedCompany] = [];
-  }
-
-  const exists = companies[selectedCompany].find(s => s.code === code);
-
-  if (exists) {
-    alert("Bu mağaza kodu zaten var");
-    return;
-  }
+  if (!companies[selectedCompany]) companies[selectedCompany] = [];
 
   const lat = latRaw ? Number(latRaw) : null;
   const lng = lngRaw ? Number(lngRaw) : null;
 
-  companies[selectedCompany].push({
-    code,
-    name,
-    lat: Number.isFinite(lat) ? lat : null,
-    lng: Number.isFinite(lng) ? lng : null,
-    radius: 150
-  });
+  const existing = companies[selectedCompany].find(s => s.code === code);
+
+  if (existing) {
+    existing.name = name;
+    existing.lat = Number.isFinite(lat) ? lat : null;
+    existing.lng = Number.isFinite(lng) ? lng : null;
+    existing.radius = 150;
+  } else {
+    companies[selectedCompany].push({
+      code,
+      name,
+      lat: Number.isFinite(lat) ? lat : null,
+      lng: Number.isFinite(lng) ? lng : null,
+      radius: 150
+    });
+  }
 
   selectedStore = code;
   localStorage.setItem("selectedStore", selectedStore);
@@ -504,10 +449,41 @@ function adminAddStore() {
 
   document.getElementById("adminStoreName").value = "";
   document.getElementById("adminStoreCode").value = "";
-  document.getElementById("adminStoreLat").value = "";
-  document.getElementById("adminStoreLng").value = "";
 
-  alert("Mağaza eklendi: " + name);
+  alert("Mağaza seçildi / kaydedildi: " + name);
+}
+
+function adminGenerateStoreQR() {
+  if (!selectedStore) {
+    alert("Önce mağaza ekle / seç");
+    return;
+  }
+
+  const qrValue = "STORE:" + selectedStore;
+  const box = document.getElementById("adminQrBox");
+  const canvas = document.getElementById("adminQrCanvas");
+  const text = document.getElementById("adminQrText");
+
+  if (!window.QRCode) {
+    alert("QR kütüphanesi yüklenemedi. İnternet bağlantısını kontrol et.");
+    return;
+  }
+
+  box.style.display = "block";
+  text.innerHTML = `
+    <b>${escapeHTML(selectedStore)}</b><br>
+    QR İçeriği: ${escapeHTML(qrValue)}
+  `;
+
+  QRCode.toCanvas(canvas, qrValue, {
+    width: 220,
+    margin: 2
+  }, function (error) {
+    if (error) {
+      alert("QR oluşturulamadı");
+      console.error(error);
+    }
+  });
 }
 
 function adminAddManager() {
@@ -587,32 +563,17 @@ function adminAddRegion() {
 }
 
 function adminResetSystem() {
-  const ok1 = confirm("Tüm sistem sıfırlansın mı? Personel, log, yönetici ve mağaza verileri silinir.");
+  const ok1 = confirm("Tüm sistem sıfırlansın mı?");
   if (!ok1) return;
 
   const ok2 = confirm("Bu işlem geri alınamaz. Emin misin?");
   if (!ok2) return;
 
   localStorage.clear();
-
-  companies = DEFAULT_COMPANIES;
-  users = [];
-  logs = [];
-  pendingApprovals = [];
-  personnelDB = [];
-  managersDB = [];
-  regionsDB = [];
-  selectedStore = null;
-  selectedCompany = null;
-
-  seedDefaultData();
-
-  alert("Sistem sıfırlandı");
-
   location.reload();
 }
 
-/* PERSONNEL MANAGEMENT */
+/* PERSONNEL */
 
 function addPersonnel() {
   const name = document.getElementById("newPersonName").value.trim();
@@ -625,9 +586,7 @@ function addPersonnel() {
     return;
   }
 
-  const exists = personnelDB.find(
-    p => p.code === code && p.store === selectedStore
-  );
+  const exists = personnelDB.find(p => p.code === code && p.store === selectedStore);
 
   if (exists) {
     alert("Bu personel kodu zaten kayıtlı");
@@ -664,25 +623,17 @@ function renderPersonnelList() {
   const area = document.getElementById("personnelList");
   if (!area) return;
 
-  const list = personnelDB.filter(
-    p => p.store === selectedStore && p.company === selectedCompany
-  );
+  const list = personnelDB.filter(p => p.store === selectedStore && p.company === selectedCompany);
 
-  if (list.length === 0) {
-    area.innerHTML = `
-      <div class="log">
-        Henüz personel eklenmedi.
-      </div>
-    `;
+  if (!list.length) {
+    area.innerHTML = `<div class="log">Henüz personel eklenmedi.</div>`;
     return;
   }
 
   area.innerHTML = "";
 
   list.forEach(p => {
-    const activeUser = users.find(
-      u => u.code === p.code && u.store === selectedStore
-    );
+    const activeUser = users.find(u => u.code === p.code && u.store === selectedStore);
 
     const statusText =
       activeUser?.status === "ACTIVE" ? "Aktif" :
@@ -698,13 +649,8 @@ function renderPersonnelList() {
         Şifre: ${p.passwordCreated ? "Oluşturuldu" : "İlk giriş bekleniyor"}<br>
         Durum: ${statusText}<br>
 
-        <button class="loginBtn blue" onclick="resetPersonnelPassword('${p.id}')">
-          Şifre Sıfırla
-        </button>
-
-        <button class="loginBtn red" onclick="deletePersonnel('${p.id}')">
-          Personeli Sil
-        </button>
+        <button class="loginBtn blue" onclick="resetPersonnelPassword('${p.id}')">Şifre Sıfırla</button>
+        <button class="loginBtn red" onclick="deletePersonnel('${p.id}')">Personeli Sil</button>
       </div>
     `;
   });
@@ -721,7 +667,7 @@ function resetPersonnelPassword(id) {
   createLog("🔑 Personel şifresi sıfırlandı: " + person.code);
   renderPersonnelList();
 
-  alert("Şifre sıfırlandı. Personel ilk girişte yeni şifre oluşturacak.");
+  alert("Şifre sıfırlandı.");
 }
 
 function deletePersonnel(id) {
@@ -741,17 +687,17 @@ function deletePersonnel(id) {
   updateCounters();
 }
 
-/* PERSONNEL PASSWORD */
-
 function checkPersonnelPassword(person) {
   if (!person.passwordCreated) {
     const p1 = prompt("İlk giriş. Yeni şifre oluştur:");
+
     if (!p1 || p1.length < 4) {
       alert("Şifre en az 4 karakter olmalı");
       return false;
     }
 
     const p2 = prompt("Şifreyi tekrar gir:");
+
     if (p1 !== p2) {
       alert("Şifreler eşleşmiyor");
       return false;
@@ -776,7 +722,7 @@ function checkPersonnelPassword(person) {
   return true;
 }
 
-/* LOCATION */
+/* LOCATION CHECK */
 
 function getDistanceMeters(lat1, lon1, lat2, lon2) {
   const R = 6371000;
@@ -798,10 +744,7 @@ function verifyLocation() {
     const store = getCurrentStoreInfo();
 
     if (!store || store.lat === null || store.lng === null) {
-      lastLocationResult = {
-        ok: true,
-        message: "Mağaza GPS tanımı yok, QR ile devam edildi"
-      };
+      lastLocationResult = { ok: true, message: "GPS tanımı yok, QR ile devam edildi" };
       resolve(true);
       return;
     }
@@ -846,7 +789,7 @@ function verifyLocation() {
   });
 }
 
-/* QR */
+/* QR SCANNER */
 
 async function stopScanner() {
   try {
@@ -882,21 +825,16 @@ async function startQRScanner() {
 
   if (!person) {
     createPending("Kayıtsız personel işlem denemesi: " + code);
-    alert("Bu personel kayıtlı değil. Yönetici önce personel eklemeli.");
+    alert("Bu personel kayıtlı değil.");
     return;
   }
 
-  if (!person.active) {
-    alert("Bu personel pasif durumda");
-    return;
-  }
-
-  const passwordOk = checkPersonnelPassword(person);
-  if (!passwordOk) return;
+  if (!checkPersonnelPassword(person)) return;
 
   const locationOk = await verifyLocation();
+
   if (!locationOk) {
-    alert("Konum doğrulaması başarısız. Yönetici onayı gerekli.");
+    alert("Konum doğrulaması başarısız.");
     return;
   }
 
@@ -945,7 +883,7 @@ function processAction(code, person) {
 
     if (exists) {
       createPending("Çoklu giriş denemesi: " + code);
-      alert("Bu personel zaten içeride. Yönetici onayı gerekli.");
+      alert("Bu personel zaten içeride.");
       return;
     }
 
@@ -962,13 +900,7 @@ function processAction(code, person) {
     });
 
     saveAll();
-
-    createLog("✅ " + person.name + " giriş yaptı", {
-      personCode: code,
-      action: "LOGIN",
-      location: lastLocationResult
-    });
-
+    createLog("✅ " + person.name + " giriş yaptı", { personCode: code, action: "LOGIN", location: lastLocationResult });
     updateCounters();
     renderPersonnelList();
 
@@ -993,7 +925,6 @@ function processAction(code, person) {
       user.totalBreakMinutes = (user.totalBreakMinutes || 0) + minutes;
 
       saveAll();
-
       createLog("✅ " + person.name + " moladan döndü (" + minutes + " dk)", {
         personCode: code,
         action: "BREAK_RETURN",
@@ -1011,11 +942,7 @@ function processAction(code, person) {
     user.breakStart = Date.now();
 
     saveAll();
-
-    createLog("☕ " + person.name + " mola başlattı", {
-      personCode: code,
-      action: "BREAK_START"
-    });
+    createLog("☕ " + person.name + " mola başlattı", { personCode: code, action: "BREAK_START" });
 
     updateCounters();
     renderPersonnelList();
@@ -1028,13 +955,13 @@ function processAction(code, person) {
 
     if (!user) {
       createPending("Geçersiz çıkış denemesi: " + code);
-      alert("Aktif giriş bulunamadı. Yönetici onayı gerekli.");
+      alert("Aktif giriş bulunamadı.");
       return;
     }
 
     if (user.status === "BREAK") {
       createPending("Moladayken çıkış denemesi: " + code);
-      alert("Önce molayı bitirmelisiniz");
+      alert("Önce molayı bitirmelisin.");
       return;
     }
 
@@ -1042,22 +969,16 @@ function processAction(code, person) {
     const breakMinutes = user.totalBreakMinutes || 0;
     const workMinutes = Math.max(0, totalMinutes - breakMinutes);
 
-    users = users.filter(
-      u => !(u.code === code && u.store === selectedStore)
-    );
+    users = users.filter(u => !(u.code === code && u.store === selectedStore));
 
     saveAll();
-
-    createLog(
-      "👋 " + person.name + " çıkış yaptı | Çalışma: " + workMinutes + " dk | Mola: " + breakMinutes + " dk",
-      {
-        personCode: code,
-        action: "EXIT",
-        totalMinutes,
-        breakMinutes,
-        workMinutes
-      }
-    );
+    createLog("👋 " + person.name + " çıkış yaptı | Çalışma: " + workMinutes + " dk | Mola: " + breakMinutes + " dk", {
+      personCode: code,
+      action: "EXIT",
+      totalMinutes,
+      breakMinutes,
+      workMinutes
+    });
 
     updateCounters();
     renderPersonnelList();
@@ -1066,7 +987,52 @@ function processAction(code, person) {
   }
 }
 
-/* COUNTERS */
+/* PENDING */
+
+function renderPending() {
+  const area = document.getElementById("pendingArea");
+  if (!area) return;
+
+  const list = pendingApprovals.filter(p => p.store === selectedStore);
+
+  if (!list.length) {
+    area.innerHTML = "";
+    return;
+  }
+
+  area.innerHTML = "<h3 style='margin-top:20px;'>Yönetici Onayı Bekleyenler</h3>";
+
+  list.forEach(item => {
+    area.innerHTML += `
+      <div class="pendingBox">
+        ⚠️ ${escapeHTML(item.text)}<br>
+        <small>${escapeHTML(item.time)}</small>
+        <button class="loginBtn green" onclick="approvePending('${item.id}')">Onayla</button>
+        <button class="loginBtn red" onclick="rejectPending('${item.id}')">Reddet</button>
+      </div>
+    `;
+  });
+}
+
+function approvePending(id) {
+  const item = pendingApprovals.find(p => p.id === id);
+  if (item) createLog("✅ Yönetici onayı verildi: " + item.text);
+
+  pendingApprovals = pendingApprovals.filter(p => p.id !== id);
+  saveAll();
+  renderPending();
+}
+
+function rejectPending(id) {
+  const item = pendingApprovals.find(p => p.id === id);
+  if (item) createLog("❌ Yönetici reddetti: " + item.text);
+
+  pendingApprovals = pendingApprovals.filter(p => p.id !== id);
+  saveAll();
+  renderPending();
+}
+
+/* COUNTERS / RENDER */
 
 function updateCounters() {
   const activeEl = document.getElementById("activeCount");
@@ -1074,25 +1040,17 @@ function updateCounters() {
   const exitEl = document.getElementById("exitCount");
 
   if (activeEl) {
-    activeEl.innerText = users.filter(
-      u => u.store === selectedStore && u.status === "ACTIVE"
-    ).length;
+    activeEl.innerText = users.filter(u => u.store === selectedStore && u.status === "ACTIVE").length;
   }
 
   if (breakEl) {
-    breakEl.innerText = users.filter(
-      u => u.store === selectedStore && u.status === "BREAK"
-    ).length;
+    breakEl.innerText = users.filter(u => u.store === selectedStore && u.status === "BREAK").length;
   }
 
   if (exitEl) {
-    exitEl.innerText = logs.filter(
-      l => l.store === selectedStore && l.action === "EXIT"
-    ).length;
+    exitEl.innerText = logs.filter(l => l.store === selectedStore && l.action === "EXIT").length;
   }
 }
-
-/* RENDER */
 
 function renderLogs() {
   const area = document.getElementById("logsArea");
@@ -1100,17 +1058,15 @@ function renderLogs() {
 
   area.innerHTML = "";
 
-  logs
-    .filter(l => l.store === selectedStore)
-    .forEach(log => {
-      area.innerHTML += `
-        <div class="log">
-          🏪 ${escapeHTML(log.store)}<br>
-          ${escapeHTML(log.text)}<br>
-          <small>${escapeHTML(log.time)}</small>
-        </div>
-      `;
-    });
+  logs.filter(l => l.store === selectedStore).forEach(log => {
+    area.innerHTML += `
+      <div class="log">
+        🏪 ${escapeHTML(log.store)}<br>
+        ${escapeHTML(log.text)}<br>
+        <small>${escapeHTML(log.time)}</small>
+      </div>
+    `;
+  });
 }
 
 function renderRegionLogs() {
@@ -1188,21 +1144,10 @@ function renderAdminLogs() {
       Onay Bekleyen: ${pendingApprovals.length}
     </div>
   `;
-
-  logs.forEach(log => {
-    area.innerHTML += `
-      <div class="log">
-        🏢 ${escapeHTML(log.company || "-")}<br>
-        🏪 ${escapeHTML(log.store || "-")}<br>
-        ${escapeHTML(log.text)}<br>
-        <small>${escapeHTML(log.time)}</small>
-      </div>
-    `;
-  });
 }
 
-/* INIT */
+/* START */
 
 initApp();
 
-console.log("AL METHER WORKFORCE APP v2.1 LOADED");
+console.log("AL METHER WORKFORCE APP v2.2 LOADED");
