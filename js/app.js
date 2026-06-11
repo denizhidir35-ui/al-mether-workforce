@@ -1,28 +1,19 @@
-/* AL METHER WORKFORCE - APP.JS v2.2 */
-
-const DEFAULT_COMPANIES = {
-  POZITIF: [{ code: "POZ-M001", name: "Pozitif Matbaa - Merkez", lat: null, lng: null, radius: 150 }],
-  SKX: [
-    { code: "SKX-M085", name: "SKX - M085", lat: null, lng: null, radius: 150 },
-    { code: "SKX-M086", name: "SKX - M086", lat: null, lng: null, radius: 150 }
-  ],
-  LTB: [{ code: "LTB-M201", name: "LTB - M201", lat: null, lng: null, radius: 150 }],
-  DEMO: [{ code: "DEMO-M001", name: "Demo Mağaza", lat: null, lng: null, radius: 150 }]
-};
+/* AL METHER WORKFORCE - APP.JS v3 SUPABASE */
 
 const MASTER_CODE = "9-9-999";
 const MASTER_PASSWORD = "1234";
 
-let companies = JSON.parse(localStorage.getItem("companiesDB")) || DEFAULT_COMPANIES;
-let users = JSON.parse(localStorage.getItem("users")) || [];
-let logs = JSON.parse(localStorage.getItem("logs")) || [];
+let companies = {};
+let storesDB = [];
+let personnelDB = [];
+let managersDB = [];
+let regionsDB = [];
+let logs = [];
 let pendingApprovals = JSON.parse(localStorage.getItem("pendingApprovals")) || [];
-let personnelDB = JSON.parse(localStorage.getItem("personnelDB")) || [];
-let managersDB = JSON.parse(localStorage.getItem("managersDB")) || [];
-let regionsDB = JSON.parse(localStorage.getItem("regionsDB")) || [];
+let users = JSON.parse(localStorage.getItem("users")) || [];
 
-let selectedStore = localStorage.getItem("selectedStore");
 let selectedCompany = localStorage.getItem("selectedCompany");
+let selectedStore = localStorage.getItem("selectedStore");
 
 let qrScanner = null;
 let qrRunning = false;
@@ -30,65 +21,9 @@ let qrProcessed = false;
 let currentAction = "LOGIN";
 let lastLocationResult = null;
 
-/* INIT */
-
-function seedDefaultData() {
-  localStorage.setItem("companiesDB", JSON.stringify(companies));
-
-  if (!managersDB.length) {
-    managersDB = [
-      { code: "M085-ADMIN", password: "1234", name: "M085 Yönetici", company: "SKX", store: "SKX-M085" },
-      { code: "M086-ADMIN", password: "1234", name: "M086 Yönetici", company: "SKX", store: "SKX-M086" },
-      { code: "LTB-ADMIN", password: "1234", name: "LTB Yönetici", company: "LTB", store: "LTB-M201" },
-      { code: "POZ-ADMIN", password: "1234", name: "Pozitif Yönetici", company: "POZITIF", store: "POZ-M001" },
-      { code: "DEMO-ADMIN", password: "1234", name: "Demo Yönetici", company: "DEMO", store: "DEMO-M001" }
-    ];
-  }
-
-  if (!regionsDB.length) {
-    regionsDB = [
-      { code: "BOLGE-ADMIN", password: "1234", name: "Bölge Müdürü", companies: ["POZITIF", "SKX", "LTB", "DEMO"] }
-    ];
-  }
-
-  saveAll();
+function $(id) {
+  return document.getElementById(id);
 }
-
-function initApp() {
-  seedDefaultData();
-  prepareBreakButtonUI();
-  renderCompanyOptions();
-  hideAll();
-
-  if (selectedCompany && selectedStore) {
-    document.getElementById("homePage").style.display = "block";
-  } else if (selectedCompany) {
-    document.getElementById("storePage").style.display = "block";
-    renderStoreOptions();
-  } else {
-    document.getElementById("companyPage").style.display = "block";
-  }
-
-  updateCounters();
-  renderLogs();
-  renderRegionLogs();
-  renderAdminLogs();
-  renderPersonnelList();
-}
-
-/* SAVE */
-
-function saveAll() {
-  localStorage.setItem("companiesDB", JSON.stringify(companies));
-  localStorage.setItem("users", JSON.stringify(users));
-  localStorage.setItem("logs", JSON.stringify(logs));
-  localStorage.setItem("pendingApprovals", JSON.stringify(pendingApprovals));
-  localStorage.setItem("personnelDB", JSON.stringify(personnelDB));
-  localStorage.setItem("managersDB", JSON.stringify(managersDB));
-  localStorage.setItem("regionsDB", JSON.stringify(regionsDB));
-}
-
-/* HELPERS */
 
 function escapeHTML(value) {
   return String(value || "")
@@ -103,78 +38,134 @@ function generateId() {
   return "ID-" + Date.now() + "-" + Math.floor(Math.random() * 9999);
 }
 
-function getCurrentStoreInfo() {
-  const list = companies[selectedCompany] || [];
-  return list.find(s => s.code === selectedStore) || null;
+function toast(message) {
+  alert(message);
 }
 
-function getPersonnel(code) {
-  return personnelDB.find(p => p.code === code && p.store === selectedStore);
+function saveLocal() {
+  localStorage.setItem("users", JSON.stringify(users));
+  localStorage.setItem("pendingApprovals", JSON.stringify(pendingApprovals));
+  if (selectedCompany) localStorage.setItem("selectedCompany", selectedCompany);
+  if (selectedStore) localStorage.setItem("selectedStore", selectedStore);
 }
 
-function getActiveUser(code) {
-  return users.find(u => u.code === code && u.store === selectedStore);
-}
-
-/* COMPANY / STORE */
-
-function renderCompanyOptions() {
-  const select = document.getElementById("companySelect");
-  if (!select) return;
-
-  select.innerHTML = "";
-
-  Object.keys(companies).forEach(companyCode => {
-    const option = document.createElement("option");
-    option.value = companyCode;
-    option.textContent = companyCode;
-    select.appendChild(option);
-  });
-
-  if (selectedCompany && companies[selectedCompany]) {
-    select.value = selectedCompany;
+function checkSupabase() {
+  if (!window.supabaseClient) {
+    alert("Supabase bağlantısı yok. js/supabase.js dosyasını kontrol et.");
+    return false;
   }
+  return true;
 }
 
-function saveCompany() {
-  selectedCompany = document.getElementById("companySelect").value;
-  localStorage.setItem("selectedCompany", selectedCompany);
+/* INIT */
 
-  selectedStore = null;
-  localStorage.removeItem("selectedStore");
+async function initApp() {
+  prepareBreakButtonUI();
+
+  if (!checkSupabase()) return;
+
+  await seedDefaultData();
+  await loadAllData();
+
+  renderCompanyOptions();
 
   hideAll();
-  document.getElementById("storePage").style.display = "block";
-  renderStoreOptions();
-}
 
-function renderStoreOptions() {
-  const select = document.getElementById("storeSelect");
-  if (!select) return;
-
-  select.innerHTML = "";
-
-  const list = companies[selectedCompany] || [];
-
-  list.forEach(store => {
-    const option = document.createElement("option");
-    option.value = store.code;
-    option.textContent = store.name;
-    select.appendChild(option);
-  });
-}
-
-function saveStore() {
-  selectedStore = document.getElementById("storeSelect").value;
-
-  if (!selectedStore) {
-    alert("Mağaza seçilmedi");
-    return;
+  if (selectedCompany && selectedStore) {
+    $("homePage").style.display = "block";
+  } else if (selectedCompany) {
+    $("storePage").style.display = "block";
+    renderStoreOptions();
+  } else {
+    $("companyPage").style.display = "block";
   }
 
-  localStorage.setItem("selectedStore", selectedStore);
-  hideAll();
-  document.getElementById("homePage").style.display = "block";
+  updateCounters();
+  renderLogs();
+  renderRegionLogs();
+  renderAdminLogs();
+  renderPersonnelList();
+
+  console.log("AL METHER WORKFORCE APP v3 SUPABASE LOADED");
+}
+
+async function seedDefaultData() {
+  const { data: companyRows } = await supabaseClient
+    .from("companies")
+    .select("*");
+
+  if (companyRows && companyRows.length > 0) return;
+
+  await supabaseClient.from("companies").insert([
+    { code: "POZITIF", name: "Pozitif Matbaa" },
+    { code: "SKX", name: "Skechers" },
+    { code: "LTB", name: "LTB" },
+    { code: "DEMO", name: "Demo Firma" }
+  ]);
+
+  await supabaseClient.from("stores").insert([
+    { company_code: "POZITIF", code: "POZ-M001", name: "Pozitif Matbaa - Merkez", radius: 150 },
+    { company_code: "SKX", code: "SKX-M085", name: "SKX - M085", radius: 150 },
+    { company_code: "SKX", code: "SKX-M086", name: "SKX - M086", radius: 150 },
+    { company_code: "LTB", code: "LTB-M201", name: "LTB - M201", radius: 150 },
+    { company_code: "DEMO", code: "DEMO-M001", name: "Demo Mağaza", radius: 150 }
+  ]);
+
+  await supabaseClient.from("managers").insert([
+    { company_code: "SKX", store_code: "SKX-M085", code: "M085-ADMIN", name: "M085 Yönetici", password: "1234" },
+    { company_code: "SKX", store_code: "SKX-M086", code: "M086-ADMIN", name: "M086 Yönetici", password: "1234" },
+    { company_code: "LTB", store_code: "LTB-M201", code: "LTB-ADMIN", name: "LTB Yönetici", password: "1234" },
+    { company_code: "POZITIF", store_code: "POZ-M001", code: "POZ-ADMIN", name: "Pozitif Yönetici", password: "1234" },
+    { company_code: "DEMO", store_code: "DEMO-M001", code: "DEMO-ADMIN", name: "Demo Yönetici", password: "1234" }
+  ]);
+
+  await supabaseClient.from("regions").insert([
+    { code: "BOLGE-ADMIN", name: "Bölge Müdürü", password: "1234" }
+  ]);
+}
+
+async function loadAllData() {
+  const [companiesRes, storesRes, personnelRes, managersRes, regionsRes, logsRes] = await Promise.all([
+    supabaseClient.from("companies").select("*").order("created_at", { ascending: true }),
+    supabaseClient.from("stores").select("*").order("created_at", { ascending: true }),
+    supabaseClient.from("personnel").select("*").order("created_at", { ascending: false }),
+    supabaseClient.from("managers").select("*").order("created_at", { ascending: false }),
+    supabaseClient.from("regions").select("*").order("created_at", { ascending: false }),
+    supabaseClient.from("attendance_logs").select("*").order("created_at", { ascending: false }).limit(200)
+  ]);
+
+  companies = {};
+  (companiesRes.data || []).forEach(c => {
+    companies[c.code] = {
+      code: c.code,
+      name: c.name,
+      stores: []
+    };
+  });
+
+  storesDB = storesRes.data || [];
+  storesDB.forEach(s => {
+    if (!companies[s.company_code]) {
+      companies[s.company_code] = {
+        code: s.company_code,
+        name: s.company_code,
+        stores: []
+      };
+    }
+
+    companies[s.company_code].stores.push({
+      code: s.code,
+      name: s.name,
+      lat: s.latitude,
+      lng: s.longitude,
+      radius: s.radius || 150
+    });
+  });
+
+  personnelDB = personnelRes.data || [];
+  managersDB = managersRes.data || [];
+  regionsDB = regionsRes.data || [];
+  logs = logsRes.data || [];
 }
 
 /* UI */
@@ -191,36 +182,42 @@ function hideAll() {
     "managerLoginPanel",
     "regionLoginPanel"
   ].forEach(id => {
-    const el = document.getElementById(id);
+    const el = $(id);
     if (el) el.style.display = "none";
   });
 }
 
 function goHome() {
   hideAll();
-  document.getElementById("homePage").style.display = "block";
+  $("homePage").style.display = "block";
   stopScanner();
 }
 
 function openPersonPanel() {
   hideAll();
-  document.getElementById("personPanel").style.display = "block";
+  $("personPanel").style.display = "block";
   setAction("LOGIN");
 }
 
 function openManagerLogin() {
   hideAll();
-  document.getElementById("managerLoginPanel").style.display = "block";
+  $("managerLoginPanel").style.display = "block";
 }
 
 function openRegionLogin() {
   hideAll();
-  document.getElementById("regionLoginPanel").style.display = "block";
+  $("regionLoginPanel").style.display = "block";
+}
+
+function openAdminPanel() {
+  hideAll();
+  $("adminPanel").style.display = "block";
+  renderAdminLogs();
 }
 
 function prepareBreakButtonUI() {
-  const breakBtn = document.getElementById("breakAction");
-  const returnBtn = document.getElementById("returnAction");
+  const breakBtn = $("breakAction");
+  const returnBtn = $("returnAction");
 
   if (breakBtn) {
     breakBtn.textContent = "Mola";
@@ -238,7 +235,7 @@ function setAction(action) {
   currentAction = action;
 
   ["loginAction", "breakAction", "returnAction", "exitAction"].forEach(id => {
-    const btn = document.getElementById(id);
+    const btn = $(id);
     if (btn) btn.classList.remove("selectedAction");
   });
 
@@ -248,151 +245,120 @@ function setAction(action) {
     action === "EXIT" ? "exitAction" :
     null;
 
-  if (target) document.getElementById(target)?.classList.add("selectedAction");
+  if (target) $(target)?.classList.add("selectedAction");
 }
 
-/* LOGS */
+/* COMPANY / STORE */
 
-function createLog(text, extra = {}) {
-  logs.unshift({
-    id: generateId(),
-    company: selectedCompany,
-    store: selectedStore,
-    text,
-    time: new Date().toLocaleString("tr-TR"),
-    timestamp: Date.now(),
-    ...extra
+function renderCompanyOptions() {
+  const select = $("companySelect");
+  if (!select) return;
+
+  select.innerHTML = "";
+
+  Object.keys(companies).forEach(code => {
+    const option = document.createElement("option");
+    option.value = code;
+    option.textContent = companies[code].name || code;
+    select.appendChild(option);
   });
 
-  saveAll();
-  renderLogs();
-  renderRegionLogs();
-  renderAdminLogs();
+  if (selectedCompany && companies[selectedCompany]) {
+    select.value = selectedCompany;
+  }
 }
 
-function createPending(text, extra = {}) {
-  pendingApprovals.unshift({
-    id: generateId(),
-    company: selectedCompany,
-    store: selectedStore,
-    text,
-    time: new Date().toLocaleString("tr-TR"),
-    timestamp: Date.now(),
-    ...extra
+function renderStoreOptions() {
+  const select = $("storeSelect");
+  if (!select) return;
+
+  select.innerHTML = "";
+
+  const list = companies[selectedCompany]?.stores || [];
+
+  list.forEach(store => {
+    const option = document.createElement("option");
+    option.value = store.code;
+    option.textContent = store.name;
+    select.appendChild(option);
   });
-
-  saveAll();
-  renderPending();
 }
 
-/* LOGIN */
-
-function openAdminPanel() {
-  hideAll();
-  document.getElementById("adminPanel").style.display = "block";
-  renderAdminLogs();
-}
-
-function managerLogin() {
-  const code = document.getElementById("managerCode").value.trim();
-  const password = document.getElementById("managerPassword").value.trim();
-
-  if (code === MASTER_CODE && password === MASTER_PASSWORD) {
-    openAdminPanel();
-    return;
-  }
-
-  const manager = managersDB.find(m => m.code === code && m.password === password);
-
-  if (!manager) {
-    alert("Bilgiler yanlış");
-    return;
-  }
-
-  if (manager.store !== selectedStore) {
-    alert("Bu mağaza için yetkiniz yok");
-    return;
-  }
-
-  hideAll();
-  document.getElementById("managerPanel").style.display = "block";
-
-  updateCounters();
-  renderLogs();
-  renderPending();
-  renderPersonnelList();
-}
-
-function regionLogin() {
-  const code = document.getElementById("regionCode").value.trim();
-  const password = document.getElementById("regionPassword").value.trim();
-
-  if (code === MASTER_CODE && password === MASTER_PASSWORD) {
-    openAdminPanel();
-    return;
-  }
-
-  const region = regionsDB.find(r => r.code === code && r.password === password);
-
-  if (!region) {
-    alert("Bölge müdürü bilgileri yanlış");
-    return;
-  }
-
-  hideAll();
-  document.getElementById("regionPanel").style.display = "block";
-  renderRegionLogs();
-}
-
-/* ADMIN */
-
-function adminAddCompany() {
-  const name = document.getElementById("adminCompanyName").value.trim();
-  const code = document.getElementById("adminCompanyCode").value.trim().toUpperCase();
-
-  if (!name || !code) {
-    alert("Şirket adı ve kodu gerekli");
-    return;
-  }
-
-  if (!companies[code]) companies[code] = [];
-
-  selectedCompany = code;
+function saveCompany() {
+  selectedCompany = $("companySelect").value;
   selectedStore = null;
 
   localStorage.setItem("selectedCompany", selectedCompany);
   localStorage.removeItem("selectedStore");
 
-  saveAll();
+  hideAll();
+  $("storePage").style.display = "block";
+  renderStoreOptions();
+}
+
+function saveStore() {
+  selectedStore = $("storeSelect").value;
+
+  if (!selectedStore) {
+    toast("Mağaza seçilmedi");
+    return;
+  }
+
+  localStorage.setItem("selectedStore", selectedStore);
+
+  hideAll();
+  $("homePage").style.display = "block";
+}
+
+/* ADMIN */
+
+async function adminAddCompany() {
+  const name = $("adminCompanyName").value.trim();
+  const code = $("adminCompanyCode").value.trim().toUpperCase();
+
+  if (!name || !code) {
+    toast("Şirket adı ve kodu gerekli");
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from("companies")
+    .upsert({ code, name }, { onConflict: "code" });
+
+  if (error) {
+    toast("Şirket kaydedilemedi: " + error.message);
+    return;
+  }
+
+  selectedCompany = code;
+  selectedStore = null;
+  localStorage.setItem("selectedCompany", selectedCompany);
+  localStorage.removeItem("selectedStore");
+
+  $("adminCompanyName").value = "";
+  $("adminCompanyCode").value = "";
+
+  await loadAllData();
   renderCompanyOptions();
   renderAdminLogs();
 
-  document.getElementById("adminCompanyName").value = "";
-  document.getElementById("adminCompanyCode").value = "";
-
-  alert(name + " şirketi seçildi / oluşturuldu.");
+  toast(name + " şirketi seçildi / oluşturuldu.");
 }
 
 function adminUseCurrentLocation() {
   if (!navigator.geolocation) {
-    alert("Bu cihaz konum desteklemiyor");
+    toast("Bu cihaz konum desteklemiyor");
     return;
   }
 
-  alert("Konum izni isteyeceğim. Mağazadaysan izin ver.");
-
   navigator.geolocation.getCurrentPosition(
     position => {
-      const lat = position.coords.latitude;
-      const lng = position.coords.longitude;
-
-      document.getElementById("adminStoreLat").value = lat;
-      document.getElementById("adminStoreLng").value = lng;
-
-      alert("GPS alındı");
+      $("adminStoreLat").value = position.coords.latitude;
+      $("adminStoreLng").value = position.coords.longitude;
+      toast("GPS alındı");
     },
     () => {
-      alert("Konum alınamadı. İzin verilmedi veya cihaz engelledi.");
+      toast("Konum alınamadı. İzin verilmedi veya cihaz engelledi.");
     },
     {
       enableHighAccuracy: true,
@@ -402,70 +368,67 @@ function adminUseCurrentLocation() {
   );
 }
 
-function adminAddStore() {
-  const name = document.getElementById("adminStoreName").value.trim();
-  const code = document.getElementById("adminStoreCode").value.trim().toUpperCase();
-  const latRaw = document.getElementById("adminStoreLat").value.trim();
-  const lngRaw = document.getElementById("adminStoreLng").value.trim();
+async function adminAddStore() {
+  const name = $("adminStoreName").value.trim();
+  const code = $("adminStoreCode").value.trim().toUpperCase();
+  const latRaw = $("adminStoreLat").value.trim();
+  const lngRaw = $("adminStoreLng").value.trim();
 
   if (!selectedCompany) {
-    alert("Önce şirket ekle / seç");
+    toast("Önce şirket ekle / seç");
     return;
   }
 
   if (!name || !code) {
-    alert("Mağaza adı ve kodu gerekli");
+    toast("Mağaza adı ve kodu gerekli");
     return;
   }
-
-  if (!companies[selectedCompany]) companies[selectedCompany] = [];
 
   const lat = latRaw ? Number(latRaw) : null;
   const lng = lngRaw ? Number(lngRaw) : null;
 
-  const existing = companies[selectedCompany].find(s => s.code === code);
-
-  if (existing) {
-    existing.name = name;
-    existing.lat = Number.isFinite(lat) ? lat : null;
-    existing.lng = Number.isFinite(lng) ? lng : null;
-    existing.radius = 150;
-  } else {
-    companies[selectedCompany].push({
+  const { error } = await supabaseClient
+    .from("stores")
+    .upsert({
+      company_code: selectedCompany,
       code,
       name,
-      lat: Number.isFinite(lat) ? lat : null,
-      lng: Number.isFinite(lng) ? lng : null,
+      latitude: Number.isFinite(lat) ? lat : null,
+      longitude: Number.isFinite(lng) ? lng : null,
       radius: 150
-    });
+    }, { onConflict: "code" });
+
+  if (error) {
+    toast("Mağaza kaydedilemedi: " + error.message);
+    return;
   }
 
   selectedStore = code;
   localStorage.setItem("selectedStore", selectedStore);
 
-  saveAll();
+  $("adminStoreName").value = "";
+  $("adminStoreCode").value = "";
+
+  await loadAllData();
   renderStoreOptions();
   renderAdminLogs();
 
-  document.getElementById("adminStoreName").value = "";
-  document.getElementById("adminStoreCode").value = "";
-
-  alert("Mağaza seçildi / kaydedildi: " + name);
+  toast("Mağaza seçildi / kaydedildi: " + name);
 }
 
 function adminGenerateStoreQR() {
   if (!selectedStore) {
-    alert("Önce mağaza ekle / seç");
+    toast("Önce mağaza ekle / seç");
     return;
   }
 
   const qrValue = "STORE:" + selectedStore;
-  const box = document.getElementById("adminQrBox");
-  const canvas = document.getElementById("adminQrCanvas");
-  const text = document.getElementById("adminQrText");
+  const box = $("adminQrBox");
+  const canvas = $("adminQrCanvas");
+  const text = $("adminQrText");
 
   if (!window.QRCode) {
-    alert("QR kütüphanesi yüklenemedi. İnternet bağlantısını kontrol et.");
+    toast("QR kütüphanesi yüklenemedi");
     return;
   }
 
@@ -480,160 +443,249 @@ function adminGenerateStoreQR() {
     margin: 2
   }, function (error) {
     if (error) {
-      alert("QR oluşturulamadı");
+      toast("QR oluşturulamadı");
       console.error(error);
     }
   });
 }
 
-function adminAddManager() {
-  const name = document.getElementById("adminManagerName").value.trim();
-  const code = document.getElementById("adminManagerCode").value.trim().toUpperCase();
-  const password = document.getElementById("adminManagerPassword").value.trim();
+async function adminAddManager() {
+  const name = $("adminManagerName").value.trim();
+  const code = $("adminManagerCode").value.trim().toUpperCase();
+  const password = $("adminManagerPassword").value.trim();
 
   if (!selectedCompany || !selectedStore) {
-    alert("Önce şirket ve mağaza seçili olmalı");
+    toast("Önce şirket ve mağaza seçili olmalı");
     return;
   }
 
   if (!name || !code || !password) {
-    alert("Yönetici adı, kodu ve şifresi gerekli");
+    toast("Yönetici adı, kodu ve şifresi gerekli");
     return;
   }
 
-  const exists = managersDB.find(m => m.code === code);
+  const { error } = await supabaseClient
+    .from("managers")
+    .upsert({
+      company_code: selectedCompany,
+      store_code: selectedStore,
+      code,
+      name,
+      password
+    }, { onConflict: "code" });
 
-  if (exists) {
-    alert("Bu yönetici kodu zaten var");
+  if (error) {
+    toast("Yönetici eklenemedi: " + error.message);
     return;
   }
 
-  managersDB.push({
-    id: generateId(),
-    name,
-    code,
-    password,
-    company: selectedCompany,
-    store: selectedStore
-  });
+  $("adminManagerName").value = "";
+  $("adminManagerCode").value = "";
+  $("adminManagerPassword").value = "";
 
-  saveAll();
+  await loadAllData();
   renderAdminLogs();
 
-  document.getElementById("adminManagerName").value = "";
-  document.getElementById("adminManagerCode").value = "";
-  document.getElementById("adminManagerPassword").value = "";
-
-  alert("Yönetici eklendi: " + name);
+  toast("Yönetici eklendi: " + name);
 }
 
-function adminAddRegion() {
-  const name = document.getElementById("adminRegionName").value.trim();
-  const code = document.getElementById("adminRegionCode").value.trim().toUpperCase();
-  const password = document.getElementById("adminRegionPassword").value.trim();
+async function adminAddRegion() {
+  const name = $("adminRegionName").value.trim();
+  const code = $("adminRegionCode").value.trim().toUpperCase();
+  const password = $("adminRegionPassword").value.trim();
 
   if (!name || !code || !password) {
-    alert("Bölge müdürü adı, kodu ve şifresi gerekli");
+    toast("Bölge müdürü adı, kodu ve şifresi gerekli");
     return;
   }
 
-  const exists = regionsDB.find(r => r.code === code);
+  const { error } = await supabaseClient
+    .from("regions")
+    .upsert({ code, name, password }, { onConflict: "code" });
 
-  if (exists) {
-    alert("Bu bölge müdürü kodu zaten var");
+  if (error) {
+    toast("Bölge müdürü eklenemedi: " + error.message);
     return;
   }
 
-  regionsDB.push({
-    id: generateId(),
-    name,
-    code,
-    password,
-    companies: selectedCompany ? [selectedCompany] : Object.keys(companies)
-  });
+  $("adminRegionName").value = "";
+  $("adminRegionCode").value = "";
+  $("adminRegionPassword").value = "";
 
-  saveAll();
+  await loadAllData();
   renderAdminLogs();
 
-  document.getElementById("adminRegionName").value = "";
-  document.getElementById("adminRegionCode").value = "";
-  document.getElementById("adminRegionPassword").value = "";
-
-  alert("Bölge müdürü eklendi: " + name);
+  toast("Bölge müdürü eklendi: " + name);
 }
 
-function adminResetSystem() {
+async function adminResetSystem() {
   const ok1 = confirm("Tüm sistem sıfırlansın mı?");
   if (!ok1) return;
 
   const ok2 = confirm("Bu işlem geri alınamaz. Emin misin?");
   if (!ok2) return;
 
-  localStorage.clear();
-  location.reload();
+  await supabaseClient.from("attendance_logs").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+  await supabaseClient.from("personnel").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+
+  localStorage.removeItem("users");
+  localStorage.removeItem("pendingApprovals");
+
+  users = [];
+  pendingApprovals = [];
+
+  await loadAllData();
+  renderAdminLogs();
+  renderPersonnelList();
+  updateCounters();
+
+  toast("Personel ve log kayıtları sıfırlandı");
+}
+
+/* LOGIN */
+
+async function managerLogin() {
+  const code = $("managerCode").value.trim().toUpperCase();
+  const password = $("managerPassword").value.trim();
+
+  if (code === MASTER_CODE && password === MASTER_PASSWORD) {
+    openAdminPanel();
+    return;
+  }
+
+  await loadAllData();
+
+  const manager = managersDB.find(
+    m => m.code === code && m.password === password
+  );
+
+  if (!manager) {
+    toast("Bilgiler yanlış");
+    return;
+  }
+
+  if (manager.store_code !== selectedStore) {
+    toast("Bu mağaza için yetkiniz yok");
+    return;
+  }
+
+  hideAll();
+  $("managerPanel").style.display = "block";
+
+  updateCounters();
+  renderLogs();
+  renderPending();
+  renderPersonnelList();
+}
+
+async function regionLogin() {
+  const code = $("regionCode").value.trim().toUpperCase();
+  const password = $("regionPassword").value.trim();
+
+  if (code === MASTER_CODE && password === MASTER_PASSWORD) {
+    openAdminPanel();
+    return;
+  }
+
+  await loadAllData();
+
+  const region = regionsDB.find(
+    r => r.code === code && r.password === password
+  );
+
+  if (!region) {
+    toast("Bölge müdürü bilgileri yanlış");
+    return;
+  }
+
+  hideAll();
+  $("regionPanel").style.display = "block";
+  renderRegionLogs();
 }
 
 /* PERSONNEL */
 
-function addPersonnel() {
-  const name = document.getElementById("newPersonName").value.trim();
-  const code = document.getElementById("newPersonCode").value.trim();
-  const type = document.getElementById("newPersonType").value;
-  const hours = document.getElementById("newPersonHours").value;
+async function addPersonnel() {
+  const name = $("newPersonName").value.trim();
+  const code = $("newPersonCode").value.trim().toUpperCase();
+  const type = $("newPersonType").value;
+  const hours = $("newPersonHours").value;
+
+  if (!selectedCompany || !selectedStore) {
+    toast("Şirket / mağaza seçili değil");
+    return;
+  }
 
   if (!name || !code) {
-    alert("Ad soyad ve personel kodu zorunlu");
+    toast("Ad soyad ve personel kodu zorunlu");
     return;
   }
 
-  const exists = personnelDB.find(p => p.code === code && p.store === selectedStore);
+  const { error } = await supabaseClient
+    .from("personnel")
+    .insert({
+      company_code: selectedCompany,
+      store_code: selectedStore,
+      personnel_code: code,
+      full_name: name,
+      personnel_type: type,
+      weekly_hours: Number(hours || 0),
+      password: null,
+      active: true
+    });
 
-  if (exists) {
-    alert("Bu personel kodu zaten kayıtlı");
+  if (error) {
+    toast("Personel eklenemedi: " + error.message);
     return;
   }
 
-  personnelDB.push({
-    id: generateId(),
-    company: selectedCompany,
-    store: selectedStore,
-    name,
-    code,
-    type,
-    weeklyHours: Number(hours || 0),
-    password: null,
-    passwordCreated: false,
-    active: true,
-    createdAt: new Date().toLocaleString("tr-TR")
-  });
+  $("newPersonName").value = "";
+  $("newPersonCode").value = "";
+  $("newPersonHours").value = "";
 
-  saveAll();
+  await createLog(code, "PERSONNEL_CREATED", "👤 Yeni personel eklendi: " + name + " / " + code);
+  await loadAllData();
 
-  document.getElementById("newPersonName").value = "";
-  document.getElementById("newPersonCode").value = "";
-  document.getElementById("newPersonHours").value = "";
-
-  createLog("👤 Yeni personel eklendi: " + name + " / " + code);
   renderPersonnelList();
+  renderLogs();
+  renderAdminLogs();
 
-  alert("Personel eklendi. İlk girişte şifre oluşturacak.");
+  toast("Personel eklendi. Artık tüm cihazlarda görünür.");
 }
 
-function renderPersonnelList() {
-  const area = document.getElementById("personnelList");
+function getPersonnel(code) {
+  return personnelDB.find(
+    p => p.personnel_code === code && p.store_code === selectedStore
+  );
+}
+
+function getActiveUser(code) {
+  return users.find(
+    u => u.code === code && u.store === selectedStore
+  );
+}
+
+async function renderPersonnelList() {
+  const area = $("personnelList");
   if (!area) return;
 
-  const list = personnelDB.filter(p => p.store === selectedStore && p.company === selectedCompany);
+  await loadAllData();
+
+  const list = personnelDB.filter(
+    p => p.store_code === selectedStore && p.company_code === selectedCompany
+  );
 
   if (!list.length) {
-    area.innerHTML = `<div class="log">Henüz personel eklenmedi.</div>`;
+    area.innerHTML = `<div class="log">Bu mağazada henüz personel yok.</div>`;
     return;
   }
 
   area.innerHTML = "";
 
   list.forEach(p => {
-    const activeUser = users.find(u => u.code === p.code && u.store === selectedStore);
+    const activeUser = users.find(
+      u => u.code === p.personnel_code && u.store === selectedStore
+    );
 
     const statusText =
       activeUser?.status === "ACTIVE" ? "Aktif" :
@@ -642,11 +694,11 @@ function renderPersonnelList() {
 
     area.innerHTML += `
       <div class="log">
-        <b>${escapeHTML(p.name)}</b><br>
-        Kod: ${escapeHTML(p.code)}<br>
-        Tür: ${p.type === "FULL" ? "Full Personel" : "Part Time"}<br>
-        Haftalık Saat: ${escapeHTML(p.weeklyHours)}<br>
-        Şifre: ${p.passwordCreated ? "Oluşturuldu" : "İlk giriş bekleniyor"}<br>
+        <b>${escapeHTML(p.full_name)}</b><br>
+        Kod: ${escapeHTML(p.personnel_code)}<br>
+        Tür: ${p.personnel_type === "FULL" ? "Full Personel" : "Part Time"}<br>
+        Haftalık Saat: ${escapeHTML(p.weekly_hours || 0)}<br>
+        Şifre: ${p.password ? "Oluşturuldu" : "İlk giriş bekleniyor"}<br>
         Durum: ${statusText}<br>
 
         <button class="loginBtn blue" onclick="resetPersonnelPassword('${p.id}')">Şifre Sıfırla</button>
@@ -656,73 +708,104 @@ function renderPersonnelList() {
   });
 }
 
-function resetPersonnelPassword(id) {
-  const person = personnelDB.find(p => p.id === id);
-  if (!person) return;
+async function resetPersonnelPassword(id) {
+  const { error } = await supabaseClient
+    .from("personnel")
+    .update({ password: null })
+    .eq("id", id);
 
-  person.password = null;
-  person.passwordCreated = false;
+  if (error) {
+    toast("Şifre sıfırlanamadı");
+    return;
+  }
 
-  saveAll();
-  createLog("🔑 Personel şifresi sıfırlandı: " + person.code);
+  await loadAllData();
   renderPersonnelList();
 
-  alert("Şifre sıfırlandı.");
+  toast("Şifre sıfırlandı");
 }
 
-function deletePersonnel(id) {
+async function deletePersonnel(id) {
   const person = personnelDB.find(p => p.id === id);
   if (!person) return;
 
-  const ok = confirm(person.name + " silinsin mi?");
+  const ok = confirm(person.full_name + " silinsin mi?");
   if (!ok) return;
 
-  personnelDB = personnelDB.filter(p => p.id !== id);
-  users = users.filter(u => !(u.code === person.code && u.store === person.store));
+  const { error } = await supabaseClient
+    .from("personnel")
+    .delete()
+    .eq("id", id);
 
-  saveAll();
-  createLog("🗑️ Personel silindi: " + person.name + " / " + person.code);
+  if (error) {
+    toast("Personel silinemedi");
+    return;
+  }
+
+  users = users.filter(
+    u => !(u.code === person.personnel_code && u.store === person.store_code)
+  );
+
+  saveLocal();
+
+  await createLog(person.personnel_code, "PERSONNEL_DELETED", "🗑️ Personel silindi: " + person.full_name);
+  await loadAllData();
 
   renderPersonnelList();
   updateCounters();
+
+  toast("Personel silindi");
 }
 
-function checkPersonnelPassword(person) {
-  if (!person.passwordCreated) {
+async function checkPersonnelPassword(person) {
+  if (!person.password) {
     const p1 = prompt("İlk giriş. Yeni şifre oluştur:");
 
     if (!p1 || p1.length < 4) {
-      alert("Şifre en az 4 karakter olmalı");
+      toast("Şifre en az 4 karakter olmalı");
       return false;
     }
 
     const p2 = prompt("Şifreyi tekrar gir:");
 
     if (p1 !== p2) {
-      alert("Şifreler eşleşmiyor");
+      toast("Şifreler eşleşmiyor");
+      return false;
+    }
+
+    const { error } = await supabaseClient
+      .from("personnel")
+      .update({ password: p1 })
+      .eq("id", person.id);
+
+    if (error) {
+      toast("Şifre kaydedilemedi");
       return false;
     }
 
     person.password = p1;
-    person.passwordCreated = true;
-    saveAll();
 
-    alert("Şifre oluşturuldu");
+    toast("Şifre oluşturuldu");
     return true;
   }
 
   const entered = prompt("Personel şifrenizi girin:");
 
   if (entered !== person.password) {
-    alert("Şifre yanlış");
-    createPending("Yanlış şifre denemesi: " + person.code);
+    createPending("Yanlış şifre denemesi: " + person.personnel_code);
+    toast("Şifre yanlış");
     return false;
   }
 
   return true;
 }
 
-/* LOCATION CHECK */
+/* LOCATION */
+
+function getCurrentStoreInfo() {
+  const list = companies[selectedCompany]?.stores || [];
+  return list.find(s => s.code === selectedStore) || null;
+}
 
 function getDistanceMeters(lat1, lon1, lat2, lon2) {
   const R = 6371000;
@@ -789,7 +872,7 @@ function verifyLocation() {
   });
 }
 
-/* QR SCANNER */
+/* QR */
 
 async function stopScanner() {
   try {
@@ -800,7 +883,7 @@ async function stopScanner() {
     }
   } catch (e) {}
 
-  const reader = document.getElementById("reader");
+  const reader = $("reader");
 
   if (reader) {
     reader.innerHTML = "";
@@ -814,10 +897,12 @@ async function stopScanner() {
 async function startQRScanner() {
   if (qrRunning) return;
 
-  const code = document.getElementById("personCode").value.trim();
+  await loadAllData();
+
+  const code = $("personCode").value.trim().toUpperCase();
 
   if (!code) {
-    alert("Personel kodu gerekli");
+    toast("Personel kodu gerekli");
     return;
   }
 
@@ -825,23 +910,24 @@ async function startQRScanner() {
 
   if (!person) {
     createPending("Kayıtsız personel işlem denemesi: " + code);
-    alert("Bu personel kayıtlı değil.");
+    toast("Bu personel kayıtlı değil. Yönetici panelinden eklenmeli.");
     return;
   }
 
-  if (!checkPersonnelPassword(person)) return;
+  const passwordOk = await checkPersonnelPassword(person);
+  if (!passwordOk) return;
 
   const locationOk = await verifyLocation();
 
   if (!locationOk) {
-    alert("Konum doğrulaması başarısız.");
+    toast("Konum doğrulaması başarısız. Yönetici onayı gerekli.");
     return;
   }
 
   await stopScanner();
 
   qrRunning = true;
-  document.getElementById("reader").style.display = "block";
+  $("reader").style.display = "block";
 
   qrScanner = new Html5Qrcode("reader");
 
@@ -861,36 +947,36 @@ async function startQRScanner() {
 
         if (!validQR) {
           createPending("Yanlış mağaza QR: " + code);
-          alert("Geçersiz QR");
+          toast("Geçersiz QR");
           return;
         }
 
-        processAction(code, person);
+        await processAction(code, person);
       },
       () => {}
     );
   } catch (e) {
     await stopScanner();
-    alert("Kamera açılamadı");
+    toast("Kamera açılamadı. Kamera iznini kontrol et.");
   }
 }
 
-/* PROCESS */
+/* ACTION PROCESS */
 
-function processAction(code, person) {
+async function processAction(code, person) {
   if (currentAction === "LOGIN") {
     const exists = getActiveUser(code);
 
     if (exists) {
       createPending("Çoklu giriş denemesi: " + code);
-      alert("Bu personel zaten içeride.");
+      toast("Bu personel zaten içeride.");
       return;
     }
 
     users.push({
       id: generateId(),
       code,
-      name: person.name,
+      name: person.full_name,
       company: selectedCompany,
       store: selectedStore,
       status: "ACTIVE",
@@ -899,12 +985,14 @@ function processAction(code, person) {
       totalBreakMinutes: 0
     });
 
-    saveAll();
-    createLog("✅ " + person.name + " giriş yaptı", { personCode: code, action: "LOGIN", location: lastLocationResult });
+    saveLocal();
+
+    await createLog(code, "LOGIN", "✅ " + person.full_name + " giriş yaptı");
+
     updateCounters();
     renderPersonnelList();
 
-    alert("Giriş başarılı");
+    toast("Giriş başarılı");
   }
 
   if (currentAction === "BREAK") {
@@ -912,7 +1000,7 @@ function processAction(code, person) {
 
     if (!user) {
       createPending("Girişsiz mola denemesi: " + code);
-      alert("Önce giriş yapılmalı");
+      toast("Önce giriş yapılmalı");
       return;
     }
 
@@ -924,30 +1012,28 @@ function processAction(code, person) {
       user.breakStart = null;
       user.totalBreakMinutes = (user.totalBreakMinutes || 0) + minutes;
 
-      saveAll();
-      createLog("✅ " + person.name + " moladan döndü (" + minutes + " dk)", {
-        personCode: code,
-        action: "BREAK_RETURN",
-        breakMinutes: minutes
-      });
+      saveLocal();
+
+      await createLog(code, "BREAK_RETURN", "✅ " + person.full_name + " moladan döndü (" + minutes + " dk)");
 
       updateCounters();
       renderPersonnelList();
 
-      alert("Mola bitti: " + minutes + " dk");
+      toast("Mola bitti: " + minutes + " dk");
       return;
     }
 
     user.status = "BREAK";
     user.breakStart = Date.now();
 
-    saveAll();
-    createLog("☕ " + person.name + " mola başlattı", { personCode: code, action: "BREAK_START" });
+    saveLocal();
+
+    await createLog(code, "BREAK_START", "☕ " + person.full_name + " mola başlattı");
 
     updateCounters();
     renderPersonnelList();
 
-    alert("Mola başladı");
+    toast("Mola başladı");
   }
 
   if (currentAction === "EXIT") {
@@ -955,13 +1041,13 @@ function processAction(code, person) {
 
     if (!user) {
       createPending("Geçersiz çıkış denemesi: " + code);
-      alert("Aktif giriş bulunamadı.");
+      toast("Aktif giriş bulunamadı.");
       return;
     }
 
     if (user.status === "BREAK") {
       createPending("Moladayken çıkış denemesi: " + code);
-      alert("Önce molayı bitirmelisin.");
+      toast("Önce molayı bitirmelisin.");
       return;
     }
 
@@ -969,28 +1055,90 @@ function processAction(code, person) {
     const breakMinutes = user.totalBreakMinutes || 0;
     const workMinutes = Math.max(0, totalMinutes - breakMinutes);
 
-    users = users.filter(u => !(u.code === code && u.store === selectedStore));
+    users = users.filter(
+      u => !(u.code === code && u.store === selectedStore)
+    );
 
-    saveAll();
-    createLog("👋 " + person.name + " çıkış yaptı | Çalışma: " + workMinutes + " dk | Mola: " + breakMinutes + " dk", {
-      personCode: code,
-      action: "EXIT",
-      totalMinutes,
-      breakMinutes,
-      workMinutes
-    });
+    saveLocal();
+
+    await createLog(
+      code,
+      "EXIT",
+      "👋 " + person.full_name + " çıkış yaptı | Çalışma: " + workMinutes + " dk | Mola: " + breakMinutes + " dk"
+    );
 
     updateCounters();
     renderPersonnelList();
 
-    alert("Çıkış başarılı");
+    toast("Çıkış başarılı");
   }
+}
+
+/* LOGS */
+
+async function createLog(personnelCode, action, details) {
+  const { error } = await supabaseClient
+    .from("attendance_logs")
+    .insert({
+      company_code: selectedCompany,
+      store_code: selectedStore,
+      personnel_code: personnelCode || null,
+      action,
+      details
+    });
+
+  if (error) {
+    console.error("Log kaydedilemedi:", error.message);
+  }
+
+  await loadAllData();
+  renderLogs();
+  renderRegionLogs();
+  renderAdminLogs();
+}
+
+function renderLogs() {
+  const area = $("logsArea");
+  if (!area) return;
+
+  const list = logs.filter(l => l.store_code === selectedStore);
+
+  if (!list.length) {
+    area.innerHTML = `<div class="log">Henüz hareket yok.</div>`;
+    return;
+  }
+
+  area.innerHTML = "";
+
+  list.forEach(log => {
+    area.innerHTML += `
+      <div class="log">
+        🏪 ${escapeHTML(log.store_code)}<br>
+        ${escapeHTML(log.details)}<br>
+        <small>${new Date(log.created_at).toLocaleString("tr-TR")}</small>
+      </div>
+    `;
+  });
 }
 
 /* PENDING */
 
+function createPending(text) {
+  pendingApprovals.unshift({
+    id: generateId(),
+    company: selectedCompany,
+    store: selectedStore,
+    text,
+    time: new Date().toLocaleString("tr-TR"),
+    timestamp: Date.now()
+  });
+
+  saveLocal();
+  renderPending();
+}
+
 function renderPending() {
-  const area = document.getElementById("pendingArea");
+  const area = $("pendingArea");
   if (!area) return;
 
   const list = pendingApprovals.filter(p => p.store === selectedStore);
@@ -1015,67 +1163,50 @@ function renderPending() {
 }
 
 function approvePending(id) {
-  const item = pendingApprovals.find(p => p.id === id);
-  if (item) createLog("✅ Yönetici onayı verildi: " + item.text);
-
   pendingApprovals = pendingApprovals.filter(p => p.id !== id);
-  saveAll();
+  saveLocal();
   renderPending();
 }
 
 function rejectPending(id) {
-  const item = pendingApprovals.find(p => p.id === id);
-  if (item) createLog("❌ Yönetici reddetti: " + item.text);
-
   pendingApprovals = pendingApprovals.filter(p => p.id !== id);
-  saveAll();
+  saveLocal();
   renderPending();
 }
 
-/* COUNTERS / RENDER */
+/* RENDER */
 
 function updateCounters() {
-  const activeEl = document.getElementById("activeCount");
-  const breakEl = document.getElementById("breakCount");
-  const exitEl = document.getElementById("exitCount");
+  const activeEl = $("activeCount");
+  const breakEl = $("breakCount");
+  const exitEl = $("exitCount");
 
   if (activeEl) {
-    activeEl.innerText = users.filter(u => u.store === selectedStore && u.status === "ACTIVE").length;
+    activeEl.innerText = users.filter(
+      u => u.store === selectedStore && u.status === "ACTIVE"
+    ).length;
   }
 
   if (breakEl) {
-    breakEl.innerText = users.filter(u => u.store === selectedStore && u.status === "BREAK").length;
+    breakEl.innerText = users.filter(
+      u => u.store === selectedStore && u.status === "BREAK"
+    ).length;
   }
 
   if (exitEl) {
-    exitEl.innerText = logs.filter(l => l.store === selectedStore && l.action === "EXIT").length;
+    exitEl.innerText = logs.filter(
+      l => l.store_code === selectedStore && l.action === "EXIT"
+    ).length;
   }
 }
 
-function renderLogs() {
-  const area = document.getElementById("logsArea");
-  if (!area) return;
-
-  area.innerHTML = "";
-
-  logs.filter(l => l.store === selectedStore).forEach(log => {
-    area.innerHTML += `
-      <div class="log">
-        🏪 ${escapeHTML(log.store)}<br>
-        ${escapeHTML(log.text)}<br>
-        <small>${escapeHTML(log.time)}</small>
-      </div>
-    `;
-  });
-}
-
 function renderRegionLogs() {
-  const area = document.getElementById("regionLogs");
+  const area = $("regionLogs");
   if (!area) return;
 
-  const companyPersonnel = personnelDB.filter(p => p.company === selectedCompany);
-  const companyManagers = managersDB.filter(m => m.company === selectedCompany);
-  const companyLogs = logs.filter(l => l.company === selectedCompany);
+  const companyPersonnel = personnelDB.filter(p => p.company_code === selectedCompany);
+  const companyManagers = managersDB.filter(m => m.company_code === selectedCompany);
+  const companyLogs = logs.filter(l => l.company_code === selectedCompany);
 
   area.innerHTML = `
     <h3>Yöneticiler</h3>
@@ -1085,7 +1216,7 @@ function renderRegionLogs() {
           <div class="log">
             👔 ${escapeHTML(m.name)}<br>
             Kod: ${escapeHTML(m.code)}<br>
-            Mağaza: ${escapeHTML(m.store)}
+            Mağaza: ${escapeHTML(m.store_code)}
           </div>
         `).join("")
         : "<div class='log'>Yönetici yok.</div>"
@@ -1096,10 +1227,10 @@ function renderRegionLogs() {
       companyPersonnel.length
         ? companyPersonnel.map(p => `
           <div class="log">
-            👤 ${escapeHTML(p.name)}<br>
-            Kod: ${escapeHTML(p.code)}<br>
-            Mağaza: ${escapeHTML(p.store)}<br>
-            Tür: ${p.type === "FULL" ? "Full Personel" : "Part Time"}
+            👤 ${escapeHTML(p.full_name)}<br>
+            Kod: ${escapeHTML(p.personnel_code)}<br>
+            Mağaza: ${escapeHTML(p.store_code)}<br>
+            Tür: ${p.personnel_type === "FULL" ? "Full Personel" : "Part Time"}
           </div>
         `).join("")
         : "<div class='log'>Personel yok.</div>"
@@ -1110,9 +1241,9 @@ function renderRegionLogs() {
       companyLogs.length
         ? companyLogs.map(log => `
           <div class="log">
-            🏪 ${escapeHTML(log.store)}<br>
-            ${escapeHTML(log.text)}<br>
-            <small>${escapeHTML(log.time)}</small>
+            🏪 ${escapeHTML(log.store_code)}<br>
+            ${escapeHTML(log.details)}<br>
+            <small>${new Date(log.created_at).toLocaleString("tr-TR")}</small>
           </div>
         `).join("")
         : "<div class='log'>Log yok.</div>"
@@ -1121,19 +1252,14 @@ function renderRegionLogs() {
 }
 
 function renderAdminLogs() {
-  const area = document.getElementById("adminLogs");
+  const area = $("adminLogs");
   if (!area) return;
-
-  let storeCount = 0;
-  Object.keys(companies).forEach(companyCode => {
-    storeCount += companies[companyCode].length;
-  });
 
   area.innerHTML = `
     <div class="log">
       <b>Sistem Özeti</b><br>
       Şirket Sayısı: ${Object.keys(companies).length}<br>
-      Mağaza Sayısı: ${storeCount}<br>
+      Mağaza Sayısı: ${storesDB.length}<br>
       Seçili Şirket: ${escapeHTML(selectedCompany || "-")}<br>
       Seçili Mağaza: ${escapeHTML(selectedStore || "-")}<br>
       Yönetici Sayısı: ${managersDB.length}<br>
@@ -1141,7 +1267,8 @@ function renderAdminLogs() {
       Personel Sayısı: ${personnelDB.length}<br>
       Aktif İçeride: ${users.length}<br>
       Log Sayısı: ${logs.length}<br>
-      Onay Bekleyen: ${pendingApprovals.length}
+      Onay Bekleyen: ${pendingApprovals.length}<br>
+      Veri Kaynağı: Supabase
     </div>
   `;
 }
@@ -1149,5 +1276,3 @@ function renderAdminLogs() {
 /* START */
 
 initApp();
-
-console.log("AL METHER WORKFORCE APP v2.2 LOADED");
