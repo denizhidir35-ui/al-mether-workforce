@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>AL Mether Workforce</title>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+<link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="logo">
+<h1>AL Mether</h1>
+<p>Workforce Platform</p>
+</div>
+
+<div id="storePage" class="card">
+<h2>Mağaza Seç</h2>
+
+<select id="storeSelect">
+<option value="SKX-M085">SKX - M085</option>
+<option value="SKX-M086">SKX - M086</option>
+<option value="LTB-M201">LTB - M201</option>
+</select>
+
+<button class="mainBtn blue" onclick="saveStore()">Devam Et</button>
+</div>
+
+<div id="homePage" class="panel">
+<div class="card">
+<button class="mainBtn green" onclick="openPersonPanel()">Personel Terminali</button>
+<button class="mainBtn blue" onclick="openManagerLogin()">Yönetici Girişi</button>
+<button class="mainBtn purple" onclick="openRegionLogin()">Bölge Müdürü</button>
+</div>
+</div>
+
+<div id="personPanel" class="panel">
+<div class="card">
+<h2>Personel Terminali</h2>
+
+<input id="personCode" placeholder="Personel Kodu">
+
+<div class="actionBox">
+<button id="loginAction" class="actionBtn green selectedAction" onclick="setAction('LOGIN')">Giriş</button>
+<button id="breakAction" class="actionBtn orange" onclick="setAction('BREAK')">Mola</button>
+<button id="exitAction" class="actionBtn red" onclick="setAction('EXIT')">Çıkış</button>
+</div>
+
+<button class="loginBtn blue" onclick="startQRScanner()">MAĞAZA QR OKUT</button>
+
+<div id="reader"></div>
+
+<button class="loginBtn gray" onclick="goHome()">Geri</button>
+
+<div class="status">Stable Workforce Core</div>
+</div>
+</div>
+
+<div id="managerLoginPanel" class="panel">
+<div class="card">
+<h2>Yönetici Girişi</h2>
+
+<input id="managerCode" placeholder="Yönetici Kodu">
+<input id="managerPassword" type="password" placeholder="Şifre">
+
+<button class="loginBtn blue" onclick="managerLogin()">Giriş Yap</button>
+<button class="loginBtn gray" onclick="goHome()">Geri</button>
+</div>
+</div>
+
+<div id="managerPanel" class="panel">
+<div class="card">
+<h2>Yönetici Paneli</h2>
+
+<div class="counterArea">
+<div class="counter activeBox">
+<div id="activeCount">0</div>
+<div>Aktif</div>
+</div>
+
+<div class="counter breakBox">
+<div id="breakCount">0</div>
+<div>Molada</div>
+</div>
+
+<div class="counter exitBox">
+<div id="exitCount">0</div>
+<div>Çıkış</div>
+</div>
+</div>
+
+<div id="pendingArea"></div>
+<div class="logs" id="logsArea"></div>
+
+<button class="loginBtn gray" onclick="goHome()">Ana Sayfa</button>
+</div>
+</div>
+
+<div id="regionLoginPanel" class="panel">
+<div class="card">
+<h2>MASTER ACCESS</h2>
+
+<input id="regionCode" placeholder="Kod">
+<input id="regionPassword" type="password" placeholder="Şifre">
+
+<button class="loginBtn purple" onclick="regionLogin()">Giriş Yap</button>
+<button class="loginBtn gray" onclick="goHome()">Geri</button>
+</div>
+</div>
+
+<div id="regionPanel" class="panel">
+<div class="card">
+<h2>MASTER PANEL</h2>
+
+<div class="logs" id="regionLogs"></div>
+
+<button class="loginBtn gray" onclick="goHome()">Ana Sayfa</button>
+</div>
+</div>
+
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
