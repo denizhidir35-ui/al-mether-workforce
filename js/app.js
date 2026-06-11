@@ -8,27 +8,17 @@ let selectedStore = localStorage.getItem("selectedStore");
 let selectedCompany = localStorage.getItem("selectedCompany");
 
 const companies = {
-  POZITIF: [
-    { code: "POZ-M001", name: "Pozitif Matbaa - Merkez" }
-  ],
+  POZITIF: [{ code: "POZ-M001", name: "Pozitif Matbaa - Merkez" }],
   SKX: [
     { code: "SKX-M085", name: "SKX - M085" },
     { code: "SKX-M086", name: "SKX - M086" }
   ],
-  LTB: [
-    { code: "LTB-M201", name: "LTB - M201" }
-  ],
-  DEMO: [
-    { code: "DEMO-M001", name: "Demo Mağaza" }
-  ]
+  LTB: [{ code: "LTB-M201", name: "LTB - M201" }],
+  DEMO: [{ code: "DEMO-M001", name: "Demo Mağaza" }]
 };
-
-/* MASTER */
 
 const MASTER_CODE = "9-9-999";
 const MASTER_PASSWORD = "1234";
-
-/* MANAGERS */
 
 const managers = [
   { code: "M085-ADMIN", password: "1234", store: "SKX-M085" },
@@ -38,52 +28,42 @@ const managers = [
   { code: "DEMO-ADMIN", password: "1234", store: "DEMO-M001" }
 ];
 
-/* QR */
-
 let qrScanner = null;
 let qrRunning = false;
 let qrProcessed = false;
-
-/* ACTION */
-
 let currentAction = "LOGIN";
 
 /* INIT */
 
 function initApp() {
+  hideAll();
+
   if (selectedCompany && selectedStore) {
-    document.getElementById("companyPage").style.display = "none";
-    document.getElementById("storePage").style.display = "none";
     document.getElementById("homePage").style.display = "block";
   } else if (selectedCompany) {
-    document.getElementById("companyPage").style.display = "none";
     document.getElementById("storePage").style.display = "block";
-    document.getElementById("homePage").style.display = "none";
     renderStoreOptions();
   } else {
     document.getElementById("companyPage").style.display = "block";
-    document.getElementById("storePage").style.display = "none";
-    document.getElementById("homePage").style.display = "none";
   }
 
   updateCounters();
   renderLogs();
+  renderRegionLogs();
+  renderAdminLogs();
 }
 
 /* STORE */
 
 function saveCompany() {
   selectedCompany = document.getElementById("companySelect").value;
-
   localStorage.setItem("selectedCompany", selectedCompany);
-  localStorage.removeItem("selectedStore");
 
+  localStorage.removeItem("selectedStore");
   selectedStore = null;
 
-  document.getElementById("companyPage").style.display = "none";
+  hideAll();
   document.getElementById("storePage").style.display = "block";
-  document.getElementById("homePage").style.display = "none";
-
   renderStoreOptions();
 }
 
@@ -105,28 +85,26 @@ function renderStoreOptions() {
 
 function saveStore() {
   selectedStore = document.getElementById("storeSelect").value;
-
   localStorage.setItem("selectedStore", selectedStore);
 
-  document.getElementById("storePage").style.display = "none";
+  hideAll();
   document.getElementById("homePage").style.display = "block";
 }
 
 /* UI */
 
 function hideAll() {
-  const panels = [
+  [
     "companyPage",
     "storePage",
     "homePage",
     "personPanel",
     "managerPanel",
     "regionPanel",
+    "adminPanel",
     "managerLoginPanel",
     "regionLoginPanel"
-  ];
-
-  panels.forEach(id => {
+  ].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = "none";
   });
@@ -163,20 +141,15 @@ function setAction(action) {
     if (btn) btn.classList.remove("selectedAction");
   });
 
-  if (action === "LOGIN") {
-    document.getElementById("loginAction")?.classList.add("selectedAction");
-  }
+  const target =
+    action === "LOGIN" ? "loginAction" :
+    action === "BREAK" ? "breakAction" :
+    action === "RETURN" ? "returnAction" :
+    action === "EXIT" ? "exitAction" :
+    null;
 
-  if (action === "BREAK") {
-    document.getElementById("breakAction")?.classList.add("selectedAction");
-  }
-
-  if (action === "RETURN") {
-    document.getElementById("returnAction")?.classList.add("selectedAction");
-  }
-
-  if (action === "EXIT") {
-    document.getElementById("exitAction")?.classList.add("selectedAction");
+  if (target) {
+    document.getElementById(target)?.classList.add("selectedAction");
   }
 }
 
@@ -194,6 +167,7 @@ function createLog(text) {
 
   renderLogs();
   renderRegionLogs();
+  renderAdminLogs();
 }
 
 /* PENDING */
@@ -249,11 +223,22 @@ function rejectPending(index) {
   renderPending();
 }
 
-/* MANAGER LOGIN */
+/* LOGIN */
+
+function openAdminPanel() {
+  hideAll();
+  document.getElementById("adminPanel").style.display = "block";
+  renderAdminLogs();
+}
 
 function managerLogin() {
   const code = document.getElementById("managerCode").value.trim();
   const password = document.getElementById("managerPassword").value.trim();
+
+  if (code === MASTER_CODE && password === MASTER_PASSWORD) {
+    openAdminPanel();
+    return;
+  }
 
   const manager = managers.find(
     m => m.code === code && m.password === password
@@ -270,7 +255,6 @@ function managerLogin() {
   }
 
   hideAll();
-
   document.getElementById("managerPanel").style.display = "block";
 
   updateCounters();
@@ -278,22 +262,16 @@ function managerLogin() {
   renderPending();
 }
 
-/* MASTER LOGIN */
-
 function regionLogin() {
   const code = document.getElementById("regionCode").value.trim();
   const password = document.getElementById("regionPassword").value.trim();
 
-  if (code !== MASTER_CODE || password !== MASTER_PASSWORD) {
-    alert("Erişim reddedildi");
+  if (code === MASTER_CODE && password === MASTER_PASSWORD) {
+    openAdminPanel();
     return;
   }
 
-  hideAll();
-
-  document.getElementById("regionPanel").style.display = "block";
-
-  renderRegionLogs();
+  alert("Bu sürümde bölge müdürü hesabı tanımlı değil");
 }
 
 /* QR */
@@ -390,7 +368,6 @@ function processAction(code) {
     localStorage.setItem("users", JSON.stringify(users));
 
     createLog("✅ " + code + " giriş yaptı");
-
     updateCounters();
 
     alert("Giriş başarılı");
@@ -418,7 +395,6 @@ function processAction(code) {
     localStorage.setItem("users", JSON.stringify(users));
 
     createLog("☕ " + code + " mola başlattı");
-
     updateCounters();
 
     alert("Mola başladı");
@@ -440,11 +416,7 @@ function processAction(code) {
     }
 
     const start = users[userIndex].breakStart || Date.now();
-
-    const minutes = Math.max(
-      1,
-      Math.round((Date.now() - start) / 60000)
-    );
+    const minutes = Math.max(1, Math.round((Date.now() - start) / 60000));
 
     users[userIndex].status = "ACTIVE";
     users[userIndex].breakStart = null;
@@ -454,7 +426,6 @@ function processAction(code) {
     localStorage.setItem("users", JSON.stringify(users));
 
     createLog("✅ " + code + " moladan döndü (" + minutes + " dk)");
-
     updateCounters();
 
     alert("Mola tamamlandı: " + minutes + " dk");
@@ -478,7 +449,6 @@ function processAction(code) {
     localStorage.setItem("users", JSON.stringify(users));
 
     createLog("👋 " + code + " çıkış yaptı");
-
     updateCounters();
 
     alert("Çıkış başarılı");
@@ -511,7 +481,7 @@ function updateCounters() {
   }
 }
 
-/* RENDER LOGS */
+/* RENDER */
 
 function renderLogs() {
   const area = document.getElementById("logsArea");
@@ -541,6 +511,24 @@ function renderRegionLogs() {
   logs.forEach(log => {
     area.innerHTML += `
       <div class="log">
+        🏪 ${log.store}<br>
+        ${log.text}<br>
+        <small>${log.time}</small>
+      </div>
+    `;
+  });
+}
+
+function renderAdminLogs() {
+  const area = document.getElementById("adminLogs");
+  if (!area) return;
+
+  area.innerHTML = "";
+
+  logs.forEach(log => {
+    area.innerHTML += `
+      <div class="log">
+        🏢 ${log.company || "-"}<br>
         🏪 ${log.store}<br>
         ${log.text}<br>
         <small>${log.time}</small>

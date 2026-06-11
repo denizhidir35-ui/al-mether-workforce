@@ -34,9 +34,7 @@
 
 <div id="storePage" class="card panel">
 <h2>Mağaza Seç</h2>
-
 <select id="storeSelect"></select>
-
 <button class="mainBtn blue" onclick="saveStore()">Devam Et</button>
 </div>
 
@@ -126,8 +124,24 @@
 <div id="regionPanel" class="panel">
 <div class="card">
 <h2>Bölge Müdürü Paneli</h2>
-
 <div class="logs" id="regionLogs"></div>
+<button class="loginBtn gray" onclick="goHome()">Ana Sayfa</button>
+</div>
+</div>
+
+<div id="adminPanel" class="panel">
+<div class="card">
+<h2>Admin Paneli</h2>
+
+<div class="status">
+9-9-999 master erişim aktif
+</div>
+
+<button class="mainBtn green" onclick="openPersonPanel()">Personel Terminali</button>
+<button class="mainBtn blue" onclick="openManagerLogin()">Yönetici / Yetkili Paneli</button>
+<button class="mainBtn purple" onclick="openRegionLogin()">Bölge Müdürü Paneli</button>
+
+<div class="logs" id="adminLogs"></div>
 
 <button class="loginBtn gray" onclick="goHome()">Ana Sayfa</button>
 </div>
