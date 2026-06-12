@@ -605,19 +605,56 @@ function renderRegionDashboard() {
   renderRegionLogs();
 }
 
-function renderRegionStoreSelect() {
-  const select = $("regionManagerStoreSelect");
-  if (!select) return;
+function renderRegionStores() {
+  const area = $("regionStoreList");
+  if (!area) return;
 
   const stores = storesDB.filter(s => s.company_code === selectedCompany);
 
-  select.innerHTML = "";
+  if (!stores.length) {
+    area.innerHTML = `<div class="log">Henüz mağaza yok.</div>`;
+    return;
+  }
+
+  area.innerHTML = "";
 
   stores.forEach(store => {
-    const option = document.createElement("option");
-    option.value = store.code;
-    option.textContent = store.name + " / " + store.code;
-    select.appendChild(option);
+    const managers = managersDB.filter(m => m.store_code === store.code);
+    const personnel = personnelDB.filter(p => p.store_code === store.code);
+
+    const activeCount = users.filter(
+      u => u.store === store.code && u.status === "ACTIVE"
+    ).length;
+
+    const breakCount = users.filter(
+      u => u.store === store.code && u.status === "BREAK"
+    ).length;
+
+    const gps = store.latitude && store.longitude ? "GPS aktif" : "GPS yok";
+
+    area.innerHTML += `
+      <div class="log">
+        <b>🏬 ${escapeHTML(store.name)}</b><br>
+        Kod: ${escapeHTML(store.code)}<br>
+        Yönetici: ${managers.length}<br>
+        Personel: ${personnel.length}<br>
+        Aktif: ${activeCount} | Molada: ${breakCount}<br>
+        ${gps}<br>
+
+        <button class="loginBtn blue" onclick="showStoreQR('${escapeHTML(store.code)}','${escapeHTML(store.name)}')">
+          QR Göster
+        </button>
+
+        <button class="loginBtn green" onclick="selectStoreFromCard('${escapeHTML(store.code)}')">
+          Bu Mağazayı Yönet
+        </button>
+
+        <div id="qrBox-${escapeHTML(store.code)}" style="display:none;text-align:center;margin-top:12px;background:white;color:#0f172a;padding:12px;border-radius:14px;">
+          <canvas id="qrCanvas-${escapeHTML(store.code)}"></canvas>
+          <div style="margin-top:8px;font-weight:bold;">${escapeHTML(store.code)}</div>
+        </div>
+      </div>
+    `;
   });
 }
 
@@ -675,21 +712,30 @@ function renderRegionManagers() {
   const area = $("regionManagerList");
   if (!area) return;
 
-  const managers = managersDB.filter(m => m.company_code === selectedCompany);
+  const stores = storesDB.filter(s => s.company_code === selectedCompany);
 
-  if (!managers.length) {
-    area.innerHTML = `<div class="log">Henüz yönetici yok.</div>`;
+  if (!stores.length) {
+    area.innerHTML = `<div class="log">Mağaza yok.</div>`;
     return;
   }
 
   area.innerHTML = "";
 
-  managers.forEach(m => {
+  stores.forEach(store => {
+    const managers = managersDB.filter(m => m.store_code === store.code);
+
     area.innerHTML += `
       <div class="log">
-        <b>👔 ${escapeHTML(m.name)}</b><br>
-        Kod: ${escapeHTML(m.code)}<br>
-        Mağaza: ${escapeHTML(m.store_code)}
+        <b>🏬 ${escapeHTML(store.name)}</b><br>
+        Kod: ${escapeHTML(store.code)}<br>
+        ${
+          managers.length
+            ? managers.map(m => `
+              👔 ${escapeHTML(m.name)}<br>
+              Kod: ${escapeHTML(m.code)}<br><br>
+            `).join("")
+            : "Bu mağazada yönetici yok."
+        }
       </div>
     `;
   });
@@ -699,22 +745,30 @@ function renderRegionPersonnel() {
   const area = $("regionPersonnelList");
   if (!area) return;
 
-  const personnel = personnelDB.filter(p => p.company_code === selectedCompany);
+  const stores = storesDB.filter(s => s.company_code === selectedCompany);
 
-  if (!personnel.length) {
-    area.innerHTML = `<div class="log">Henüz personel yok.</div>`;
+  if (!stores.length) {
+    area.innerHTML = `<div class="log">Mağaza yok.</div>`;
     return;
   }
 
   area.innerHTML = "";
 
-  personnel.forEach(p => {
+  stores.forEach(store => {
+    const personnel = personnelDB.filter(p => p.store_code === store.code);
+
     area.innerHTML += `
       <div class="log">
-        <b>👤 ${escapeHTML(p.full_name)}</b><br>
-        Kod: ${escapeHTML(p.personnel_code)}<br>
-        Mağaza: ${escapeHTML(p.store_code)}<br>
-        Tür: ${p.personnel_type === "FULL" ? "Full Personel" : "Part Time"}
+        <b>🏬 ${escapeHTML(store.name)}</b><br>
+        Kod: ${escapeHTML(store.code)}<br>
+        Personel Sayısı: ${personnel.length}<br>
+        ${
+          personnel.length
+            ? personnel.map(p => `
+              👤 ${escapeHTML(p.full_name)} / ${escapeHTML(p.personnel_code)}<br>
+            `).join("")
+            : "Bu mağazada personel yok."
+        }
       </div>
     `;
   });
