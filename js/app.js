@@ -659,17 +659,31 @@ function renderRegionStores() {
 }
 
 function renderRegionCounts() {
-  const storeCount = $("regionStoreCount");
-  const managerCount = $("regionManagerCount");
-  const personnelCount = $("regionPersonnelCount");
-
   const stores = storesDB.filter(s => s.company_code === selectedCompany);
   const managers = managersDB.filter(m => m.company_code === selectedCompany);
   const personnel = personnelDB.filter(p => p.company_code === selectedCompany);
 
-  if (storeCount) storeCount.innerText = stores.length;
-  if (managerCount) managerCount.innerText = managers.length;
-  if (personnelCount) personnelCount.innerText = personnel.length;
+  const activeCount = users.filter(
+    u => stores.some(s => s.code === u.store) && u.status === "ACTIVE"
+  ).length;
+
+  const breakCount = users.filter(
+    u => stores.some(s => s.code === u.store) && u.status === "BREAK"
+  ).length;
+
+  const today = new Date().toISOString().slice(0, 10);
+
+  const todayLogs = logs.filter(l => {
+    if (!l.created_at) return false;
+    return l.created_at.slice(0, 10) === today && l.company_code === selectedCompany;
+  });
+
+  if ($("regionStoreCount")) $("regionStoreCount").innerText = stores.length;
+  if ($("regionManagerCount")) $("regionManagerCount").innerText = managers.length;
+  if ($("regionPersonnelCount")) $("regionPersonnelCount").innerText = personnel.length;
+  if ($("regionActiveCount")) $("regionActiveCount").innerText = activeCount;
+  if ($("regionBreakCount")) $("regionBreakCount").innerText = breakCount;
+  if ($("regionTodayLogCount")) $("regionTodayLogCount").innerText = todayLogs.length;
 }
 
 function renderRegionStores() {
@@ -1523,26 +1537,24 @@ function updateCounters() {
   }
 }
 
-function renderAdminLogs() {
-  const area = $("adminLogs");
-  if (!area) return;
+function renderAdminDashboardCounters() {
+  const today = new Date().toISOString().slice(0, 10);
 
-  area.innerHTML = `
-    <div class="log">
-      <b>Sistem Özeti</b><br>
-      Şirket Sayısı: ${Object.keys(companies).length}<br>
-      Mağaza Sayısı: ${storesDB.length}<br>
-      Seçili Şirket: ${escapeHTML(selectedCompany || "-")}<br>
-      Seçili Mağaza: ${escapeHTML(selectedStore || "-")}<br>
-      Yönetici Sayısı: ${managersDB.length}<br>
-      Bölge Müdürü Sayısı: ${regionsDB.length}<br>
-      Personel Sayısı: ${personnelDB.length}<br>
-      Aktif İçeride: ${users.length}<br>
-      Log Sayısı: ${logs.length}<br>
-      Onay Bekleyen: ${pendingApprovals.length}<br>
-      Veri Kaynağı: Supabase
-    </div>
-  `;
+  const todayLogs = logs.filter(l => {
+    if (!l.created_at) return false;
+    return l.created_at.slice(0, 10) === today;
+  });
+
+  const todayLogin = todayLogs.filter(l => l.action === "LOGIN").length;
+  const todayExit = todayLogs.filter(l => l.action === "EXIT").length;
+
+  if ($("adminCompanyCount")) $("adminCompanyCount").innerText = Object.keys(companies).length;
+  if ($("adminStoreCount")) $("adminStoreCount").innerText = storesDB.length;
+  if ($("adminManagerCount")) $("adminManagerCount").innerText = managersDB.length;
+  if ($("adminPersonnelCount")) $("adminPersonnelCount").innerText = personnelDB.length;
+  if ($("adminTodayLoginCount")) $("adminTodayLoginCount").innerText = todayLogin;
+  if ($("adminTodayExitCount")) $("adminTodayExitCount").innerText = todayExit;
+}
 
   storesDB.forEach(store => {
     area.innerHTML += `
