@@ -1,4 +1,4 @@
-/* AL METHER WORKFORCE - APP.JS v3.3 SUPABASE SAAS */
+/* AL METHER WORKFORCE - APP.JS v3.6 STABLE SUPABASE */
 
 const MASTER_CODE = "9-9-999";
 const MASTER_PASSWORD = "1234";
@@ -70,6 +70,13 @@ async function initApp() {
   await seedDefaultData();
   await loadAllData();
 
+  if (selectedCompany && !companies[selectedCompany]) {
+    selectedCompany = null;
+    selectedStore = null;
+    localStorage.removeItem("selectedCompany");
+    localStorage.removeItem("selectedStore");
+  }
+
   renderCompanyOptions();
 
   hideAll();
@@ -87,42 +94,39 @@ async function initApp() {
   renderLogs();
   renderRegionDashboard();
   renderAdminLogs();
-  await renderPersonnelList();
 
-  console.log("AL METHER WORKFORCE APP v3.3 SUPABASE LOADED");
+  console.log("AL METHER WORKFORCE APP v3.6 LOADED");
 }
 
 async function seedDefaultData() {
-  const { data } = await supabaseClient.from("companies").select("*");
+  const { data, error } = await supabaseClient.from("companies").select("*");
+
+  if (error) {
+    console.error("Supabase companies read error:", error.message);
+    return;
+  }
 
   if (data && data.length > 0) return;
 
-  await supabaseClient.from("companies").insert([
-    { code: "POZITIF", name: "Pozitif Matbaa" },
+  await supabaseClient.from("companies").upsert([
     { code: "SKX", name: "Skechers" },
-    { code: "LTB", name: "LTB" },
     { code: "DEMO", name: "Demo Firma" }
-  ]);
+  ], { onConflict: "code" });
 
-  await supabaseClient.from("stores").insert([
-    { company_code: "POZITIF", code: "POZ-M001", name: "Pozitif Matbaa - Merkez", radius: 150 },
+  await supabaseClient.from("stores").upsert([
     { company_code: "SKX", code: "SKX-M085", name: "SKX - M085", radius: 150 },
     { company_code: "SKX", code: "SKX-M086", name: "SKX - M086", radius: 150 },
-    { company_code: "LTB", code: "LTB-M201", name: "LTB - M201", radius: 150 },
     { company_code: "DEMO", code: "DEMO-M001", name: "Demo Mağaza", radius: 150 }
-  ]);
+  ], { onConflict: "code" });
 
-  await supabaseClient.from("managers").insert([
+  await supabaseClient.from("managers").upsert([
     { company_code: "SKX", store_code: "SKX-M085", code: "M085-ADMIN", name: "M085 Yönetici", password: "1234" },
-    { company_code: "SKX", store_code: "SKX-M086", code: "M086-ADMIN", name: "M086 Yönetici", password: "1234" },
-    { company_code: "LTB", store_code: "LTB-M201", code: "LTB-ADMIN", name: "LTB Yönetici", password: "1234" },
-    { company_code: "POZITIF", store_code: "POZ-M001", code: "POZ-ADMIN", name: "Pozitif Yönetici", password: "1234" },
-    { company_code: "DEMO", store_code: "DEMO-M001", code: "DEMO-ADMIN", name: "Demo Yönetici", password: "1234" }
-  ]);
+    { company_code: "SKX", store_code: "SKX-M086", code: "M086-ADMIN", name: "M086 Yönetici", password: "1234" }
+  ], { onConflict: "code" });
 
-  await supabaseClient.from("regions").insert([
+  await supabaseClient.from("regions").upsert([
     { code: "BOLGE-ADMIN", name: "Bölge Müdürü", password: "1234" }
-  ]);
+  ], { onConflict: "code" });
 }
 
 async function loadAllData() {
@@ -134,6 +138,13 @@ async function loadAllData() {
     supabaseClient.from("regions").select("*").order("created_at", { ascending: false }),
     supabaseClient.from("attendance_logs").select("*").order("created_at", { ascending: false }).limit(300)
   ]);
+
+  if (companiesRes.error) console.error("companies error:", companiesRes.error.message);
+  if (storesRes.error) console.error("stores error:", storesRes.error.message);
+  if (personnelRes.error) console.error("personnel error:", personnelRes.error.message);
+  if (managersRes.error) console.error("managers error:", managersRes.error.message);
+  if (regionsRes.error) console.error("regions error:", regionsRes.error.message);
+  if (logsRes.error) console.error("logs error:", logsRes.error.message);
 
   companies = {};
 
@@ -257,7 +268,17 @@ function renderCompanyOptions() {
 
   select.innerHTML = "";
 
-  Object.keys(companies).forEach(code => {
+  const keys = Object.keys(companies);
+
+  if (keys.length === 0) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = "Şirket bulunamadı";
+    select.appendChild(option);
+    return;
+  }
+
+  keys.forEach(code => {
     const option = document.createElement("option");
     option.value = code;
     option.textContent = companies[code].name || code;
@@ -277,6 +298,14 @@ function renderStoreOptions() {
 
   const list = companies[selectedCompany]?.stores || [];
 
+  if (list.length === 0) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = "Mağaza bulunamadı";
+    select.appendChild(option);
+    return;
+  }
+
   list.forEach(store => {
     const option = document.createElement("option");
     option.value = store.code;
@@ -287,6 +316,12 @@ function renderStoreOptions() {
 
 function saveCompany() {
   selectedCompany = $("companySelect").value;
+
+  if (!selectedCompany || !companies[selectedCompany]) {
+    toast("Şirket seçilmedi");
+    return;
+  }
+
   selectedStore = null;
 
   localStorage.setItem("selectedCompany", selectedCompany);
@@ -605,56 +640,27 @@ function renderRegionDashboard() {
   renderRegionLogs();
 }
 
-function renderRegionStores() {
-  const area = $("regionStoreList");
-  if (!area) return;
+function renderRegionStoreSelect() {
+  const select = $("regionManagerStoreSelect");
+  if (!select) return;
 
   const stores = storesDB.filter(s => s.company_code === selectedCompany);
 
-  if (!stores.length) {
-    area.innerHTML = `<div class="log">Henüz mağaza yok.</div>`;
+  select.innerHTML = "";
+
+  if (stores.length === 0) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = "Mağaza yok";
+    select.appendChild(option);
     return;
   }
 
-  area.innerHTML = "";
-
   stores.forEach(store => {
-    const managers = managersDB.filter(m => m.store_code === store.code);
-    const personnel = personnelDB.filter(p => p.store_code === store.code);
-
-    const activeCount = users.filter(
-      u => u.store === store.code && u.status === "ACTIVE"
-    ).length;
-
-    const breakCount = users.filter(
-      u => u.store === store.code && u.status === "BREAK"
-    ).length;
-
-    const gps = store.latitude && store.longitude ? "GPS aktif" : "GPS yok";
-
-    area.innerHTML += `
-      <div class="log">
-        <b>🏬 ${escapeHTML(store.name)}</b><br>
-        Kod: ${escapeHTML(store.code)}<br>
-        Yönetici: ${managers.length}<br>
-        Personel: ${personnel.length}<br>
-        Aktif: ${activeCount} | Molada: ${breakCount}<br>
-        ${gps}<br>
-
-        <button class="loginBtn blue" onclick="showStoreQR('${escapeHTML(store.code)}','${escapeHTML(store.name)}')">
-          QR Göster
-        </button>
-
-        <button class="loginBtn green" onclick="selectStoreFromCard('${escapeHTML(store.code)}')">
-          Bu Mağazayı Yönet
-        </button>
-
-        <div id="qrBox-${escapeHTML(store.code)}" style="display:none;text-align:center;margin-top:12px;background:white;color:#0f172a;padding:12px;border-radius:14px;">
-          <canvas id="qrCanvas-${escapeHTML(store.code)}"></canvas>
-          <div style="margin-top:8px;font-weight:bold;">${escapeHTML(store.code)}</div>
-        </div>
-      </div>
-    `;
+    const option = document.createElement("option");
+    option.value = store.code;
+    option.textContent = store.name + " / " + store.code;
+    select.appendChild(option);
   });
 }
 
@@ -700,19 +706,25 @@ function renderRegionStores() {
   area.innerHTML = "";
 
   stores.forEach(store => {
-    const gps = store.latitude && store.longitude ? "GPS var" : "GPS yok";
+    const managers = managersDB.filter(m => m.store_code === store.code);
+    const personnel = personnelDB.filter(p => p.store_code === store.code);
+
+    const activeCount = users.filter(u => u.store === store.code && u.status === "ACTIVE").length;
+    const breakCount = users.filter(u => u.store === store.code && u.status === "BREAK").length;
+    const gps = store.latitude && store.longitude ? "GPS aktif" : "GPS yok";
 
     area.innerHTML += `
       <div class="log">
         <b>🏬 ${escapeHTML(store.name)}</b><br>
         Kod: ${escapeHTML(store.code)}<br>
+        Yönetici: ${managers.length}<br>
+        Personel: ${personnel.length}<br>
+        Aktif: ${activeCount} | Molada: ${breakCount}<br>
         ${gps}<br>
-        <button class="loginBtn blue" onclick="showStoreQR('${escapeHTML(store.code)}','${escapeHTML(store.name)}')">
-          QR Göster
-        </button>
-        <button class="loginBtn green" onclick="selectStoreFromCard('${escapeHTML(store.code)}')">
-          Bu Mağazayı Seç
-        </button>
+
+        <button class="loginBtn blue" onclick="showStoreQR('${escapeHTML(store.code)}')">QR Göster</button>
+        <button class="loginBtn green" onclick="selectStoreFromCard('${escapeHTML(store.code)}')">Bu Mağazayı Yönet</button>
+
         <div id="qrBox-${escapeHTML(store.code)}" style="display:none;text-align:center;margin-top:12px;background:white;color:#0f172a;padding:12px;border-radius:14px;">
           <canvas id="qrCanvas-${escapeHTML(store.code)}"></canvas>
           <div style="margin-top:8px;font-weight:bold;">${escapeHTML(store.code)}</div>
@@ -778,9 +790,7 @@ function renderRegionPersonnel() {
         Personel Sayısı: ${personnel.length}<br>
         ${
           personnel.length
-            ? personnel.map(p => `
-              👤 ${escapeHTML(p.full_name)} / ${escapeHTML(p.personnel_code)}<br>
-            `).join("")
+            ? personnel.map(p => `👤 ${escapeHTML(p.full_name)} / ${escapeHTML(p.personnel_code)}<br>`).join("")
             : "Bu mağazada personel yok."
         }
       </div>
@@ -820,7 +830,7 @@ function selectStoreFromCard(storeCode) {
   renderRegionDashboard();
 }
 
-function showStoreQR(storeCode, storeName) {
+function showStoreQR(storeCode) {
   const box = $("qrBox-" + storeCode);
   const canvas = $("qrCanvas-" + storeCode);
 
@@ -831,9 +841,7 @@ function showStoreQR(storeCode, storeName) {
     return;
   }
 
-  const isVisible = box.style.display === "block";
-
-  if (isVisible) {
+  if (box.style.display === "block") {
     box.style.display = "none";
     return;
   }
@@ -864,9 +872,7 @@ async function managerLogin() {
 
   await loadAllData();
 
-  const manager = managersDB.find(
-    m => m.code === code && m.password === password
-  );
+  const manager = managersDB.find(m => m.code === code && m.password === password);
 
   if (!manager) {
     toast("Bilgiler yanlış");
@@ -1556,18 +1562,37 @@ function renderAdminDashboardCounters() {
   if ($("adminTodayExitCount")) $("adminTodayExitCount").innerText = todayExit;
 }
 
+function renderAdminLogs() {
+  const area = $("adminLogs");
+  if (!area) return;
+
+  renderAdminDashboardCounters();
+
+  area.innerHTML = `
+    <div class="log">
+      <b>Sistem Özeti</b><br>
+      Şirket Sayısı: ${Object.keys(companies).length}<br>
+      Mağaza Sayısı: ${storesDB.length}<br>
+      Seçili Şirket: ${escapeHTML(selectedCompany || "-")}<br>
+      Seçili Mağaza: ${escapeHTML(selectedStore || "-")}<br>
+      Yönetici Sayısı: ${managersDB.length}<br>
+      Bölge Müdürü Sayısı: ${regionsDB.length}<br>
+      Personel Sayısı: ${personnelDB.length}<br>
+      Aktif İçeride: ${users.length}<br>
+      Log Sayısı: ${logs.length}<br>
+      Onay Bekleyen: ${pendingApprovals.length}<br>
+      Veri Kaynağı: Supabase
+    </div>
+  `;
+
   storesDB.forEach(store => {
     area.innerHTML += `
       <div class="log">
         <b>🏬 ${escapeHTML(store.name)}</b><br>
         Şirket: ${escapeHTML(store.company_code)}<br>
         Kod: ${escapeHTML(store.code)}<br>
-        <button class="loginBtn blue" onclick="showStoreQR('${escapeHTML(store.code)}','${escapeHTML(store.name)}')">
-          QR Göster
-        </button>
-        <button class="loginBtn green" onclick="selectStoreFromCard('${escapeHTML(store.code)}')">
-          Seç
-        </button>
+        <button class="loginBtn blue" onclick="showStoreQR('${escapeHTML(store.code)}')">QR Göster</button>
+        <button class="loginBtn green" onclick="selectStoreFromCard('${escapeHTML(store.code)}')">Seç</button>
         <div id="qrBox-${escapeHTML(store.code)}" style="display:none;text-align:center;margin-top:12px;background:white;color:#0f172a;padding:12px;border-radius:14px;">
           <canvas id="qrCanvas-${escapeHTML(store.code)}"></canvas>
           <div style="margin-top:8px;font-weight:bold;">${escapeHTML(store.code)}</div>
