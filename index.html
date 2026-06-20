@@ -15,231 +15,230 @@
 
 <div class="container">
 
-<div class="logo">
-<h1>AL Mether</h1>
-<p>Workforce Platform</p>
-</div>
-
-<div id="companyPage" class="card">
-<h2>Şirket Seç</h2>
-<select id="companySelect"></select>
-<button class="mainBtn blue" onclick="saveCompany()">Devam Et</button>
-</div>
-
-<div id="storePage" class="card panel">
-<h2>Mağaza Seç</h2>
-<select id="storeSelect"></select>
-<button class="mainBtn blue" onclick="saveStore()">Devam Et</button>
-</div>
-
-<div id="homePage" class="panel">
-<div class="card">
-<button class="mainBtn green" onclick="openPersonPanel()">Personel Terminali</button>
-<button class="mainBtn blue" onclick="openManagerLogin()">Yönetici Girişi</button>
-<button class="mainBtn purple" onclick="openRegionLogin()">Bölge Müdürü</button>
-</div>
-</div>
-
-<div id="personPanel" class="panel">
-<div class="card">
-<h2>Personel Terminali</h2>
+  <div class="logo">
+    <h1>AL Mether</h1>
+    <p>Workforce Platform</p>
+  </div>
+
+  <!-- ŞİRKET SEÇ -->
+  <div id="companyPage" class="card">
+    <h2>Şirket Seç</h2>
+    <select id="companySelect"></select>
+    <button class="mainBtn blue" onclick="saveCompany()">Devam Et</button>
+  </div>
 
-<input id="personCode" placeholder="Personel Kodu">
+  <!-- MAĞAZA SEÇ -->
+  <div id="storePage" class="card panel">
+    <h2>Mağaza Seç</h2>
+    <select id="storeSelect"></select>
+    <button class="mainBtn blue" onclick="saveStore()">Devam Et</button>
+  </div>
+
+  <!-- ANA MENÜ -->
+  <div id="homePage" class="panel">
+    <div class="card homeCard">
+      <h2>İşlem Seç</h2>
+      <p class="subText">Personel, yönetici veya bölge müdürü girişi yapın.</p>
 
-<div class="actionBox">
-<button id="loginAction" class="actionBtn green selectedAction" onclick="setAction('LOGIN')">Giriş</button>
-<button id="breakAction" class="actionBtn orange" onclick="setAction('BREAK')">Mola</button>
-<button id="returnAction" class="actionBtn blue" onclick="setAction('RETURN')">Mola Bitir</button>
-<button id="exitAction" class="actionBtn red" onclick="setAction('EXIT')">Çıkış</button>
-</div>
+      <button class="mainBtn green" onclick="openPersonPanel()">Personel Terminali</button>
+      <button class="mainBtn blue" onclick="openManagerLogin()">Yönetici Girişi</button>
+      <button class="mainBtn purple" onclick="openRegionLogin()">Bölge Müdürü</button>
 
-<button class="loginBtn blue" onclick="startQRScanner()">MAĞAZA QR OKUT</button>
-<div id="reader"></div>
+      <button class="miniBtn" onclick="resetSelection()">Şirket / Mağaza Değiştir</button>
+    </div>
+  </div>
 
-<button class="loginBtn gray" onclick="goHome()">Geri</button>
-<div class="status">AL Mether Workforce v3.5</div>
-</div>
-</div>
+  <!-- PERSONEL TERMİNALİ -->
+  <div id="personPanel" class="panel">
+    <div class="card">
+      <h2>Personel Terminali</h2>
+      <p class="subText">Personel kodunu gir, işlem seç ve mağaza QR kodunu okut.</p>
+
+      <input id="personCode" placeholder="Personel Kodu">
+
+      <div class="actionBox">
+        <button id="loginAction" class="actionBtn green selectedAction" onclick="setAction('LOGIN')">Giriş</button>
+        <button id="breakAction" class="actionBtn orange" onclick="setAction('BREAK')">Mola</button>
+        <button id="returnAction" class="actionBtn blue" onclick="setAction('RETURN')">Mola Bitir</button>
+        <button id="exitAction" class="actionBtn red" onclick="setAction('EXIT')">Çıkış</button>
+      </div>
 
-<div id="managerLoginPanel" class="panel">
-<div class="card">
-<h2>Yönetici Girişi</h2>
+      <button class="loginBtn blue" onclick="startQRScanner()">Mağaza QR Okut</button>
+
+      <div id="reader"></div>
 
-<input id="managerCode" placeholder="Yönetici Kodu">
-<input id="managerPassword" type="password" placeholder="Şifre">
+      <button class="loginBtn gray" onclick="goHome()">Ana Sayfa</button>
+      <div class="status">AL Mether Workforce v4.0</div>
+    </div>
+  </div>
 
-<button class="loginBtn blue" onclick="managerLogin()">Giriş Yap</button>
-<button class="loginBtn gray" onclick="goHome()">Geri</button>
-</div>
-</div>
+  <!-- YÖNETİCİ GİRİŞ -->
+  <div id="managerLoginPanel" class="panel">
+    <div class="card">
+      <h2>Yönetici Girişi</h2>
+      <p class="subText">Mağaza yöneticisi personel ve hareketleri yönetir.</p>
 
-<div id="managerPanel" class="panel">
-<div class="card">
-<h2>Yönetici Paneli</h2>
+      <input id="managerCode" placeholder="Yönetici Kodu">
+      <input id="managerPassword" type="password" placeholder="Şifre">
 
-<div class="counterArea">
-<div class="counter activeBox"><div id="activeCount">0</div><div>Aktif</div></div>
-<div class="counter breakBox"><div id="breakCount">0</div><div>Molada</div></div>
-<div class="counter exitBox"><div id="exitCount">0</div><div>Çıkış</div></div>
-</div>
+      <button class="loginBtn blue" onclick="managerLogin()">Giriş Yap</button>
+      <button class="loginBtn gray" onclick="goHome()">Geri</button>
+    </div>
+  </div>
 
-<h3 style="margin-top:20px;">Personel Ekle</h3>
+  <!-- YÖNETİCİ PANELİ -->
+  <div id="managerPanel" class="panel">
+    <div class="card">
 
-<input id="newPersonName" placeholder="Ad Soyad">
-<input id="newPersonCode" placeholder="Personel Kodu">
+      <h2>Yönetici Paneli</h2>
 
-<select id="newPersonType">
-<option value="FULL">Full Personel</option>
-<option value="PART">Part Time</option>
-</select>
+      <div class="counterArea">
+        <div class="counter activeBox"><div id="activeCount">0</div><span>Aktif</span></div>
+        <div class="counter breakBox"><div id="breakCount">0</div><span>Molada</span></div>
+        <div class="counter exitBox"><div id="exitCount">0</div><span>Çıkış</span></div>
+      </div>
 
-<input id="newPersonHours" type="number" placeholder="Haftalık Saat Örn: 45">
+      <h3>Personel Ekle</h3>
 
-<button class="loginBtn green" onclick="addPersonnel()">Personel Ekle</button>
+      <input id="newPersonName" placeholder="Ad Soyad">
+      <input id="newPersonCode" placeholder="Personel Kodu">
 
-<h3 style="margin-top:20px;">Personel Listesi</h3>
-<div id="personnelList"></div>
+      <select id="newPersonType">
+        <option value="FULL">Full Personel</option>
+        <option value="PART">Part Time</option>
+      </select>
 
-<div id="pendingArea"></div>
+      <input id="newPersonHours" type="number" placeholder="Haftalık Saat Örn: 45">
 
-<h3 style="margin-top:20px;">Mağaza Hareketleri</h3>
-<div class="logs" id="logsArea"></div>
+      <button class="loginBtn green" onclick="addPersonnel()">Personel Ekle</button>
 
-<button class="loginBtn gray" onclick="goHome()">Ana Sayfa</button>
-</div>
-</div>
+      <h3>Personel Listesi</h3>
+      <div id="personnelList"></div>
 
-<div id="regionLoginPanel" class="panel">
-<div class="card">
-<h2>Bölge Müdürü Girişi</h2>
+      <div id="pendingArea"></div>
 
-<input id="regionCode" placeholder="Kod">
-<input id="regionPassword" type="password" placeholder="Şifre">
+      <h3>Mağaza Hareketleri</h3>
+      <div class="logs" id="logsArea"></div>
 
-<button class="loginBtn purple" onclick="regionLogin()">Giriş Yap</button>
-<button class="loginBtn gray" onclick="goHome()">Geri</button>
-</div>
-</div>
+      <button class="loginBtn gray" onclick="goHome()">Ana Sayfa</button>
 
-<div id="regionPanel" class="panel">
-<div class="card">
+    </div>
+  </div>
 
-<h2>Bölge Müdürü Paneli</h2>
+  <!-- BÖLGE MÜDÜRÜ GİRİŞ -->
+  <div id="regionLoginPanel" class="panel">
+    <div class="card">
+      <h2>Bölge Müdürü Girişi</h2>
+      <p class="subText">Bölge müdürü mağaza bazlı yönetim yapar.</p>
 
-<div class="counterArea">
-<div class="counter activeBox"><div id="regionStoreCount">0</div><div>Mağaza</div></div>
-<div class="counter breakBox"><div id="regionManagerCount">0</div><div>Yönetici</div></div>
-<div class="counter exitBox"><div id="regionPersonnelCount">0</div><div>Personel</div></div>
-</div>
+      <input id="regionCode" placeholder="Bölge Müdürü Kodu">
+      <input id="regionPassword" type="password" placeholder="Şifre">
 
-<div class="counterArea">
-<div class="counter activeBox"><div id="regionActiveCount">0</div><div>Aktif</div></div>
-<div class="counter breakBox"><div id="regionBreakCount">0</div><div>Molada</div></div>
-<div class="counter exitBox"><div id="regionTodayLogCount">0</div><div>Bugünkü Hareket</div></div>
-</div>
+      <button class="loginBtn purple" onclick="regionLogin()">Giriş Yap</button>
+      <button class="loginBtn gray" onclick="goHome()">Geri</button>
+    </div>
+  </div>
 
-<h3 style="margin-top:25px;">1. Mağaza Kurulumu</h3>
+  <!-- BÖLGE MÜDÜRÜ PANELİ -->
+  <div id="regionPanel" class="panel">
+    <div class="card">
 
-<input id="regionStoreName" placeholder="Mağaza Adı Örn: Agora Skechers">
-<input id="regionStoreCode" placeholder="Mağaza Kodu Örn: M085">
+      <h2>Bölge Müdürü Paneli</h2>
 
-<button class="loginBtn purple" onclick="regionUseCurrentLocation()">GPS Konumumu Al</button>
+      <div class="counterArea">
+        <div class="counter activeBox"><div id="regionStoreCount">0</div><span>Mağaza</span></div>
+        <div class="counter breakBox"><div id="regionManagerCount">0</div><span>Yönetici</span></div>
+        <div class="counter exitBox"><div id="regionPersonnelCount">0</div><span>Personel</span></div>
+      </div>
 
-<input id="regionStoreLat" placeholder="Enlem otomatik dolar">
-<input id="regionStoreLng" placeholder="Boylam otomatik dolar">
+      <div class="counterArea">
+        <div class="counter activeBox"><div id="regionActiveCount">0</div><span>Aktif</span></div>
+        <div class="counter breakBox"><div id="regionBreakCount">0</div><span>Molada</span></div>
+        <div class="counter exitBox"><div id="regionTodayLogCount">0</div><span>Hareket</span></div>
+      </div>
 
-<button class="loginBtn green" onclick="regionAddStore()">Mağaza Ekle / Seç</button>
+      <h3>Mağaza Bazlı Yönetim</h3>
+      <div class="logs" id="regionStoreList"></div>
 
-<h3 style="margin-top:25px;">2. Yönetici Ekle / Mağazaya Ata</h3>
+      <h3>Yönetici Ekle / Ata</h3>
 
-<input id="regionManagerName" placeholder="Yönetici Ad Soyad">
-<input id="regionManagerCode" placeholder="Yönetici Kodu">
-<input id="regionManagerPassword" placeholder="Yönetici Şifre">
+      <input id="regionManagerName" placeholder="Yönetici Ad Soyad">
+      <input id="regionManagerCode" placeholder="Yönetici Kodu">
+      <input id="regionManagerPassword" placeholder="Yönetici Şifre">
 
-<select id="regionManagerStoreSelect"></select>
+      <select id="regionManagerStoreSelect"></select>
 
-<button class="loginBtn blue" onclick="regionAddManager()">Yönetici Ekle / Ata</button>
+      <button class="loginBtn blue" onclick="regionAddManager()">Yönetici Ekle / Ata</button>
 
-<h3 style="margin-top:25px;">3. Mağaza Bazlı Yönetim</h3>
-<div class="logs" id="regionStoreList"></div>
+      <h3>Yöneticiler</h3>
+      <div class="logs" id="regionManagerList"></div>
 
-<h3 style="margin-top:25px;">4. Yöneticiler</h3>
-<div class="logs" id="regionManagerList"></div>
+      <h3>Personeller</h3>
+      <div class="logs" id="regionPersonnelList"></div>
 
-<h3 style="margin-top:25px;">5. Personeller</h3>
-<div class="logs" id="regionPersonnelList"></div>
+      <h3>Hareketler</h3>
+      <div class="logs" id="regionLogs"></div>
 
-<h3 style="margin-top:25px;">6. Hareketler</h3>
-<div class="logs" id="regionLogs"></div>
+      <button class="loginBtn gray" onclick="goHome()">Ana Sayfa</button>
 
-<button class="loginBtn gray" onclick="goHome()">Ana Sayfa</button>
+    </div>
+  </div>
 
-</div>
-</div>
+  <!-- ADMIN PANELİ - GİZLİ MASTER PANEL -->
+  <div id="adminPanel" class="panel">
+    <div class="card">
 
-<div id="adminPanel" class="panel">
-<div class="card">
+      <h2>Admin Paneli</h2>
+      <div class="status">Master erişim · Kurulum paneli</div>
 
-<h2>Admin Paneli</h2>
+      <div class="counterArea">
+        <div class="counter activeBox"><div id="adminCompanyCount">0</div><span>Şirket</span></div>
+        <div class="counter breakBox"><div id="adminStoreCount">0</div><span>Mağaza</span></div>
+        <div class="counter exitBox"><div id="adminManagerCount">0</div><span>Yönetici</span></div>
+      </div>
 
-<div class="status">9-9-999 master erişim aktif · Supabase canlı veri</div>
+      <div class="counterArea">
+        <div class="counter activeBox"><div id="adminPersonnelCount">0</div><span>Personel</span></div>
+        <div class="counter breakBox"><div id="adminTodayLoginCount">0</div><span>Giriş</span></div>
+        <div class="counter exitBox"><div id="adminTodayExitCount">0</div><span>Çıkış</span></div>
+      </div>
 
-<div class="counterArea">
-<div class="counter activeBox"><div id="adminCompanyCount">0</div><div>Şirket</div></div>
-<div class="counter breakBox"><div id="adminStoreCount">0</div><div>Mağaza</div></div>
-<div class="counter exitBox"><div id="adminManagerCount">0</div><div>Yönetici</div></div>
-</div>
+      <h3>Şirket Kurulumu</h3>
+      <input id="adminCompanyName" placeholder="Şirket Adı">
+      <input id="adminCompanyCode" placeholder="Şirket Kodu">
+      <button class="loginBtn green" onclick="adminAddCompany()">Şirket Ekle / Seç</button>
 
-<div class="counterArea">
-<div class="counter activeBox"><div id="adminPersonnelCount">0</div><div>Personel</div></div>
-<div class="counter breakBox"><div id="adminTodayLoginCount">0</div><div>Bugünkü Giriş</div></div>
-<div class="counter exitBox"><div id="adminTodayExitCount">0</div><div>Bugünkü Çıkış</div></div>
-</div>
+      <h3>Mağaza Kurulumu</h3>
+      <input id="adminStoreName" placeholder="Mağaza Adı">
+      <input id="adminStoreCode" placeholder="Mağaza Kodu">
 
-<h3 style="margin-top:20px;">1. Şirket Kurulumu</h3>
+      <button class="loginBtn purple" onclick="adminUseCurrentLocation()">GPS Konumumu Al</button>
 
-<input id="adminCompanyName" placeholder="Şirket Adı Örn: Skechers">
-<input id="adminCompanyCode" placeholder="Şirket Kodu Örn: SKX">
+      <input id="adminStoreLat" placeholder="Enlem otomatik dolar">
+      <input id="adminStoreLng" placeholder="Boylam otomatik dolar">
 
-<button class="loginBtn green" onclick="adminAddCompany()">Şirket Ekle / Seç</button>
+      <button class="loginBtn green" onclick="adminAddStore()">Mağaza Ekle / Seç</button>
 
-<h3 style="margin-top:25px;">2. Mağaza Kurulumu</h3>
+      <h3>Yönetici Ekle</h3>
+      <input id="adminManagerName" placeholder="Yönetici Ad Soyad">
+      <input id="adminManagerCode" placeholder="Yönetici Kodu">
+      <input id="adminManagerPassword" placeholder="Yönetici Şifre">
+      <button class="loginBtn blue" onclick="adminAddManager()">Yönetici Ekle</button>
 
-<input id="adminStoreName" placeholder="Mağaza Adı Örn: Marmara Forum">
-<input id="adminStoreCode" placeholder="Mağaza Kodu Örn: SKX-M090">
+      <h3>Bölge Müdürü Ekle</h3>
+      <input id="adminRegionName" placeholder="Bölge Müdürü Ad Soyad">
+      <input id="adminRegionCode" placeholder="Bölge Müdürü Kodu">
+      <input id="adminRegionPassword" placeholder="Bölge Müdürü Şifre">
+      <button class="loginBtn purple" onclick="adminAddRegion()">Bölge Müdürü Ekle</button>
 
-<button class="loginBtn purple" onclick="adminUseCurrentLocation()">GPS Konumumu Al</button>
+      <h3>Sistem Özeti</h3>
+      <div class="logs" id="adminLogs"></div>
 
-<input id="adminStoreLat" placeholder="Enlem otomatik dolar">
-<input id="adminStoreLng" placeholder="Boylam otomatik dolar">
+      <button class="loginBtn red" onclick="adminResetSystem()">Sistemi Sıfırla</button>
+      <button class="loginBtn gray" onclick="goHome()">Ana Sayfa</button>
 
-<button class="loginBtn green" onclick="adminAddStore()">Mağaza Ekle / Seç</button>
-
-<h3 style="margin-top:25px;">3. Yönetici Ekle</h3>
-
-<input id="adminManagerName" placeholder="Yönetici Ad Soyad">
-<input id="adminManagerCode" placeholder="Yönetici Kodu">
-<input id="adminManagerPassword" placeholder="Yönetici Şifre">
-
-<button class="loginBtn blue" onclick="adminAddManager()">Yönetici Ekle</button>
-
-<h3 style="margin-top:25px;">4. Bölge Müdürü Ekle</h3>
-
-<input id="adminRegionName" placeholder="Bölge Müdürü Ad Soyad">
-<input id="adminRegionCode" placeholder="Bölge Müdürü Kodu">
-<input id="adminRegionPassword" placeholder="Bölge Müdürü Şifre">
-
-<button class="loginBtn purple" onclick="adminAddRegion()">Bölge Müdürü Ekle</button>
-
-<h3 style="margin-top:25px;">5. Sistem Özeti</h3>
-
-<div class="logs" id="adminLogs"></div>
-
-<button class="loginBtn red" onclick="adminResetSystem()">Sistemi Sıfırla</button>
-<button class="loginBtn gray" onclick="goHome()">Ana Sayfa</button>
-
-</div>
-</div>
+    </div>
+  </div>
 
 </div>
 
